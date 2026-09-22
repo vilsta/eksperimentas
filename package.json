@@ -1,8 +1,0 @@
-{
-  "name": "diagramos-tyrimas-fullstack",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "engines": { "node": ">=22.5.0" },
-  "scripts": { "start": "node server.js" }
-}
