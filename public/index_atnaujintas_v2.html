@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagramos tipo parinkimo tyrimas</title>
+  <style>
+    :root{
+      --blue:#4054bf;--blue-dark:#3549ad;--ink:#171b25;--muted:#65718a;--line:#e1e6ef;
+      --card:#fff;--shadow:0 3px 12px rgba(31,41,55,.12);--green:#58a655;--soft:#f5f7ff;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%}
+    body{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--ink);background:linear-gradient(115deg,#f2f6ff 0%,#fbfcff 50%,#effcff 100%)}
+    button,input{font:inherit} button{cursor:pointer}.hidden{display:none!important}.muted{color:var(--muted)}
+
+    .shell{width:min(1080px,calc(100% - 40px));min-height:100vh;margin:0 auto;padding:76px 0 22px;display:flex;flex-direction:column}
+    .top{display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:48px}
+    .brand{color:var(--blue);font-size:46px;line-height:1.05;font-weight:900;letter-spacing:.2px;text-transform:uppercase}
+    #intro-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:0 0 52px}
+
+    .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+    .intro-card{width:min(950px,100%);margin:0 auto;padding:66px 70px 64px;text-align:center}
+    .intro-card h1{margin:0 0 22px;font-size:37px;letter-spacing:-.7px}
+    .intro-card p{margin:0 auto 36px;color:#647087;line-height:1.65;max-width:760px;font-size:17px}
+
+    .primary{border:0;border-radius:9px;background:var(--blue);color:#fff;font-weight:750;min-height:49px;padding:0 28px;font-size:17px}
+    .primary:hover{background:var(--blue-dark)}
+    .primary.wide{min-width:220px}
+    .secondary{border:1px solid #ccd5e5;border-radius:9px;background:#fff;color:#40506c;font-weight:650;min-height:45px;padding:0 18px}
+
+    .task-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:10px}
+    .task-header h1{margin:0;font-size:22px}.stepcount{font-size:13px;color:#6a768c}
+    .progress{height:7px;background:#e4e9f2;border-radius:999px;overflow:hidden;margin-bottom:22px}.progress span{display:block;height:100%;background:var(--blue);transition:width .25s ease}
+
+    .chart-card{overflow:hidden}
+    .chart-title{text-align:center;font-weight:700;padding:18px 16px 4px;color:#30384a}
+    .chart-area{height:300px;padding:12px 26px 22px;display:grid;place-items:center;background:linear-gradient(#fff,#fcfdff)}
+    .chart-area svg{width:min(760px,100%);height:250px}.chart-area img{max-width:100%;max-height:250px;object-fit:contain;border-radius:8px}
+    .task-content{padding:23px 28px 28px;border-top:1px solid #edf0f5}
+    .task-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .pill{display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:12px;border:1px solid #aab9ea;color:#4160c8;background:#fbfcff}
+    .task-content h2{margin:0 0 7px;font-size:21px;line-height:1.4}
+    .hint{font-size:12px;color:#7a8699;margin-bottom:16px}
+
+    .answers{display:grid;gap:9px}.answer-option{border:1px solid #dfe4ec;border-radius:9px;padding:12px 14px;display:flex;gap:11px;align-items:center;background:#fff;transition:.15s}
+    .answer-option:hover{border-color:#9dacdf;background:#fafbff}.answer-option:has(input:checked){border-color:#6e80d4;background:#f4f6ff}
+    .answer-option input{accent-color:var(--blue)}
+    .answer-input{width:100%;height:48px;border:1px solid #d5dce7;border-radius:9px;padding:0 13px;outline:0}.answer-input:focus{border-color:#7184db;box-shadow:0 0 0 3px rgba(64,84,191,.1)}
+
+    .ratings{margin-top:22px;padding-top:20px;border-top:1px solid #e7ebf2}.ratings h3{margin:0 0 4px;font-size:16px}.ratings>p{margin:0 0 14px;color:#7b8799;font-size:12px}
+    .rating-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.rating-block>label{font-size:12px;font-weight:700;color:#515d72;display:block;margin-bottom:7px;line-height:1.35}
+    .rating-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.rating-scale input{display:none}.rating-scale label{display:grid;place-items:center;height:39px;border:1px solid #d7deea;border-radius:7px;background:#fff;cursor:pointer;font-weight:650;color:#5c677b}
+    .rating-scale input:checked+label{background:#eef1ff;border-color:#6e7fd3;color:var(--blue)}
+    .scale-caption{display:flex;justify-content:space-between;gap:10px;color:#8a95a8;font-size:10px;margin-top:5px}.scale-caption span:last-child{text-align:right}
+    .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+
+    .finish-card{max-width:720px;margin:95px auto 0;padding:42px 44px;text-align:center}
+    .finish-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 18px;background:#eff8ee;color:#4e9850;display:grid;place-items:center;font-size:34px;font-weight:800}
+    .finish-card h1{margin:0 0 12px;font-size:30px}.finish-card p{color:#66738a;line-height:1.65;margin:0 auto 12px;max-width:590px}
+    .survey-box{margin:26px 0 22px;padding:21px;border-radius:12px;background:#f7f8ff;border:1px solid #dfe4fb}.survey-box strong{display:block;font-size:17px;margin-bottom:7px}.survey-box span{display:block;color:#6c7890;font-size:14px;line-height:1.5;margin-bottom:17px}
+    .small-note{font-size:11px!important;color:#8b95a7!important}
+
+
+    .survey-card{max-width:860px;margin:38px auto 0;padding:30px 32px}
+    .survey-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:10px}
+    .survey-head h1{margin:0;font-size:27px;letter-spacing:-.35px}
+    .survey-head p{margin:5px 0 0;color:#718097;font-size:14px}
+    .survey-stepcount{font-size:13px;color:#6a768c;white-space:nowrap}
+    .survey-progress{height:7px;background:#e4e9f2;border-radius:999px;overflow:hidden;margin:16px 0 25px}
+    .survey-progress span{display:block;height:100%;background:var(--blue);transition:width .25s ease}
+    .survey-section-title{margin:0 0 7px;font-size:20px}
+    .survey-section-copy{margin:0 0 20px;color:#738097;font-size:13px;line-height:1.55}
+    .survey-question{padding:17px 0;border-top:1px solid #edf0f5}
+    .survey-question:first-of-type{border-top:0}
+    .survey-question-title{font-size:15px;font-weight:700;line-height:1.45;margin-bottom:10px;color:#30394c}
+    .survey-likert{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    .survey-likert input{display:none}
+    .survey-likert label{min-height:43px;border:1px solid #d8deea;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;color:#59667c;font-weight:700;cursor:pointer;transition:.15s}
+    .survey-likert label:hover{border-color:#9dacdf;background:#fafbff}
+    .survey-likert input:checked+label{background:#eef1ff;border-color:#6e7fd3;color:var(--blue)}
+    .survey-scale-legend{display:flex;justify-content:space-between;gap:10px;color:#8a95a8;font-size:10px;margin-top:6px}
+    .survey-scale-legend span:last-child{text-align:right}
+    .survey-textarea{width:100%;min-height:108px;resize:vertical;border:1px solid #d5dce7;border-radius:9px;padding:12px 13px;outline:0;font:inherit;color:var(--ink);background:#fff}
+    .survey-textarea:focus{border-color:#7184db;box-shadow:0 0 0 3px rgba(64,84,191,.1)}
+    .survey-actions{display:flex;justify-content:space-between;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid #edf0f5}
+    .survey-complete-card{max-width:700px;margin:95px auto 0;padding:42px 44px;text-align:center}
+    .survey-complete-card h1{margin:0 0 12px;font-size:30px}
+    .survey-complete-card p{color:#66738a;line-height:1.65;margin:0 auto;max-width:560px}
+
+    .contact-footer{margin-top:auto;padding:18px 8px 2px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#6f7b90;font-size:13px;text-align:center}
+    .linkedin-link{display:inline-flex;align-items:center;gap:7px;color:var(--blue);font-weight:750;text-decoration:none;padding:7px 10px;border-radius:8px;transition:background .15s ease,color .15s ease,transform .15s ease}
+    .linkedin-link:hover{background:#eef1ff;color:var(--blue-dark);transform:translateY(-1px)}
+    .linkedin-link:focus-visible{outline:3px solid rgba(64,84,191,.22);outline-offset:2px}
+    .linkedin-icon{width:20px;height:20px;display:block;flex:none}
+
+    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#202737;color:#fff;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.18);font-size:13px;z-index:1000}
+
+    @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.survey-card{padding:25px 22px}}
+    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.survey-card{margin-top:20px;padding:24px 18px}.survey-head{align-items:flex-start;flex-direction:column}.survey-head h1{font-size:24px}.survey-actions{flex-direction:column-reverse}.survey-actions button{width:100%}.survey-complete-card{margin-top:45px;padding:30px 20px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand">Diagramos tipo parinkimo tyrimas</div>
+    </header>
+
+    <section id="intro-screen">
+      <div class="card intro-card">
+        <h1>Sveiki!</h1>
+        <p>
+          Esu Viltė Stankutė, KTU Veiklos skaitmeninimo ir sistemų architektūros magistro studijų programos antro kurso studentė. Savo magistro baigiamajame darbe ,,Diagramos tipo parinkimo kuriant duomenų vizualizacijas rekomendacijų paieška ir eksperimentiniai tyrimai’’ nagrinėju duomenų vizualizacijų suvokimą ir jų kokybę.
+        </p>
+        <p>
+          Kviečiu dalyvauti trumpame eksperimente, kurio metu bus vertinamas duomenų vizualizacijų suvokimas. Jums bus pateiktos įvairios diagramos ir klausimai apie jose pateikiamą informaciją. Po kiekvienos užduoties taip pat trumpai įvertinsite pateiktą vizualizaciją.
+        </p>
+        <button class="primary wide" id="start-btn">Pradėti</button>
+      </div>
+    </section>
+
+    <section id="task-screen" class="hidden">
+      <div class="task-header">
+        <h1>Eksperimento užduotis</h1>
+        <div class="stepcount" id="stepcount">1 / 10</div>
+      </div>
+      <div class="progress"><span id="progressbar" style="width:10%"></span></div>
+      <div class="card chart-card">
+        <div class="chart-title" id="chart-title"></div>
+        <div class="chart-area" id="chart-area"></div>
+        <div class="task-content">
+          <h2 id="question-text"></h2>
+          <div class="hint" id="question-hint"></div>
+          <div id="answer-area"></div>
+
+          <div class="ratings">
+            <h3>Papildomi vertinimai</h3>
+            <p>Pažymėkite po vieną atsakymą kiekvienoje skalėje.</p>
+            <div class="rating-grid" id="rating-grid"></div>
+          </div>
+
+          <div class="actions"><button class="primary" id="next-btn">Toliau</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="finish-screen" class="hidden">
+      <div class="card finish-card">
+        <div class="finish-icon">✓</div>
+        <h1>Ačiū už dalyvavimą!</h1>
+        <p>Ačiū, jog skyrėte laiko ir atsakėte į visus klausimus.</p>
+
+        <div class="survey-box">
+          <strong>Dar vienas trumpas žingsnis</strong>
+          <span>Kviečiu sudalyvauti trumpoje apklausoje apie šios sistemos kokybę ir naudojimosi patirtį. Jūsų įvertinimas padės patobulinti sistemą, o apklausa užtruks vos 5 minutes.</span>
+          <button class="primary wide" id="survey-btn">Dalyvauti 5 min. apklausoje</button>
+        </div>
+        <p class="small-note">Apklausa atliekama čia pat sistemoje. Atsakymai išsaugomi kartu su eksperimento sesija.</p>
+      </div>
+    </section>
+
+    <section id="survey-screen" class="hidden">
+      <div class="card survey-card">
+        <div class="survey-head">
+          <div>
+            <h1>Sistemos kokybės apklausa</h1>
+            <p>Įvertinkite naudojimosi sistema patirtį. Apklausą sudaro 3 trumpos dalys.</p>
+          </div>
+          <div class="survey-stepcount" id="survey-stepcount">1 / 3</div>
+        </div>
+        <div class="survey-progress"><span id="survey-progressbar" style="width:33.33%"></span></div>
+        <div id="survey-content"></div>
+        <div class="survey-actions">
+          <button class="secondary" id="survey-prev-btn">Atgal</button>
+          <button class="primary" id="survey-next-btn">Toliau</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="survey-complete-screen" class="hidden">
+      <div class="card survey-complete-card">
+        <div class="finish-icon">✓</div>
+        <h1>Ačiū už jūsų įvertinimą!</h1>
+        <p>Apklausa pateikta sėkmingai. Jūsų atsakymai padės įvertinti sistemos naudojimo kokybę ir nustatyti, ką verta tobulinti.</p>
+      </div>
+    </section>
+    <footer class="contact-footer">
+      <span>Jeigu turite klausimų, galime bendrauti per</span>
+      <!-- Pakeiskite href reikšmę savo LinkedIn profilio nuoroda. -->
+      <a class="linkedin-link" href="https://lt.linkedin.com/in/viltė-stankutė-094b0a268" target="_blank" rel="noopener noreferrer" aria-label="Susisiekti per LinkedIn">
+        <svg class="linkedin-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor"/>
+          <circle cx="7.1" cy="8" r="1.35" fill="white"/>
+          <rect x="5.95" y="10" width="2.3" height="7.6" rx=".4" fill="white"/>
+          <path d="M10.2 10h2.2v1.05c.68-.82 1.62-1.28 2.9-1.28 2.22 0 3.75 1.44 3.75 4.28v3.55h-2.33v-3.31c0-1.58-.58-2.38-1.78-2.38-1.33 0-2.11.91-2.11 2.57v3.12H10.5V10z" fill="white"/>
+        </svg>
+        <span>LinkedIn</span>
+      </a>
+    </footer>
+  </main>
+
+  <script>
+    let questions = [];
+
+    let index = 0;
+    let taskStartedAt = 0;
+    let session = null;
+    let surveyStep = 0;
+    let surveyResponse = {answers:{}, likes:'', improvements:''};
+
+    const surveySections = [
+      {
+        title:'Naudojimosi paprastumas',
+        copy:'Įvertinkite, kiek sutinkate su kiekvienu teiginiu.',
+        questions:[
+          ['ease','Sistema buvo lengva naudotis.'],
+          ['instructions','Buvo aišku, ką reikia daryti kiekviename žingsnyje.'],
+          ['navigation','Navigacija tarp užduočių buvo paprasta.'],
+          ['controls','Atsakymo ir vertinimo elementus buvo lengva suprasti.']
+        ]
+      },
+      {
+        title:'Sąsajos ir techninė kokybė',
+        copy:'Įvertinkite pateikimo aiškumą ir sistemos veikimą jūsų įrenginyje.',
+        questions:[
+          ['readability','Tekstas, diagramos ir kiti elementai buvo lengvai įskaitomi.'],
+          ['consistency','Sąsajos išdėstymas ir valdymas buvo nuoseklūs.'],
+          ['speed','Sistema reagavo pakankamai greitai į mano veiksmus.'],
+          ['device','Sistema patogiai veikė mano naudotame įrenginyje.']
+        ]
+      },
+      {
+        title:'Bendras įvertinimas',
+        copy:'Paskutiniai klausimai apie bendrą naudojimosi patirtį. Tekstiniai komentarai nėra privalomi.',
+        questions:[
+          ['confidence','Naudodamasis sistema jaučiausi užtikrintai.'],
+          ['overall','Bendra naudojimosi sistema patirtis buvo gera.']
+        ],
+        textFields:true
+      }
+    ];
+
+    const intro = document.getElementById('intro-screen');
+    const task = document.getElementById('task-screen');
+    const finish = document.getElementById('finish-screen');
+    const surveyScreen = document.getElementById('survey-screen');
+    const surveyComplete = document.getElementById('survey-complete-screen');
+
+    document.getElementById('start-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('start-btn');
+      btn.disabled = true; btn.textContent = 'Pradedama...';
+      try {
+        const data = await api('/api/public/start', {
+          method:'POST',
+          body: JSON.stringify({ device: detectDevice() })
+        });
+        session = { id:data.sessionId, participantLabel:data.participantLabel, startedAt:new Date().toISOString() };
+        questions = data.questions || [];
+        if (!questions.length) throw new Error('Eksperimente nėra aktyvių klausimų.');
+        index = 0;
+        intro.classList.add('hidden');
+        task.classList.remove('hidden');
+        renderQuestion();
+      } catch (e) {
+        toast(e.message || 'Nepavyko pradėti eksperimento.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Pradėti';
+      }
+    });
+
+    document.getElementById('next-btn').addEventListener('click', async () => {
+      const q = questions[index];
+      const answer = getAnswer(q);
+      const ratings = {
+        clarity: document.querySelector('input[name="clarity"]:checked')?.value || '',
+        appeal: document.querySelector('input[name="appeal"]:checked')?.value || '',
+        difficulty: document.querySelector('input[name="difficulty"]:checked')?.value || ''
+      };
+
+      if (!answer || (Array.isArray(answer) && !answer.length)) return toast('Pateikite atsakymą į klausimą.');
+      if (!ratings.clarity || !ratings.appeal || !ratings.difficulty) return toast('Įvertinkite visas tris skales.');
+
+      const btn = document.getElementById('next-btn');
+      btn.disabled = true; btn.textContent = 'Išsaugoma...';
+      try {
+        await api(`/api/public/sessions/${encodeURIComponent(session.id)}/answer`, {
+          method:'POST',
+          body: JSON.stringify({
+            questionId:q.id,
+            answer,
+            elapsedSeconds:Math.max(1,Math.round((Date.now()-taskStartedAt)/1000)),
+            clarity:Number(ratings.clarity),
+            appeal:Number(ratings.appeal),
+            difficulty:Number(ratings.difficulty)
+          })
+        });
+        index++;
+        if (index >= questions.length) await completeExperiment();
+        else renderQuestion();
+      } catch (e) {
+        toast(e.message || 'Nepavyko išsaugoti atsakymo.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Toliau';
+      }
+    });
+
+    document.getElementById('survey-btn').addEventListener('click', () => {
+      surveyStep = 0;
+      surveyResponse = {answers:{}, likes:'', improvements:''};
+      finish.classList.add('hidden');
+      surveyScreen.classList.remove('hidden');
+      renderSurveyStep();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    document.getElementById('survey-prev-btn').addEventListener('click', () => {
+      if (surveyStep === 0) return;
+      saveSurveyStepInputs();
+      surveyStep--;
+      renderSurveyStep();
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+
+    document.getElementById('survey-next-btn').addEventListener('click', () => {
+      if (!validateSurveyStep()) return;
+      saveSurveyStepInputs();
+      if (surveyStep < surveySections.length - 1) {
+        surveyStep++;
+        renderSurveyStep();
+        window.scrollTo({top:0,behavior:'smooth'});
+      } else {
+        completeSurvey();
+      }
+    });
+
+    function renderSurveyStep(){
+      const section = surveySections[surveyStep];
+      document.getElementById('survey-stepcount').textContent = `${surveyStep+1} / ${surveySections.length}`;
+      document.getElementById('survey-progressbar').style.width = `${((surveyStep+1)/surveySections.length)*100}%`;
+      const surveyPrevBtn = document.getElementById('survey-prev-btn');
+      surveyPrevBtn.textContent = 'Atgal';
+      surveyPrevBtn.classList.toggle('hidden', surveyStep === 0);
+      document.getElementById('survey-next-btn').textContent = surveyStep === surveySections.length - 1 ? 'Pateikti apklausą' : 'Toliau';
+
+      const questionsHtml = section.questions.map(([key,title]) => {
+        const selected = surveyResponse.answers[key] || '';
+        return `<div class="survey-question">
+          <div class="survey-question-title">${escapeHtml(title)}</div>
+          <div class="survey-likert">
+            ${[1,2,3,4,5].map(v => `<input id="survey-${key}-${v}" type="radio" name="survey-${key}" value="${v}" ${String(selected)===String(v)?'checked':''}><label for="survey-${key}-${v}">${v}</label>`).join('')}
+          </div>
+          <div class="survey-scale-legend"><span>1 – visiškai nesutinku</span><span>5 – visiškai sutinku</span></div>
+        </div>`;
+      }).join('');
+
+      const textHtml = section.textFields ? `
+        <div class="survey-question">
+          <div class="survey-question-title">Kas naudojantis sistema jums labiausiai patiko? <span class="muted">(neprivaloma)</span></div>
+          <textarea class="survey-textarea" id="survey-likes" placeholder="Įrašykite komentarą...">${escapeHtml(surveyResponse.likes)}</textarea>
+        </div>
+        <div class="survey-question">
+          <div class="survey-question-title">Ką sistemoje, jūsų nuomone, reikėtų patobulinti? <span class="muted">(neprivaloma)</span></div>
+          <textarea class="survey-textarea" id="survey-improvements" placeholder="Įrašykite komentarą...">${escapeHtml(surveyResponse.improvements)}</textarea>
+        </div>` : '';
+
+      document.getElementById('survey-content').innerHTML = `
+        <h2 class="survey-section-title">${escapeHtml(section.title)}</h2>
+        <p class="survey-section-copy">${escapeHtml(section.copy)}</p>
+        ${questionsHtml}
+        ${textHtml}`;
+    }
+
+    function validateSurveyStep(){
+      const section = surveySections[surveyStep];
+      const missing = section.questions.some(([key]) => !document.querySelector(`input[name="survey-${key}"]:checked`));
+      if (missing) {
+        toast('Atsakykite į visus šios dalies vertinimo klausimus.');
+        return false;
+      }
+      return true;
+    }
+
+    function saveSurveyStepInputs(){
+      const section = surveySections[surveyStep];
+      section.questions.forEach(([key]) => {
+        const selected = document.querySelector(`input[name="survey-${key}"]:checked`);
+        if (selected) surveyResponse.answers[key] = Number(selected.value);
+      });
+      if (section.textFields) {
+        surveyResponse.likes = document.getElementById('survey-likes')?.value.trim() || '';
+        surveyResponse.improvements = document.getElementById('survey-improvements')?.value.trim() || '';
+      }
+    }
+
+    async function completeSurvey(){
+      try {
+        await api(`/api/public/sessions/${encodeURIComponent(session.id)}/survey`, {
+          method:'POST',
+          body: JSON.stringify({
+            answers:{...surveyResponse.answers},
+            likes:surveyResponse.likes,
+            improvements:surveyResponse.improvements
+          })
+        });
+        surveyScreen.classList.add('hidden');
+        surveyComplete.classList.remove('hidden');
+        window.scrollTo({top:0,behavior:'smooth'});
+      } catch (e) {
+        toast(e.message || 'Nepavyko pateikti apklausos.');
+      }
+    }
+
+    function renderQuestion(){
+      const q = questions[index];
+      taskStartedAt = Date.now();
+      document.getElementById('stepcount').textContent = `${index+1} / ${questions.length}`;
+      document.getElementById('progressbar').style.width = `${((index+1)/questions.length)*100}%`;
+      document.getElementById('chart-title').textContent = chartTitle(q);
+      document.getElementById('chart-area').innerHTML = q.image ? `<img src="${escapeHtml(q.image)}" alt="Klausimo paveikslėlis">` : chartSvg(q.chart);
+      document.getElementById('question-text').textContent = q.text;
+      document.getElementById('question-hint').textContent = q.format==='Keli pasirinkimai' ? 'Galite pažymėti daugiau nei vieną atsakymą.' : q.format==='Skaitinis atsakymas' ? 'Įrašykite skaitinį atsakymą.' : 'Pasirinkite vieną atsakymą.';
+      document.getElementById('answer-area').innerHTML = answerHtml(q);
+      document.getElementById('rating-grid').innerHTML = ratingHtml();
+      document.querySelectorAll('#rating-grid input[type="radio"]').forEach(input => { input.checked = false; });
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    async function completeExperiment(){
+      await api(`/api/public/sessions/${encodeURIComponent(session.id)}/complete`, { method:'POST' });
+      session.finishedAt = new Date().toISOString();
+      task.classList.add('hidden');
+      finish.classList.remove('hidden');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function answerHtml(q){
+      if (q.format==='Skaitinis atsakymas') return `<input class="answer-input" id="numeric-answer" type="number" inputmode="decimal" placeholder="Įrašykite atsakymą">`;
+      const type = q.format==='Keli pasirinkimai' ? 'checkbox' : 'radio';
+      return `<div class="answers">${q.options.map(o=>`<label class="answer-option"><input type="${type}" name="task-answer" value="${escapeHtml(o)}"><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
+    }
+
+    function getAnswer(q){
+      if(q.format==='Skaitinis atsakymas') return document.getElementById('numeric-answer')?.value.trim() || '';
+      const selected = [...document.querySelectorAll('input[name="task-answer"]:checked')].map(x=>x.value);
+      return q.format==='Keli pasirinkimai' ? selected : (selected[0] || '');
+    }
+
+    function ratingHtml(){
+      const groups = [
+        ['clarity','Ar diagrama buvo aiški?','Visiškai neaiški','Labai aiški'],
+        ['appeal','Ar diagrama jums vizualiai patraukli?','Visiškai nepatraukli','Labai patraukli'],
+        ['difficulty','Ar užduotis pareikalavo daug protinių pastangų?','Visiškai nesudėtinga','Labai sudėtinga']
+      ];
+      return groups.map(([name,title,left,right])=>`<div class="rating-block"><label>${title}</label><div class="rating-scale">${[1,2,3,4,5].map(v=>`<input id="${name}-${v}" type="radio" name="${name}" value="${v}" autocomplete="off"><label for="${name}-${v}">${v}</label>`).join('')}</div><div class="scale-caption"><span>${left}</span><span>${right}</span></div></div>`).join('');
+    }
+
+    function chartTitle(q){
+      if(q.id==='U3'||q.id==='U4') return 'Pardavimų pokytis 2019–2023 m.';
+      if(q.id==='U7'||q.id==='U8') return 'Reklamos išlaidų ir pardavimų ryšys';
+      if(q.id==='U5'||q.id==='U6') return 'Pardavimų pasiskirstymas pagal kategoriją';
+      return 'Duomenų vizualizacijos užduotis';
+    }
+
+    function chartSvg(type){
+      const w=720,h=240,px=42,py=22,base=`viewBox="0 0 ${w} ${h}" role="img" aria-label="Diagrama"`;
+      if(type==='line') return `<svg ${base}><line x1="${px}" y1="${h-py}" x2="${w-px}" y2="${h-py}" stroke="#cbd3e1"/><line x1="${px}" y1="${py}" x2="${px}" y2="${h-py}" stroke="#cbd3e1"/><polyline points="55,190 195,150 330,70 470,115 655,38" fill="none" stroke="#4054bf" stroke-width="5"/><g fill="#4054bf">${[[55,190],[195,150],[330,70],[470,115],[655,38]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6"/>`).join('')}</g><g font-size="13" fill="#6d778b"><text x="45" y="220">2019</text><text x="185" y="220">2020</text><text x="320" y="220">2021</text><text x="460" y="220">2022</text><text x="640" y="220">2023</text></g></svg>`;
+      if(type==='pie') return `<svg ${base}><g transform="translate(360 120)"><path d="M0 0 L0 -95 A95 95 0 0 1 89 -28 Z" fill="#4054bf"/><path d="M0 0 L89 -28 A95 95 0 0 1 40 86 Z" fill="#6e82dc"/><path d="M0 0 L40 86 A95 95 0 0 1 -91 23 Z" fill="#9fa9db"/><path d="M0 0 L-91 23 A95 95 0 0 1 0 -95 Z" fill="#c7cdee"/></g><g font-size="13" fill="#536079"><text x="472" y="80">A</text><text x="462" y="176">B</text><text x="244" y="179">C</text><text x="250" y="70">D</text></g></svg>`;
+      if(type==='scatter') return `<svg ${base}><line x1="${px}" y1="${h-py}" x2="${w-px}" y2="${h-py}" stroke="#cbd3e1"/><line x1="${px}" y1="${py}" x2="${px}" y2="${h-py}" stroke="#cbd3e1"/><g fill="#4054bf">${[[72,192],[112,171],[158,178],[210,145],[258,151],[307,120],[355,126],[421,89],[487,94],[552,62],[618,51],[505,188]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6"/>`).join('')}</g><text x="665" y="219" font-size="13" fill="#6d778b">X</text><text x="25" y="35" font-size="13" fill="#6d778b">Y</text></svg>`;
+      const vals=type==='contrast'?[45,72,38,66]:type==='barlabels'?[36,72,52,61]:[38,62,49,75];
+      const bw=90,gap=45,start=85,max=Math.max(...vals);
+      return `<svg ${base}><line x1="${px}" y1="${h-py}" x2="${w-px}" y2="${h-py}" stroke="#cbd3e1"/><g>${vals.map((v,i)=>{const hh=(h-2*py)*v/max,x=start+i*(bw+gap),y=h-py-hh;const fills=type==='contrast'?['#4054bf','#c8d1f5','#4054bf','#c8d1f5']:['#4054bf','#6275d0','#8493da','#a7b1e4'];return `<rect x="${x}" y="${y}" width="${bw}" height="${hh}" rx="5" fill="${fills[i]}"/>${type==='barlabels'?`<text x="${x+bw/2}" y="${y-8}" text-anchor="middle" font-size="14" fill="#4c5669">${v}</text>`:''}`}).join('')}</g><g font-size="13" fill="#6d778b">${['A','B','C','D'].map((t,i)=>`<text x="${start+i*(bw+gap)+bw/2}" y="${h-5}" text-anchor="middle">${t}</text>`).join('')}</g></svg>`;
+    }
+
+    async function api(url, options={}){
+      const response = await fetch(url, {
+        headers:{'Content-Type':'application/json', ...(options.headers||{})},
+        ...options
+      });
+      let data={};
+      try{ data = await response.json(); }catch{}
+      if(!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      return data;
+    }
+    function detectDevice(){ return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 760 ? 'Mobilusis' : 'Kompiuteris'; }
+
+    function toast(message){
+      document.querySelector('.toast')?.remove();
+      const el=document.createElement('div');el.className='toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
+    }
+    function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
+  </script>
+</body>
+</html>
