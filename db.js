@@ -110,12 +110,9 @@ CREATE TABLE IF NOT EXISTS participant_sessions (
   experiment_id INTEGER NOT NULL REFERENCES experiments(id) ON DELETE RESTRICT,
   participant_label TEXT NOT NULL,
   device_type TEXT DEFAULT '',
-  age_group TEXT DEFAULT '',
   gender TEXT DEFAULT '',
-  education_level TEXT DEFAULT '',
-  professional_field TEXT DEFAULT '',
-  experience_level INTEGER,
-  chart_frequency TEXT DEFAULT '',
+  study_field TEXT DEFAULT '',
+  visualization_usage_frequency TEXT DEFAULT '',
   data_analysis_experience INTEGER,
   status TEXT NOT NULL DEFAULT 'Vykdoma',
   question_order_json TEXT NOT NULL,
@@ -138,14 +135,6 @@ CREATE TABLE IF NOT EXISTS answers (
   UNIQUE(session_id, question_id)
 );
 
-CREATE TABLE IF NOT EXISTS quality_surveys (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  session_id TEXT NOT NULL UNIQUE REFERENCES participant_sessions(id) ON DELETE CASCADE,
-  answers_json TEXT NOT NULL,
-  likes TEXT DEFAULT '',
-  improvements TEXT DEFAULT '',
-  submitted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
 
 CREATE INDEX IF NOT EXISTS idx_answers_session ON answers(session_id);
 CREATE INDEX IF NOT EXISTS idx_answers_question ON answers(question_id);
