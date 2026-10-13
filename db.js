@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 
-const dataDir = path.join(process.cwd(), 'data');
+const dataDir = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 fs.mkdirSync(dataDir, { recursive: true });
 const dbPath = path.join(dataDir, 'experiment.db');
 export const db = new DatabaseSync(dbPath);

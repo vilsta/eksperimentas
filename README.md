@@ -16,7 +16,7 @@ Pilna lokaliai paleidžiama versija su:
 
 ## Reikalavimai
 
-Reikia Node.js 22.5 arba naujesnės versijos. Rekomenduojama naujausia LTS Node.js versija.
+Reikia Node.js 22.13 arba naujesnės versijos. Rekomenduojama naujausia LTS Node.js versija.
 
 Patikrinti:
 
@@ -71,6 +71,24 @@ cloudflared tunnel --url http://localhost:8000
 ```
 
 Cloudflare pateiks viešą HTTPS adresą. Dalyviams siųskite pagrindinę nuorodą, o tyrėjo portalas bus prieinamas pridėjus `/admin`.
+
+## Talpinimas internete (Railway)
+
+Sistema naudoja SQLite failą, todėl serveriui reikia **nuolatinio disko (volume)**, kitaip duomenys dings po kiekvieno perkrovimo.
+
+1. Prisijunkite prie https://railway.com su GitHub paskyra.
+2. **New Project → Deploy from GitHub repo** → pasirinkite `vilsta/eksperimentas` ir šaką, iš kurios diegsite.
+3. Serviso **Variables** skiltyje pridėkite:
+   - `DATA_DIR` = `/data`
+   - `ADMIN_EMAIL` = jūsų el. paštas
+   - `ADMIN_PASSWORD` = stiprus slaptažodis
+4. Serviso nustatymuose pridėkite **Volume**, kurio mount path `/data`.
+5. **Settings → Networking → Generate Domain** – gausite viešą HTTPS adresą.
+6. Palaukite, kol diegimas baigsis (Deployments → Active), ir patikrinkite:
+   - dalyvio portalas: `https://<adresas>/`
+   - tyrėjo portalas: `https://<adresas>/admin`
+
+`ADMIN_EMAIL` ir `ADMIN_PASSWORD` naudojami tik pirmą kartą sukuriant DB. Railway automatiškai paduoda `PORT`, o kiekvienas `git push` į pasirinktą šaką iš naujo įdiegia sistemą (duomenys volume lieka).
 
 ## Duomenų bazė
 

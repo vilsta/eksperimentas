@@ -196,6 +196,6 @@ server.listen(PORT,'0.0.0.0',()=>{
   console.log(`\nSistema paleista:`);
   console.log(`Dalyvio portalas: http://localhost:${PORT}`);
   console.log(`Tyrėjo portalas:  http://localhost:${PORT}/admin`);
-  console.log(`Duomenų bazė:     data/experiment.db`);
+  console.log(`Duomenų bazė:     ${path.join(process.env.DATA_DIR || 'data', 'experiment.db')}`);
   console.log(`\nSustabdyti: Ctrl + C\n`);
 });
