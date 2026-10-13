@@ -170,6 +170,8 @@ export function parseJSON(value, fallback = []) {
   try { return JSON.parse(value); } catch { return fallback; }
 }
 
+export const adminSetup = { envEmail: '', envPasswordLength: 0 };
+
 function seed() {
   // ADMIN_EMAIL ir ADMIN_PASSWORD taikomi kiekvieno paleidimo metu: jei nustatyti,
   // tyrėjo paskyra sukuriama arba jos slaptažodis atnaujinamas.
@@ -183,6 +185,8 @@ function seed() {
     const fallback = db.prepare("SELECT id,password_hash FROM users WHERE lower(email)='tyrejas@ktu.lt' AND lower(email)<>?").get(adminEmail);
     if (fallback && verifyPassword('prototipas', fallback.password_hash)) db.prepare('DELETE FROM users WHERE id=?').run(fallback.id);
   }
+  adminSetup.envEmail = adminEmail;
+  adminSetup.envPasswordLength = adminPassword.length;
   const users = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
   if (!users) {
     db.prepare('INSERT INTO users(email,password_hash,role) VALUES(?,?,?)')

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { db, parseJSON, questionToObject, getExperimentObject, replaceQuestionRelations, replaceExperimentRelations, verifyPassword, PROFILE_QUESTIONS } from './db.js';
+import { db, parseJSON, questionToObject, getExperimentObject, replaceQuestionRelations, replaceExperimentRelations, verifyPassword, PROFILE_QUESTIONS, adminSetup } from './db.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, 'public');
@@ -197,5 +197,9 @@ server.listen(PORT,'0.0.0.0',()=>{
   console.log(`Dalyvio portalas: http://localhost:${PORT}`);
   console.log(`Tyrėjo portalas:  http://localhost:${PORT}/admin`);
   console.log(`Duomenų bazė:     ${path.join(process.env.DATA_DIR || 'data', 'experiment.db')}`);
+  const accounts=db.prepare('SELECT email FROM users ORDER BY id').all().map(u=>u.email).join(', ')||'—';
+  console.log(`Kodo versija:     ${(process.env.RAILWAY_GIT_COMMIT_SHA||'lokali').slice(0,7)}`);
+  console.log(adminSetup.envEmail?`ADMIN_EMAIL:      ${adminSetup.envEmail} (slaptažodžio ilgis: ${adminSetup.envPasswordLength} simb.)`:'ADMIN_EMAIL/ADMIN_PASSWORD: nenustatyti arba tušti');
+  console.log(`Tyrėjo paskyros:  ${accounts}`);
   console.log(`\nSustabdyti: Ctrl + C\n`);
 });
