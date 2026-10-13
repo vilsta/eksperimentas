@@ -11,7 +11,7 @@ Pilna lokaliai paleidžiama versija su:
 - klausimo paveikslėlio saugojimu;
 - dalyvio atsakymų, laiko ir 1–5 vertinimų registravimu;
 - sesijos peržiūra su visais klausimais ir pasirinktais atsakymais;
-- sistemos kokybės apklausos saugojimu;
+- dalyvio profilio klausimais (lytis, amžiaus grupė, išsilavinimo / darbo sritis, darbo su vizualizacijomis dažnis, duomenų analizės patirtis);
 - rezultatų suvestine ir CSV eksportu.
 
 ## Reikalavimai
@@ -87,13 +87,12 @@ Jei norite visiškai naujos tuščios tyrimo DB su pradiniais klausimais ir hipo
 ## Duomenų srautas
 
 1. Tyrėjas `/admin` sukuria / redaguoja klausimus ir aktyvuoja eksperimentą.
-2. Dalyvis atidaro `/` ir spaudžia „Pradėti“.
-3. Backend sukuria sesiją SQLite DB ir grąžina aktyvaus eksperimento klausimus **be teisingų atsakymų**.
+2. Dalyvis atidaro `/`, spaudžia „Pradėti“ ir atsako į 5 profilio klausimus.
+3. Backend sukuria sesiją su dalyvio profiliu SQLite DB ir grąžina aktyvaus eksperimento klausimus **be teisingų atsakymų**.
 4. Po kiekvieno klausimo atsakymas, atlikimo laikas ir 3 Likerto vertinimai siunčiami į backend.
 5. Teisingumas nustatomas serveryje ir išsaugomas DB.
 6. Eksperimentui pasibaigus sesija pažymima „Užbaigta“.
-7. 5 min. sistemos kokybės apklausa įrašoma į tą pačią sesiją.
-8. Tyrėjas „Sesijos“ lange mato visus klausimus, dalyvio atsakymus ir apklausą.
+7. Tyrėjas „Sesijos“ lange mato dalyvio profilį, visus klausimus ir dalyvio atsakymus.
 
 ## Saugumas
 

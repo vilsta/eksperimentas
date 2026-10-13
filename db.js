@@ -146,6 +146,20 @@ CREATE INDEX IF NOT EXISTS idx_answers_question ON answers(question_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_experiment ON participant_sessions(experiment_id);
 `);
 
+// Dalyvio profilio klausimai, užduodami prieš eksperimentą.
+export const PROFILE_QUESTIONS = [
+  { key: 'gender', column: 'gender', title: 'Lytis', options: ['Moteris', 'Vyras', 'Kita', 'Nenoriu nurodyti'] },
+  { key: 'ageGroup', column: 'age_group', title: 'Amžiaus grupė', options: ['Iki 18 m.', '18–24 m.', '25–34 m.', '35–44 m.', '45–54 m.', '55–64 m.', '65 m. ir daugiau'] },
+  { key: 'field', column: 'field_area', title: 'Išsilavinimo arba darbo sritis', options: ['Informacinės technologijos', 'Duomenų analitika / statistika', 'Inžinerija / technologijos', 'Ekonomika / verslas / finansai', 'Vadyba / administravimas', 'Socialiniai mokslai', 'Humanitariniai mokslai / menai', 'Gamtos mokslai / medicina', 'Švietimas', 'Kita'] },
+  { key: 'vizFrequency', column: 'viz_frequency', title: 'Kaip dažnai dirbate su duomenų vizualizacijomis?', options: ['Niekada', 'Kelis kartus per metus', 'Kelis kartus per mėnesį', 'Kelis kartus per savaitę', 'Kasdien'] },
+  { key: 'analysisExperience', column: 'analysis_experience', title: 'Duomenų analizės patirtis', options: ['Neturiu patirties', 'Mažiau nei 1 metai', '1–3 metai', '3–5 metai', 'Daugiau nei 5 metai'] }
+];
+
+const sessionColumns = new Set(db.prepare('PRAGMA table_info(participant_sessions)').all().map(c => c.name));
+for (const { column } of PROFILE_QUESTIONS) {
+  if (!sessionColumns.has(column)) db.exec(`ALTER TABLE participant_sessions ADD COLUMN ${column} TEXT DEFAULT ''`);
+}
+
 function tx(fn) {
   db.exec('BEGIN');
   try { const result = fn(); db.exec('COMMIT'); return result; }

@@ -58,35 +58,20 @@
     .finish-card{max-width:720px;margin:95px auto 0;padding:42px 44px;text-align:center}
     .finish-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 18px;background:#eff8ee;color:#4e9850;display:grid;place-items:center;font-size:34px;font-weight:800}
     .finish-card h1{margin:0 0 12px;font-size:30px}.finish-card p{color:#66738a;line-height:1.65;margin:0 auto 12px;max-width:590px}
-    .survey-box{margin:26px 0 22px;padding:21px;border-radius:12px;background:#f7f8ff;border:1px solid #dfe4fb}.survey-box strong{display:block;font-size:17px;margin-bottom:7px}.survey-box span{display:block;color:#6c7890;font-size:14px;line-height:1.5;margin-bottom:17px}
-    .small-note{font-size:11px!important;color:#8b95a7!important}
 
 
-    .survey-card{max-width:860px;margin:38px auto 0;padding:30px 32px}
-    .survey-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:10px}
-    .survey-head h1{margin:0;font-size:27px;letter-spacing:-.35px}
-    .survey-head p{margin:5px 0 0;color:#718097;font-size:14px}
-    .survey-stepcount{font-size:13px;color:#6a768c;white-space:nowrap}
-    .survey-progress{height:7px;background:#e4e9f2;border-radius:999px;overflow:hidden;margin:16px 0 25px}
-    .survey-progress span{display:block;height:100%;background:var(--blue);transition:width .25s ease}
-    .survey-section-title{margin:0 0 7px;font-size:20px}
-    .survey-section-copy{margin:0 0 20px;color:#738097;font-size:13px;line-height:1.55}
-    .survey-question{padding:17px 0;border-top:1px solid #edf0f5}
-    .survey-question:first-of-type{border-top:0}
-    .survey-question-title{font-size:15px;font-weight:700;line-height:1.45;margin-bottom:10px;color:#30394c}
-    .survey-likert{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-    .survey-likert input{display:none}
-    .survey-likert label{min-height:43px;border:1px solid #d8deea;border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;color:#59667c;font-weight:700;cursor:pointer;transition:.15s}
-    .survey-likert label:hover{border-color:#9dacdf;background:#fafbff}
-    .survey-likert input:checked+label{background:#eef1ff;border-color:#6e7fd3;color:var(--blue)}
-    .survey-scale-legend{display:flex;justify-content:space-between;gap:10px;color:#8a95a8;font-size:10px;margin-top:6px}
-    .survey-scale-legend span:last-child{text-align:right}
-    .survey-textarea{width:100%;min-height:108px;resize:vertical;border:1px solid #d5dce7;border-radius:9px;padding:12px 13px;outline:0;font:inherit;color:var(--ink);background:#fff}
-    .survey-textarea:focus{border-color:#7184db;box-shadow:0 0 0 3px rgba(64,84,191,.1)}
-    .survey-actions{display:flex;justify-content:space-between;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid #edf0f5}
-    .survey-complete-card{max-width:700px;margin:95px auto 0;padding:42px 44px;text-align:center}
-    .survey-complete-card h1{margin:0 0 12px;font-size:30px}
-    .survey-complete-card p{color:#66738a;line-height:1.65;margin:0 auto;max-width:560px}
+    .profile-card{max-width:860px;margin:38px auto 0;padding:30px 32px}
+    .profile-card h1{margin:0 0 6px;font-size:27px;letter-spacing:-.35px}
+    .profile-card>p{margin:0 0 18px;color:#718097;font-size:14px;line-height:1.55}
+    .profile-question{padding:17px 0;border-top:1px solid #edf0f5}
+    .profile-question-title{font-size:15px;font-weight:700;line-height:1.45;margin-bottom:10px;color:#30394c}
+    .profile-options{display:flex;flex-wrap:wrap;gap:8px}
+    .profile-options input{position:absolute;opacity:0;pointer-events:none}
+    .profile-options label{min-height:41px;border:1px solid #d8deea;border-radius:8px;display:flex;align-items:center;padding:0 14px;background:#fff;color:#4c586e;font-weight:600;font-size:14px;cursor:pointer;transition:.15s}
+    .profile-options label:hover{border-color:#9dacdf;background:#fafbff}
+    .profile-options input:checked+label{background:#eef1ff;border-color:#6e7fd3;color:var(--blue)}
+    .profile-options input:focus-visible+label{outline:3px solid rgba(64,84,191,.22);outline-offset:2px}
+    .profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:20px;border-top:1px solid #edf0f5}
 
     .contact-footer{margin-top:auto;padding:18px 8px 2px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#6f7b90;font-size:13px;text-align:center}
     .linkedin-link{display:inline-flex;align-items:center;gap:7px;color:var(--blue);font-weight:750;text-decoration:none;padding:7px 10px;border-radius:8px;transition:background .15s ease,color .15s ease,transform .15s ease}
@@ -96,8 +81,8 @@
 
     .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#202737;color:#fff;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.18);font-size:13px;z-index:1000}
 
-    @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.survey-card{padding:25px 22px}}
-    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.survey-card{margin-top:20px;padding:24px 18px}.survey-head{align-items:flex-start;flex-direction:column}.survey-head h1{font-size:24px}.survey-actions{flex-direction:column-reverse}.survey-actions button{width:100%}.survey-complete-card{margin-top:45px;padding:30px 20px}}
+    @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.profile-card{padding:25px 22px}}
+    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.profile-card{margin-top:20px;padding:24px 18px}.profile-card h1{font-size:24px}.profile-actions{flex-direction:column}.profile-actions button{width:100%}}
   </style>
 </head>
 <body>
@@ -115,6 +100,15 @@
           Atsakykite pagal tai, ką matote ekrane, ir po kiekvienos užduoties trumpai įvertinkite vizualizaciją.
         </p>
         <button class="primary wide" id="start-btn">Pradėti</button>
+      </div>
+    </section>
+
+    <section id="profile-screen" class="hidden">
+      <div class="card profile-card">
+        <h1>Trumpai apie jus</h1>
+        <p>Prieš pradėdami eksperimentą atsakykite į kelis klausimus. Atsakymai anonimiški ir naudojami tik apibendrintai rezultatų analizei.</p>
+        <div id="profile-content"></div>
+        <div class="profile-actions"><button class="primary wide" id="profile-btn">Pradėti eksperimentą</button></div>
       </div>
     </section>
 
@@ -149,39 +143,6 @@
         <div class="finish-icon">✓</div>
         <h1>Ačiū už dalyvavimą!</h1>
         <p>Eksperimento dalis baigta. Dėkojame, kad skyrėte laiko ir atsakėte į visus klausimus.</p>
-
-        <div class="survey-box">
-          <strong>Dar vienas trumpas žingsnis</strong>
-          <span>Kviečiame sudalyvauti maždaug 5 min. apklausoje apie šios sistemos kokybę ir naudojimosi patirtį. Jūsų įvertinimas padės patobulinti sistemą.</span>
-          <button class="primary wide" id="survey-btn">Dalyvauti 5 min. apklausoje</button>
-        </div>
-        <p class="small-note">Apklausa atliekama čia pat sistemoje. Atsakymai išsaugomi kartu su eksperimento sesija.</p>
-      </div>
-    </section>
-
-    <section id="survey-screen" class="hidden">
-      <div class="card survey-card">
-        <div class="survey-head">
-          <div>
-            <h1>Sistemos kokybės apklausa</h1>
-            <p>Įvertinkite naudojimosi sistema patirtį. Apklausą sudaro 3 trumpos dalys.</p>
-          </div>
-          <div class="survey-stepcount" id="survey-stepcount">1 / 3</div>
-        </div>
-        <div class="survey-progress"><span id="survey-progressbar" style="width:33.33%"></span></div>
-        <div id="survey-content"></div>
-        <div class="survey-actions">
-          <button class="secondary" id="survey-prev-btn">Atgal</button>
-          <button class="primary" id="survey-next-btn">Toliau</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="survey-complete-screen" class="hidden">
-      <div class="card survey-complete-card">
-        <div class="finish-icon">✓</div>
-        <h1>Ačiū už jūsų įvertinimą!</h1>
-        <p>Apklausa pateikta sėkmingai. Jūsų atsakymai padės įvertinti sistemos naudojimo kokybę ir nustatyti, ką verta tobulinti.</p>
       </div>
     </section>
     <footer class="contact-footer">
@@ -205,68 +166,65 @@
     let index = 0;
     let taskStartedAt = 0;
     let session = null;
-    let surveyStep = 0;
-    let surveyResponse = {answers:{}, likes:'', improvements:''};
-
-    const surveySections = [
-      {
-        title:'Naudojimosi paprastumas',
-        copy:'Įvertinkite, kiek sutinkate su kiekvienu teiginiu.',
-        questions:[
-          ['ease','Sistema buvo lengva naudotis.'],
-          ['instructions','Buvo aišku, ką reikia daryti kiekviename žingsnyje.'],
-          ['navigation','Navigacija tarp užduočių buvo paprasta.'],
-          ['controls','Atsakymo ir vertinimo elementus buvo lengva suprasti.']
-        ]
-      },
-      {
-        title:'Sąsajos ir techninė kokybė',
-        copy:'Įvertinkite pateikimo aiškumą ir sistemos veikimą jūsų įrenginyje.',
-        questions:[
-          ['readability','Tekstas, diagramos ir kiti elementai buvo lengvai įskaitomi.'],
-          ['consistency','Sąsajos išdėstymas ir valdymas buvo nuoseklūs.'],
-          ['speed','Sistema reagavo pakankamai greitai į mano veiksmus.'],
-          ['device','Sistema patogiai veikė mano naudotame įrenginyje.']
-        ]
-      },
-      {
-        title:'Bendras įvertinimas',
-        copy:'Paskutiniai klausimai apie bendrą naudojimosi patirtį. Tekstiniai komentarai nėra privalomi.',
-        questions:[
-          ['confidence','Naudodamasis sistema jaučiausi užtikrintai.'],
-          ['overall','Bendra naudojimosi sistema patirtis buvo gera.']
-        ],
-        textFields:true
-      }
-    ];
+    let profileQuestions = [];
 
     const intro = document.getElementById('intro-screen');
     const task = document.getElementById('task-screen');
     const finish = document.getElementById('finish-screen');
-    const surveyScreen = document.getElementById('survey-screen');
-    const surveyComplete = document.getElementById('survey-complete-screen');
+    const profileScreen = document.getElementById('profile-screen');
 
     document.getElementById('start-btn').addEventListener('click', async () => {
       const btn = document.getElementById('start-btn');
-      btn.disabled = true; btn.textContent = 'Pradedama...';
+      btn.disabled = true; btn.textContent = 'Kraunama...';
       try {
-        const data = await api('/api/public/start', {
-          method:'POST',
-          body: JSON.stringify({ device: detectDevice() })
-        });
-        session = { id:data.sessionId, participantLabel:data.participantLabel, startedAt:new Date().toISOString() };
-        questions = data.questions || [];
-        if (!questions.length) throw new Error('Eksperimente nėra aktyvių klausimų.');
-        index = 0;
+        if (!profileQuestions.length) profileQuestions = await api('/api/public/profile-questions');
+        renderProfile();
         intro.classList.add('hidden');
-        task.classList.remove('hidden');
-        renderQuestion();
+        profileScreen.classList.remove('hidden');
+        window.scrollTo({top:0,behavior:'smooth'});
       } catch (e) {
         toast(e.message || 'Nepavyko pradėti eksperimento.');
       } finally {
         btn.disabled = false; btn.textContent = 'Pradėti';
       }
     });
+
+    document.getElementById('profile-btn').addEventListener('click', async () => {
+      const profile = {};
+      for (const pq of profileQuestions) {
+        const selected = document.querySelector(`input[name="profile-${pq.key}"]:checked`);
+        if (!selected) return toast(`Atsakykite į klausimą „${pq.title}“.`);
+        profile[pq.key] = selected.value;
+      }
+      const btn = document.getElementById('profile-btn');
+      btn.disabled = true; btn.textContent = 'Pradedama...';
+      try {
+        const data = await api('/api/public/start', {
+          method:'POST',
+          body: JSON.stringify({ device: detectDevice(), profile })
+        });
+        session = { id:data.sessionId, participantLabel:data.participantLabel, startedAt:new Date().toISOString() };
+        questions = data.questions || [];
+        if (!questions.length) throw new Error('Eksperimente nėra aktyvių klausimų.');
+        index = 0;
+        profileScreen.classList.add('hidden');
+        task.classList.remove('hidden');
+        renderQuestion();
+      } catch (e) {
+        toast(e.message || 'Nepavyko pradėti eksperimento.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Pradėti eksperimentą';
+      }
+    });
+
+    function renderProfile(){
+      document.getElementById('profile-content').innerHTML = profileQuestions.map(pq => `<div class="profile-question" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
+          <div class="profile-question-title">${escapeHtml(pq.title)}</div>
+          <div class="profile-options">
+            ${pq.options.map((o,i) => `<input id="profile-${pq.key}-${i}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o)}"><label for="profile-${pq.key}-${i}">${escapeHtml(o)}</label>`).join('')}
+          </div>
+        </div>`).join('');
+    }
 
     document.getElementById('next-btn').addEventListener('click', async () => {
       const q = questions[index];
@@ -303,114 +261,6 @@
         btn.disabled = false; btn.textContent = 'Toliau';
       }
     });
-
-    document.getElementById('survey-btn').addEventListener('click', () => {
-      surveyStep = 0;
-      surveyResponse = {answers:{}, likes:'', improvements:''};
-      finish.classList.add('hidden');
-      surveyScreen.classList.remove('hidden');
-      renderSurveyStep();
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-
-    document.getElementById('survey-prev-btn').addEventListener('click', () => {
-      saveSurveyStepInputs();
-      if (surveyStep === 0) {
-        surveyScreen.classList.add('hidden');
-        finish.classList.remove('hidden');
-      } else {
-        surveyStep--;
-        renderSurveyStep();
-      }
-      window.scrollTo({top:0,behavior:'smooth'});
-    });
-
-    document.getElementById('survey-next-btn').addEventListener('click', () => {
-      if (!validateSurveyStep()) return;
-      saveSurveyStepInputs();
-      if (surveyStep < surveySections.length - 1) {
-        surveyStep++;
-        renderSurveyStep();
-        window.scrollTo({top:0,behavior:'smooth'});
-      } else {
-        completeSurvey();
-      }
-    });
-
-    function renderSurveyStep(){
-      const section = surveySections[surveyStep];
-      document.getElementById('survey-stepcount').textContent = `${surveyStep+1} / ${surveySections.length}`;
-      document.getElementById('survey-progressbar').style.width = `${((surveyStep+1)/surveySections.length)*100}%`;
-      document.getElementById('survey-prev-btn').textContent = surveyStep === 0 ? 'Grįžti į padėkos langą' : 'Atgal';
-      document.getElementById('survey-next-btn').textContent = surveyStep === surveySections.length - 1 ? 'Pateikti apklausą' : 'Toliau';
-
-      const questionsHtml = section.questions.map(([key,title]) => {
-        const selected = surveyResponse.answers[key] || '';
-        return `<div class="survey-question">
-          <div class="survey-question-title">${escapeHtml(title)}</div>
-          <div class="survey-likert">
-            ${[1,2,3,4,5].map(v => `<input id="survey-${key}-${v}" type="radio" name="survey-${key}" value="${v}" ${String(selected)===String(v)?'checked':''}><label for="survey-${key}-${v}">${v}</label>`).join('')}
-          </div>
-          <div class="survey-scale-legend"><span>1 – visiškai nesutinku</span><span>5 – visiškai sutinku</span></div>
-        </div>`;
-      }).join('');
-
-      const textHtml = section.textFields ? `
-        <div class="survey-question">
-          <div class="survey-question-title">Kas naudojantis sistema jums labiausiai patiko? <span class="muted">(neprivaloma)</span></div>
-          <textarea class="survey-textarea" id="survey-likes" placeholder="Įrašykite komentarą...">${escapeHtml(surveyResponse.likes)}</textarea>
-        </div>
-        <div class="survey-question">
-          <div class="survey-question-title">Ką sistemoje, jūsų nuomone, reikėtų patobulinti? <span class="muted">(neprivaloma)</span></div>
-          <textarea class="survey-textarea" id="survey-improvements" placeholder="Įrašykite komentarą...">${escapeHtml(surveyResponse.improvements)}</textarea>
-        </div>` : '';
-
-      document.getElementById('survey-content').innerHTML = `
-        <h2 class="survey-section-title">${escapeHtml(section.title)}</h2>
-        <p class="survey-section-copy">${escapeHtml(section.copy)}</p>
-        ${questionsHtml}
-        ${textHtml}`;
-    }
-
-    function validateSurveyStep(){
-      const section = surveySections[surveyStep];
-      const missing = section.questions.some(([key]) => !document.querySelector(`input[name="survey-${key}"]:checked`));
-      if (missing) {
-        toast('Atsakykite į visus šios dalies vertinimo klausimus.');
-        return false;
-      }
-      return true;
-    }
-
-    function saveSurveyStepInputs(){
-      const section = surveySections[surveyStep];
-      section.questions.forEach(([key]) => {
-        const selected = document.querySelector(`input[name="survey-${key}"]:checked`);
-        if (selected) surveyResponse.answers[key] = Number(selected.value);
-      });
-      if (section.textFields) {
-        surveyResponse.likes = document.getElementById('survey-likes')?.value.trim() || '';
-        surveyResponse.improvements = document.getElementById('survey-improvements')?.value.trim() || '';
-      }
-    }
-
-    async function completeSurvey(){
-      try {
-        await api(`/api/public/sessions/${encodeURIComponent(session.id)}/survey`, {
-          method:'POST',
-          body: JSON.stringify({
-            answers:{...surveyResponse.answers},
-            likes:surveyResponse.likes,
-            improvements:surveyResponse.improvements
-          })
-        });
-        surveyScreen.classList.add('hidden');
-        surveyComplete.classList.remove('hidden');
-        window.scrollTo({top:0,behavior:'smooth'});
-      } catch (e) {
-        toast(e.message || 'Nepavyko pateikti apklausos.');
-      }
-    }
 
     function renderQuestion(){
       const q = questions[index];

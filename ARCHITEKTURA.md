@@ -30,9 +30,9 @@ Dalyvio naršyklė                         Tyrėjo naršyklė
 - `experiments` – eksperimentai, būsena ir klausimų pateikimo tvarka.
 - `experiment_questions` – eksperimento klausimų rinkinys ir pozicija.
 - `experiment_hypotheses` – eksperimento ir hipotezių ryšiai.
-- `participant_sessions` – vienas dalyvio eksperimento atlikimas.
+- `participant_sessions` – vienas dalyvio eksperimento atlikimas ir dalyvio profilis (lytis, amžiaus grupė, sritis, vizualizacijų dažnis, analizės patirtis).
 - `answers` – dalyvio atsakymas, teisingumas, laikas, aiškumas, patrauklumas ir sudėtingumas.
-- `quality_surveys` – po eksperimento užpildyta sistemos kokybės apklausa.
+- `quality_surveys` – ankstesnės versijos sistemos kokybės apklausa (nebenaudojama, paliekama seniems duomenims).
 
 ## Ryšiai
 
@@ -43,7 +43,6 @@ questions   1 --- N question_options
 questions   1 --- N question_hypotheses N --- 1 hypotheses
 experiments 1 --- N participant_sessions
 participant_sessions 1 --- N answers N --- 1 questions
-participant_sessions 1 --- 0..1 quality_surveys
 hypotheses 1 --- N recommendation_versions
 ```
 
@@ -51,10 +50,10 @@ hypotheses 1 --- N recommendation_versions
 
 ### Vieša dalyvio dalis
 
+- `GET /api/public/profile-questions`
 - `POST /api/public/start`
 - `POST /api/public/sessions/:id/answer`
 - `POST /api/public/sessions/:id/complete`
-- `POST /api/public/sessions/:id/survey`
 
 ### Tyrėjo dalis
 
