@@ -63,17 +63,14 @@
     .profile-card{max-width:860px;margin:38px auto 0;padding:30px 32px}
     .profile-card h1{margin:0 0 6px;font-size:27px;letter-spacing:-.35px}
     .profile-card>p{margin:0 0 18px;color:#718097;font-size:14px;line-height:1.55}
-    .profile-question{padding:17px 0;border-top:1px solid #edf0f5}
-    .profile-question-title{font-size:15px;font-weight:700;line-height:1.45;margin-bottom:10px;color:#30394c}
-    .profile-options{display:flex;flex-wrap:wrap;gap:8px}
-    .profile-options input{position:absolute;opacity:0;pointer-events:none}
-    .profile-options label{min-height:41px;border:1px solid #d8deea;border-radius:8px;display:flex;align-items:center;padding:0 14px;background:#fff;color:#4c586e;font-weight:600;font-size:14px;cursor:pointer;transition:.15s}
-    .profile-options label:hover{border-color:#9dacdf;background:#fafbff}
-    .profile-options input:checked+label{background:#eef1ff;border-color:#6e7fd3;color:var(--blue)}
-    .profile-options input:focus-visible+label{outline:3px solid rgba(64,84,191,.22);outline-offset:2px}
-    .profile-scale{display:grid;grid-template-columns:repeat(5,1fr)}
-    .profile-scale label{justify-content:center;padding:0}
-    .profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:20px;border-top:1px solid #edf0f5}
+    .profile-selects{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;padding:17px 0;border-top:1px solid #edf0f5}
+    .profile-field>label{font-size:13px;font-weight:700;color:#30394c;display:block;margin-bottom:7px;line-height:1.35}
+    .profile-select{width:100%;height:46px;border:1px solid #d5dce7;border-radius:9px;padding:0 36px 0 12px;outline:0;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2365718a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 13px center;color:var(--ink);font:inherit;font-size:14px;appearance:none;-webkit-appearance:none;cursor:pointer}
+    .profile-select:focus{border-color:#7184db;box-shadow:0 0 0 3px rgba(64,84,191,.1)}
+    .profile-select:invalid{color:#8a95a8}
+    .profile-scales .rating-block>label{font-size:13px;color:#30394c}
+    .profile-scales{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;padding:17px 0 20px;border-top:1px solid #edf0f5}
+    .profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:0;padding-top:20px;border-top:1px solid #edf0f5}
 
     .contact-footer{margin-top:auto;padding:18px 8px 2px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#6f7b90;font-size:13px;text-align:center}
     .linkedin-link{display:inline-flex;align-items:center;gap:7px;color:var(--blue);font-weight:750;text-decoration:none;padding:7px 10px;border-radius:8px;transition:background .15s ease,color .15s ease,transform .15s ease}
@@ -83,7 +80,7 @@
 
     .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#202737;color:#fff;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.18);font-size:13px;z-index:1000}
 
-    @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.profile-card{padding:25px 22px}}
+    @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.profile-card{padding:25px 22px}.profile-selects{grid-template-columns:1fr}.profile-scales{grid-template-columns:1fr}}
     @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.profile-card{margin-top:20px;padding:24px 18px}.profile-card h1{font-size:24px}.profile-actions{flex-direction:column}.profile-actions button{width:100%}}
   </style>
 </head>
@@ -194,9 +191,11 @@
     document.getElementById('profile-btn').addEventListener('click', async () => {
       const profile = {};
       for (const pq of profileQuestions) {
-        const selected = document.querySelector(`input[name="profile-${pq.key}"]:checked`);
-        if (!selected) return toast(`Atsakykite į klausimą „${pq.title}“.`);
-        profile[pq.key] = selected.value;
+        const value = pq.scale
+          ? document.querySelector(`input[name="profile-${pq.key}"]:checked`)?.value
+          : document.getElementById(`profile-${pq.key}`).value;
+        if (!value) return toast(`Atsakykite į klausimą „${pq.title}“.`);
+        profile[pq.key] = value;
       }
       const btn = document.getElementById('profile-btn');
       btn.disabled = true; btn.textContent = 'Pradedama...';
@@ -220,13 +219,19 @@
     });
 
     function renderProfile(){
-      document.getElementById('profile-content').innerHTML = profileQuestions.map(pq => `<div class="profile-question" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
-          <div class="profile-question-title">${escapeHtml(pq.title)}</div>
-          <div class="profile-options${pq.scale ? ' profile-scale' : ''}">
-            ${pq.options.map((o,i) => `<input id="profile-${pq.key}-${i}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o)}"><label for="profile-${pq.key}-${i}">${escapeHtml(o)}</label>`).join('')}
-          </div>
-          ${pq.scale ? `<div class="scale-caption"><span>1 – ${escapeHtml(pq.scale[0])}</span><span>5 – ${escapeHtml(pq.scale[1])}</span></div>` : ''}
+      const selects = profileQuestions.filter(pq => !pq.scale).map(pq => `<div class="profile-field">
+          <label for="profile-${pq.key}">${escapeHtml(pq.title)}</label>
+          <select class="profile-select" id="profile-${pq.key}" required>
+            <option value="" disabled selected>Pasirinkite...</option>
+            ${pq.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}
+          </select>
         </div>`).join('');
+      const scales = profileQuestions.filter(pq => pq.scale).map(pq => `<div class="rating-block" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
+          <label>${escapeHtml(pq.title)}</label>
+          <div class="rating-scale">${pq.options.map(o => `<input id="profile-${pq.key}-${o}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o)}"><label for="profile-${pq.key}-${o}">${escapeHtml(o)}</label>`).join('')}</div>
+          <div class="scale-caption"><span>${escapeHtml(pq.scale[0])}</span><span>${escapeHtml(pq.scale[1])}</span></div>
+        </div>`).join('');
+      document.getElementById('profile-content').innerHTML = `<div class="profile-selects">${selects}</div><div class="profile-scales">${scales}</div>`;
     }
 
     document.getElementById('next-btn').addEventListener('click', async () => {
