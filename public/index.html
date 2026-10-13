@@ -22,7 +22,8 @@
     .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
     .intro-card{width:min(950px,100%);margin:0 auto;padding:66px 70px 64px;text-align:center}
     .intro-card h1{margin:0 0 22px;font-size:37px;letter-spacing:-.7px}
-    .intro-card p{margin:0 auto 36px;color:#647087;line-height:1.65;max-width:760px;font-size:17px}
+    .intro-card p{margin:0 auto 16px;color:#647087;line-height:1.65;max-width:760px;font-size:17px}
+    .intro-card p:last-of-type{margin-bottom:36px}
 
     .primary{border:0;border-radius:9px;background:var(--blue);color:#fff;font-weight:750;min-height:49px;padding:0 28px;font-size:17px}
     .primary:hover{background:var(--blue-dark)}
@@ -81,7 +82,7 @@
     .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#202737;color:#fff;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.18);font-size:13px;z-index:1000}
 
     @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.profile-card{padding:25px 22px}.profile-selects{grid-template-columns:1fr}.profile-scales{grid-template-columns:1fr}}
-    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.profile-card{margin-top:20px;padding:24px 18px}.profile-card h1{font-size:24px}.profile-actions{flex-direction:column}.profile-actions button{width:100%}}
+    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:14px}.intro-card p:last-of-type{margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.profile-card{margin-top:20px;padding:24px 18px}.profile-card h1{font-size:24px}.profile-actions{flex-direction:column}.profile-actions button{width:100%}}
   </style>
 </head>
 <body>
@@ -94,9 +95,13 @@
       <div class="card intro-card">
         <h1>Sveiki!</h1>
         <p>
-          Kviečiame dalyvauti trumpame eksperimente apie duomenų vizualizacijų suvokimą.
-          Jums bus pateiktos diagramos ir klausimai apie jose matomą informaciją.
-          Atsakykite pagal tai, ką matote ekrane, ir po kiekvienos užduoties trumpai įvertinkite vizualizaciją.
+          Esu Viltė Stankutė, Kauno technologijos universiteto magistrantūros studijų programos „Veiklos skaitmeninimas ir sistemų architektūros“ studentė.
+          Savo magistro baigiamajame darbe „Diagramos tipo parinkimo kuriant duomenų vizualizacijas rekomendacijų paieška ir eksperimentiniai tyrimai“ nagrinėju, kaip suvokiamos duomenų vizualizacijos.
+        </p>
+        <p>
+          Kviečiu Jus dalyvauti trumpame eksperimente, kuris truks apie 10 minučių.
+          Jums bus pateiktos įvairios diagramos ir klausimai apie jose pateiktą informaciją.
+          Dalyvavimas yra anoniminis, o atsakymai bus naudojami tik apibendrintai analizei.
         </p>
         <button class="primary wide" id="start-btn">Pradėti</button>
       </div>
@@ -141,13 +146,12 @@
       <div class="card finish-card">
         <div class="finish-icon">✓</div>
         <h1>Ačiū už dalyvavimą!</h1>
-        <p>Eksperimento dalis baigta. Dėkojame, kad skyrėte laiko ir atsakėte į visus klausimus.</p>
+        <p>Atsakėte į visus eksperimento klausimus, dėkoju už skirtą laiką!</p>
       </div>
     </section>
     <footer class="contact-footer">
-      <span>Kilus klausimams dėl tyrimo, susisiekite su tyrimo vykdytoju:</span>
-      <!-- Pakeiskite href reikšmę savo LinkedIn profilio nuoroda. -->
-      <a class="linkedin-link" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" aria-label="Susisiekti per LinkedIn">
+      <span>Kilus klausimams, galime bendrauti čia:</span>
+      <a class="linkedin-link" href="https://www.linkedin.com/in/vilt%C4%97-stankut%C4%97-094b0a268" target="_blank" rel="noopener noreferrer" aria-label="Susisiekti per LinkedIn">
         <svg class="linkedin-icon" viewBox="0 0 24 24" aria-hidden="true">
           <rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor"/>
           <circle cx="7.1" cy="8" r="1.35" fill="white"/>
