@@ -56,7 +56,7 @@ Pirmo paleidimo tyrėjo prisijungimas:
 - El. paštas: `tyrejas@ktu.lt`
 - Slaptažodis: `prototipas`
 
-Prieš realų tyrimą rekomenduojama pakeisti prisijungimą per aplinkos kintamuosius **prieš pirmą DB sukūrimą**:
+Prieš realų tyrimą rekomenduojama pakeisti prisijungimą per aplinkos kintamuosius:
 
 ```bash
 ADMIN_EMAIL="mano@pastas.lt" ADMIN_PASSWORD="stiprus-slaptazodis" node server.js
@@ -88,7 +88,7 @@ Sistema naudoja SQLite failą, todėl serveriui reikia **nuolatinio disko (volum
    - dalyvio portalas: `https://<adresas>/`
    - tyrėjo portalas: `https://<adresas>/admin`
 
-`ADMIN_EMAIL` ir `ADMIN_PASSWORD` naudojami tik pirmą kartą sukuriant DB. Railway automatiškai paduoda `PORT`, o kiekvienas `git push` į pasirinktą šaką iš naujo įdiegia sistemą (duomenys volume lieka).
+`ADMIN_EMAIL` ir `ADMIN_PASSWORD` taikomi kiekvieno paleidimo metu: pakeitus slaptažodį ir perdiegus, galioja naujasis. Kai jie nustatyti, numatytoji paskyra `tyrejas@ktu.lt` / `prototipas` pašalinama. Reikšmes įrašykite be kabučių. Railway automatiškai paduoda `PORT`, o kiekvienas `git push` į pasirinktą šaką iš naujo įdiegia sistemą (duomenys volume lieka).
 
 ## Duomenų bazė
 

@@ -171,12 +171,22 @@ export function parseJSON(value, fallback = []) {
 }
 
 function seed() {
+  // ADMIN_EMAIL ir ADMIN_PASSWORD taikomi kiekvieno paleidimo metu: jei nustatyti,
+  // tyrėjo paskyra sukuriama arba jos slaptažodis atnaujinamas.
+  const envValue = name => String(process.env[name] || '').trim().replace(/^(["'])(.*)\1$/, '$2').trim();
+  const adminEmail = envValue('ADMIN_EMAIL').toLowerCase(), adminPassword = envValue('ADMIN_PASSWORD');
+  if (adminEmail && adminPassword) {
+    const existing = db.prepare('SELECT id FROM users WHERE lower(email)=?').get(adminEmail);
+    if (existing) db.prepare('UPDATE users SET password_hash=? WHERE id=?').run(hashPassword(adminPassword), existing.id);
+    else db.prepare('INSERT INTO users(email,password_hash,role) VALUES(?,?,?)').run(adminEmail, hashPassword(adminPassword), 'researcher');
+    // Pašalinama numatytoji paskyra, jei ji vis dar su viešai žinomu slaptažodžiu.
+    const fallback = db.prepare("SELECT id,password_hash FROM users WHERE lower(email)='tyrejas@ktu.lt' AND lower(email)<>?").get(adminEmail);
+    if (fallback && verifyPassword('prototipas', fallback.password_hash)) db.prepare('DELETE FROM users WHERE id=?').run(fallback.id);
+  }
   const users = db.prepare('SELECT COUNT(*) AS c FROM users').get().c;
   if (!users) {
-    const email = process.env.ADMIN_EMAIL || 'tyrejas@ktu.lt';
-    const password = process.env.ADMIN_PASSWORD || 'prototipas';
     db.prepare('INSERT INTO users(email,password_hash,role) VALUES(?,?,?)')
-      .run(email, hashPassword(password), 'researcher');
+      .run('tyrejas@ktu.lt', hashPassword('prototipas'), 'researcher');
   }
 
   const hc = db.prepare('SELECT COUNT(*) AS c FROM hypotheses').get().c;
