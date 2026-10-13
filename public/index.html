@@ -71,6 +71,8 @@
     .profile-options label:hover{border-color:#9dacdf;background:#fafbff}
     .profile-options input:checked+label{background:#eef1ff;border-color:#6e7fd3;color:var(--blue)}
     .profile-options input:focus-visible+label{outline:3px solid rgba(64,84,191,.22);outline-offset:2px}
+    .profile-scale{display:grid;grid-template-columns:repeat(5,1fr)}
+    .profile-scale label{justify-content:center;padding:0}
     .profile-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:8px;padding-top:20px;border-top:1px solid #edf0f5}
 
     .contact-footer{margin-top:auto;padding:18px 8px 2px;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;color:#6f7b90;font-size:13px;text-align:center}
@@ -220,9 +222,10 @@
     function renderProfile(){
       document.getElementById('profile-content').innerHTML = profileQuestions.map(pq => `<div class="profile-question" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
           <div class="profile-question-title">${escapeHtml(pq.title)}</div>
-          <div class="profile-options">
+          <div class="profile-options${pq.scale ? ' profile-scale' : ''}">
             ${pq.options.map((o,i) => `<input id="profile-${pq.key}-${i}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o)}"><label for="profile-${pq.key}-${i}">${escapeHtml(o)}</label>`).join('')}
           </div>
+          ${pq.scale ? `<div class="scale-caption"><span>1 – ${escapeHtml(pq.scale[0])}</span><span>5 – ${escapeHtml(pq.scale[1])}</span></div>` : ''}
         </div>`).join('');
     }
 
