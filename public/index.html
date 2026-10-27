@@ -80,6 +80,18 @@
     .linkedin-link:focus-visible{outline:3px solid rgba(64,84,191,.22);outline-offset:2px}
     .linkedin-icon{width:20px;height:20px;display:block;flex:none}
 
+    .zoom-btn{display:block;width:min(800px,100%);margin:0 auto;padding:0;border:0;background:transparent;cursor:zoom-in;position:relative}
+    .zoom-btn img{display:block;width:100%;height:auto;border-radius:8px}
+    .zoom-hint{display:inline-flex;align-items:center;gap:6px;margin-top:8px;color:#6f7b90;font-size:12px}
+    .chart-area .zoom-hint svg{width:15px;height:15px;stroke:currentColor}
+    .lightbox{position:fixed;inset:0;z-index:900;background:rgba(17,22,34,.92);display:flex;flex-direction:column}
+    .lightbox-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px 10px 18px;color:#d9deea;font-size:13px}
+    .lightbox-close{width:44px;height:44px;border:0;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:28px;line-height:1;cursor:pointer}
+    .lightbox-close:hover{background:rgba(255,255,255,.22)}
+    .lightbox-close:focus-visible{outline:3px solid rgba(255,255,255,.6);outline-offset:2px}
+    .lightbox-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;padding:0 12px 16px}
+    .lightbox-scroll img{display:block;margin:auto;width:min(1200px,96vw);min-width:800px;height:auto;background:#fff;border-radius:8px}
+    @media(min-width:900px){.lightbox-scroll img{min-width:0}}
     .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#202737;color:#fff;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.18);font-size:13px;z-index:1000}
 
     @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.profile-card{padding:25px 22px}.profile-selects{grid-template-columns:1fr}.profile-scales{grid-template-columns:1fr}}
@@ -283,7 +295,8 @@
       document.getElementById('chart-title').textContent = q.image ? '' : chartTitle(q);
       document.getElementById('chart-title').classList.toggle('hidden', !!q.image);
       document.getElementById('chart-area').classList.toggle('has-image', !!q.image);
-      document.getElementById('chart-area').innerHTML = q.image ? `<img src="${escapeHtml(q.image)}" alt="Klausimo paveikslėlis">` : chartSvg(q.chart);
+      document.getElementById('chart-area').innerHTML = q.image ? `<button type="button" class="zoom-btn" aria-label="Padidinti diagramą"><img src="${escapeHtml(q.image)}" alt="Klausimo diagrama"></button><div class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>Paspauskite diagramą, kad padidintumėte</div>` : chartSvg(q.chart);
+      document.querySelector('#chart-area .zoom-btn')?.addEventListener('click', () => openLightbox(q.image));
       document.getElementById('format-pill').textContent = q.format;
       document.getElementById('question-text').textContent = q.text;
       document.getElementById('question-hint').textContent = q.format==='Keli pasirinkimai' ? 'Galite pažymėti daugiau nei vieną atsakymą.' : q.format==='Skaitinis atsakymas' ? 'Įrašykite skaitinį atsakymą.' : 'Pasirinkite vieną atsakymą.';
@@ -349,6 +362,25 @@
       return data;
     }
     function detectDevice(){ return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 760 ? 'Mobilusis' : 'Kompiuteris'; }
+
+    function openLightbox(src){
+      closeLightbox();
+      const box = document.createElement('div');
+      box.className = 'lightbox'; box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','Padidinta diagrama');
+      box.innerHTML = `<div class="lightbox-bar"><span>Slinkite, jei diagrama netelpa ekrane</span><button type="button" class="lightbox-close" aria-label="Uždaryti">×</button></div><div class="lightbox-scroll"><img src="${escapeHtml(src)}" alt="Padidinta diagrama"></div>`;
+      box.addEventListener('click', e => { if (e.target === box || e.target.classList.contains('lightbox-scroll') || e.target.classList.contains('lightbox-close')) closeLightbox(); });
+      document.body.appendChild(box);
+      document.body.style.overflow = 'hidden';
+      box.querySelector('.lightbox-close').focus();
+    }
+    function closeLightbox(){
+      const box = document.querySelector('.lightbox');
+      if (!box) return;
+      box.remove();
+      document.body.style.overflow = '';
+      document.querySelector('#chart-area .zoom-btn')?.focus();
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
     function toast(message){
       document.querySelector('.toast')?.remove();
