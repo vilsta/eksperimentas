@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
 const dataDir = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 fs.mkdirSync(dataDir, { recursive: true });
@@ -160,6 +161,17 @@ for (const { column } of PROFILE_QUESTIONS) {
   if (!sessionColumns.has(column)) db.exec(`ALTER TABLE participant_sessions ADD COLUMN ${column} TEXT DEFAULT ''`);
 }
 
+// A/B grupės: klausimo variantas ('' – abiem grupėms), dalyvio grupė, eksperimento kodas.
+function addColumn(table, column, definition) {
+  const columns = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name));
+  if (!columns.has(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+}
+addColumn('participant_sessions', 'group_label', "TEXT DEFAULT ''");
+addColumn('questions', 'variant', "TEXT NOT NULL DEFAULT ''");
+addColumn('questions', 'tolerance', 'REAL');
+addColumn('questions', 'source', "TEXT NOT NULL DEFAULT ''");
+addColumn('experiments', 'code', "TEXT DEFAULT ''");
+
 function tx(fn) {
   db.exec('BEGIN');
   try { const result = fn(); db.exec('COMMIT'); return result; }
@@ -253,6 +265,43 @@ function seed() {
 
 seed();
 
+// Eksperimentų rinkiniai iš seed/eksperimentai.json. Importuojama tik tai, ko DB dar nėra
+// (klausimai – pagal ID, eksperimentai – pagal kodą), todėl tyrėjo pakeitimai neperrašomi.
+function importSeedExperiments() {
+  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), 'seed', 'eksperimentai.json');
+  if (!fs.existsSync(file)) return;
+  const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const hypothesisCodes = new Set(db.prepare('SELECT code FROM hypotheses').all().map(h => h.code));
+  const createdCodes = [];
+  tx(() => {
+    for (const q of data.questions || []) {
+      if (db.prepare('SELECT 1 FROM questions WHERE id=?').get(q.id)) continue;
+      db.prepare('INSERT INTO questions(id,task_type,variant_a,variant_b,text,answer_format,status,chart_type,image_data,variant,tolerance,source) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)')
+        .run(q.id, q.task, q.a, q.b, q.text, q.format, 'Aktyvus', q.chart || 'bar', q.image || '', q.variant || '', q.tolerance ?? null, q.source || '');
+      const io = db.prepare('INSERT INTO question_options(question_id,option_text,is_correct,position) VALUES(?,?,?,?)');
+      q.options.forEach((o, i) => io.run(q.id, o, q.correct.includes(o) ? 1 : 0, i));
+      const ih = db.prepare('INSERT INTO question_hypotheses(question_id,hypothesis_code) VALUES(?,?)');
+      (q.hyps || []).filter(h => hypothesisCodes.has(h)).forEach(h => ih.run(q.id, h));
+    }
+    for (const e of data.experiments || []) {
+      if (db.prepare('SELECT 1 FROM experiments WHERE code=?').get(e.code)) continue;
+      const id = Number(db.prepare('INSERT INTO experiments(title,description,status,order_mode,code) VALUES(?,?,?,?,?)')
+        .run(e.title, e.desc, 'Aktyvus', 'Atsitiktinė', e.code).lastInsertRowid);
+      const iq = db.prepare('INSERT INTO experiment_questions(experiment_id,question_id,position) VALUES(?,?,?)');
+      e.questions.forEach((qid, i) => iq.run(id, qid, i));
+      const ih = db.prepare('INSERT INTO experiment_hypotheses(experiment_id,hypothesis_code) VALUES(?,?)');
+      (e.hyps || []).filter(h => hypothesisCodes.has(h)).forEach(h => ih.run(id, h));
+      createdCodes.push(e.code);
+    }
+    // Pirmą kartą sukūrus rinkinius, sustabdomi kiti (pvz., prototipo) aktyvūs eksperimentai.
+    if (createdCodes.length) {
+      const codes = (data.experiments || []).map(e => e.code);
+      db.prepare(`UPDATE experiments SET status='Sustabdytas' WHERE status='Aktyvus' AND COALESCE(code,'') NOT IN (${codes.map(() => '?').join(',')})`).run(...codes);
+    }
+  });
+}
+importSeedExperiments();
+
 export function questionToObject(row, includeCorrect = true) {
   const options = db.prepare('SELECT option_text,is_correct FROM question_options WHERE question_id=? ORDER BY position,id').all(row.id);
   const hyps = db.prepare('SELECT hypothesis_code FROM question_hypotheses WHERE question_id=? ORDER BY hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
@@ -268,7 +317,10 @@ export function questionToObject(row, includeCorrect = true) {
     options: options.map(x=>x.option_text),
     status: row.status,
     chart: row.chart_type,
-    image: row.image_data || ''
+    image: row.image_data || '',
+    variant: row.variant || '',
+    tolerance: row.tolerance ?? null,
+    source: row.source || ''
   };
   if (includeCorrect) {
     obj.correct = options.filter(x=>x.is_correct).map(x=>x.option_text);
@@ -280,7 +332,7 @@ export function questionToObject(row, includeCorrect = true) {
 export function getExperimentObject(row) {
   const questions = db.prepare('SELECT question_id FROM experiment_questions WHERE experiment_id=? ORDER BY position').all(row.id).map(x=>x.question_id);
   const hyps = db.prepare('SELECT hypothesis_code FROM experiment_hypotheses WHERE experiment_id=? ORDER BY hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
-  return { id: row.id, title: row.title, desc: row.description, status: row.status, order: row.order_mode, questions, hyps };
+  return { id: row.id, code: row.code || '', title: row.title, desc: row.description, status: row.status, order: row.order_mode, questions, hyps };
 }
 
 export function replaceQuestionRelations(questionId, options, correct, hyps) {

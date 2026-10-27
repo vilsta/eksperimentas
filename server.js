@@ -18,13 +18,30 @@ function normalizedAnswer(a){ return (Array.isArray(a)?a:[a]).map(v=>String(v).t
 function isCorrectAnswer(q, answer){
   const expected=q.correct||[], got=normalizedAnswer(answer);
   if(q.format==='Skaitinis atsakymas'){
-    const a=Number(got[0]), b=Number(expected[0]);
-    return Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<1e-9;
+    const toNum=v=>Number(String(v??'').replace(/\s/g,'').replace(',','.')),a=toNum(got[0]),b=toNum(expected[0]),tol=Math.abs(Number(q.tolerance)||0);
+    return Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=tol+1e-9;
   }
   const exp=[...expected].map(String).sort();
   return got.length===exp.length&&got.every((v,i)=>v===exp[i]);
 }
-function publicQuestion(q){ const {correct,answer,...safe}=q; return safe; }
+function variantOf(q){ const v=text(q.variant).toUpperCase(); return v==='A'||v==='B'?v:''; }
+function toleranceOf(q){ const n=Number(String(q.tolerance??'').replace(',','.')); return String(q.tolerance??'').trim()!==''&&Number.isFinite(n)?Math.abs(n):null; }
+function experimentQuestionIds(experimentId,group){ return db.prepare("SELECT q.id FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.status='Aktyvus' AND (q.variant='' OR q.variant=?) ORDER BY eq.position").all(experimentId,group).map(x=>x.id); }
+// Dalyvis priskiriamas aktyviam eksperimentui ir grupei, kuriuose iki šiol mažiausiai dalyvių (lygybės atveju – atsitiktinai).
+function assignExperiment(){
+  const cells=[];
+  for(const exp of db.prepare("SELECT * FROM experiments WHERE status='Aktyvus'").all()){
+    const hasVariants=!!db.prepare("SELECT 1 FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.status='Aktyvus' AND q.variant<>'' LIMIT 1").get(exp.id);
+    for(const group of hasVariants?['A','B']:['']){
+      if(!experimentQuestionIds(exp.id,group).length)continue;
+      cells.push({exp,group,n:db.prepare('SELECT COUNT(*) c FROM participant_sessions WHERE experiment_id=? AND group_label=?').get(exp.id,group).c});
+    }
+  }
+  if(!cells.length)throw httpError(404,'Šiuo metu nėra aktyvaus eksperimento.');
+  const min=Math.min(...cells.map(c=>c.n)),pool=cells.filter(c=>c.n===min);
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function publicQuestion(q){ const {correct,answer,tolerance,hyps,hyp,a,b,variant,source,...safe}=q; return safe; }
 
 function cookies(req){
   return Object.fromEntries((req.headers.cookie||'').split(';').map(x=>x.trim()).filter(Boolean).map(x=>{const i=x.indexOf('=');return [decodeURIComponent(x.slice(0,i)),decodeURIComponent(x.slice(i+1))]}));
@@ -100,7 +117,7 @@ async function api(req,res,pathname){
     if(!correct.length)throw httpError(400,'Pažymėkite teisingą atsakymą.');
     if(format==='Vienas pasirinkimas'&&correct.length!==1)throw httpError(400,'Vienam pasirinkimui turi būti vienas teisingas atsakymas.');
     try{
-      db.prepare('INSERT INTO questions(id,task_type,variant_a,variant_b,text,answer_format,status,chart_type,image_data) VALUES(?,?,?,?,?,?,?,?,?)').run(id,text(q.task),text(q.a),text(q.b),questionText,format,text(q.status)||'Aktyvus',text(q.chart)||'bar',String(q.image||''));
+      db.prepare('INSERT INTO questions(id,task_type,variant_a,variant_b,text,answer_format,status,chart_type,image_data,variant,tolerance,source) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(id,text(q.task),text(q.a),text(q.b),questionText,format,text(q.status)||'Aktyvus',text(q.chart)||'bar',String(q.image||''),variantOf(q),toleranceOf(q),text(q.source));
       replaceQuestionRelations(id,format==='Skaitinis atsakymas'?correct:options,correct,hyps);
     }catch(e){throw httpError(400,e.message.includes('UNIQUE')?'Toks klausimo kodas jau egzistuoja.':e.message)}
     return json(res,201,questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(id),true));
@@ -108,7 +125,7 @@ async function api(req,res,pathname){
   if((params=match(pathname,'/api/admin/questions/:id'))&&method==='PUT'){
     requireAdmin(req);const q=await bodyJson(req),id=params.id,format=text(q.format),options=arr(q.options),correct=arr(q.correct),hyps=arr(q.hyps?.length?q.hyps:(q.hyp?String(q.hyp).split('/'):[]));
     if(!text(q.text)||!format||!correct.length)throw httpError(400,'Trūksta privalomų laukų.');
-    db.prepare('UPDATE questions SET task_type=?,variant_a=?,variant_b=?,text=?,answer_format=?,status=?,chart_type=?,image_data=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(text(q.task),text(q.a),text(q.b),text(q.text),format,text(q.status)||'Aktyvus',text(q.chart)||'bar',String(q.image||''),id);
+    db.prepare('UPDATE questions SET task_type=?,variant_a=?,variant_b=?,text=?,answer_format=?,status=?,chart_type=?,image_data=?,variant=?,tolerance=?,source=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(text(q.task),text(q.a),text(q.b),text(q.text),format,text(q.status)||'Aktyvus',text(q.chart)||'bar',String(q.image||''),variantOf(q),toleranceOf(q),text(q.source),id);
     replaceQuestionRelations(id,format==='Skaitinis atsakymas'?correct:options,correct,hyps);
     return json(res,200,questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(id),true));
   }
@@ -136,13 +153,13 @@ async function api(req,res,pathname){
     requireAdmin(req);return json(res,200,db.prepare('SELECT * FROM experiments ORDER BY id DESC').all().map(getExperimentObject));
   }
   if(pathname==='/api/admin/experiments'&&method==='POST'){
-    requireAdmin(req);const x=await bodyJson(req);if(!text(x.title))throw httpError(400,'Nurodykite eksperimento pavadinimą.');if(text(x.status)==='Aktyvus')db.prepare("UPDATE experiments SET status='Sustabdytas' WHERE status='Aktyvus'").run();const r=db.prepare('INSERT INTO experiments(title,description,status,order_mode) VALUES(?,?,?,?)').run(text(x.title),text(x.desc),text(x.status)||'Juodraštis',text(x.order)||'Atsitiktinė');const id=Number(r.lastInsertRowid);replaceExperimentRelations(id,arr(x.questions),arr(x.hyps));return json(res,201,getExperimentObject(db.prepare('SELECT * FROM experiments WHERE id=?').get(id)));
+    requireAdmin(req);const x=await bodyJson(req);if(!text(x.title))throw httpError(400,'Nurodykite eksperimento pavadinimą.');const r=db.prepare('INSERT INTO experiments(title,description,status,order_mode) VALUES(?,?,?,?)').run(text(x.title),text(x.desc),text(x.status)||'Juodraštis',text(x.order)||'Atsitiktinė');const id=Number(r.lastInsertRowid);replaceExperimentRelations(id,arr(x.questions),arr(x.hyps));return json(res,201,getExperimentObject(db.prepare('SELECT * FROM experiments WHERE id=?').get(id)));
   }
   if((params=match(pathname,'/api/admin/experiments/:id/status'))&&method==='PATCH'){
-    requireAdmin(req);const b=await bodyJson(req),id=Number(params.id),status=text(b.status);if(status==='Aktyvus')db.prepare("UPDATE experiments SET status='Sustabdytas' WHERE status='Aktyvus' AND id<>?").run(id);db.prepare('UPDATE experiments SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status,id);return json(res,200,{ok:true});
+    requireAdmin(req);const b=await bodyJson(req),id=Number(params.id),status=text(b.status);db.prepare('UPDATE experiments SET status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(status,id);return json(res,200,{ok:true});
   }
   if((params=match(pathname,'/api/admin/experiments/:id'))&&method==='PUT'){
-    requireAdmin(req);const x=await bodyJson(req),id=Number(params.id);if(!text(x.title))throw httpError(400,'Nurodykite eksperimento pavadinimą.');if(text(x.status)==='Aktyvus')db.prepare("UPDATE experiments SET status='Sustabdytas' WHERE status='Aktyvus' AND id<>?").run(id);db.prepare('UPDATE experiments SET title=?,description=?,status=?,order_mode=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(text(x.title),text(x.desc),text(x.status)||'Juodraštis',text(x.order)||'Atsitiktinė',id);replaceExperimentRelations(id,arr(x.questions),arr(x.hyps));return json(res,200,getExperimentObject(db.prepare('SELECT * FROM experiments WHERE id=?').get(id)));
+    requireAdmin(req);const x=await bodyJson(req),id=Number(params.id);if(!text(x.title))throw httpError(400,'Nurodykite eksperimento pavadinimą.');db.prepare('UPDATE experiments SET title=?,description=?,status=?,order_mode=?,updated_at=CURRENT_TIMESTAMP WHERE id=?').run(text(x.title),text(x.desc),text(x.status)||'Juodraštis',text(x.order)||'Atsitiktinė',id);replaceExperimentRelations(id,arr(x.questions),arr(x.hyps));return json(res,200,getExperimentObject(db.prepare('SELECT * FROM experiments WHERE id=?').get(id)));
   }
 
   if(pathname==='/api/admin/sessions'&&method==='GET'){
@@ -156,12 +173,12 @@ async function api(req,res,pathname){
     requireAdmin(req);const a=db.prepare('SELECT COUNT(*) n,COALESCE(SUM(is_correct),0) correct,COALESCE(AVG(elapsed_seconds),0) avg_time,COALESCE(AVG(clarity),0) clarity,COALESCE(AVG(appeal),0) appeal,COALESCE(AVG(difficulty),0) difficulty FROM answers').get();const byTask=db.prepare('SELECT q.task_type task,COUNT(*) n,ROUND(100.0*SUM(a.is_correct)/COUNT(*),1) accuracy,ROUND(AVG(a.elapsed_seconds),1) avg_time FROM answers a JOIN questions q ON q.id=a.question_id GROUP BY q.task_type ORDER BY q.task_type').all();const byDevice=db.prepare('SELECT s.device_type device,COUNT(*) n,ROUND(AVG(a.elapsed_seconds),1) avg_time,ROUND(100.0*SUM(a.is_correct)/COUNT(*),1) accuracy FROM answers a JOIN participant_sessions s ON s.id=a.session_id GROUP BY s.device_type').all();return json(res,200,{accuracy:a.n?Math.round(a.correct*100/a.n):0,avgTime:Number(a.avg_time||0).toFixed(1),clarity:Number(a.clarity||0).toFixed(1),appeal:Number(a.appeal||0).toFixed(1),difficulty:Number(a.difficulty||0).toFixed(1),byTask,byDevice});
   }
   if(pathname==='/api/admin/export.csv'&&method==='GET'){
-    requireAdmin(req);const rows=db.prepare(`SELECT s.participant_label participant,s.id session_id,s.device_type,${PROFILE_QUESTIONS.map(p=>'s.'+p.column).join(',')},q.id question_id,q.task_type,q.answer_format,a.answer_json,a.is_correct,a.elapsed_seconds,a.clarity,a.appeal,a.difficulty,a.submitted_at FROM answers a JOIN participant_sessions s ON s.id=a.session_id JOIN questions q ON q.id=a.question_id ORDER BY s.started_at,q.id`).all();const headers=['participant','session_id','device_type',...PROFILE_QUESTIONS.map(p=>p.column),'question_id','task_type','answer_format','answer','is_correct','elapsed_seconds','clarity','appeal','difficulty','submitted_at'];const csvEsc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[headers.map(csvEsc).join(','),...rows.map(r=>headers.map(h=>csvEsc(h==='answer'?parseJSON(r.answer_json,[]).join(' | '):r[h])).join(','))].join('\n');return sendText(res,200,csv,'text/csv; charset=utf-8',{'Content-Disposition':'attachment; filename="eksperimento_rezultatai.csv"'});
+    requireAdmin(req);const rows=db.prepare(`SELECT s.participant_label participant,s.id session_id,e.code experiment,s.group_label,s.device_type,${PROFILE_QUESTIONS.map(p=>'s.'+p.column).join(',')},q.id question_id,q.task_type,CASE q.variant WHEN 'A' THEN q.variant_a WHEN 'B' THEN q.variant_b ELSE '' END chart_type_seen,q.answer_format,a.answer_json,a.is_correct,a.elapsed_seconds,a.clarity,a.appeal,a.difficulty,a.submitted_at FROM answers a JOIN participant_sessions s ON s.id=a.session_id JOIN questions q ON q.id=a.question_id JOIN experiments e ON e.id=s.experiment_id ORDER BY s.started_at,q.id`).all();const headers=['participant','session_id','experiment','group_label','device_type',...PROFILE_QUESTIONS.map(p=>p.column),'question_id','task_type','chart_type_seen','answer_format','answer','is_correct','elapsed_seconds','clarity','appeal','difficulty','submitted_at'];const csvEsc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[headers.map(csvEsc).join(','),...rows.map(r=>headers.map(h=>csvEsc(h==='answer'?parseJSON(r.answer_json,[]).join(' | '):r[h])).join(','))].join('\n');return sendText(res,200,csv,'text/csv; charset=utf-8',{'Content-Disposition':'attachment; filename="eksperimento_rezultatai.csv"'});
   }
 
   if(pathname==='/api/public/profile-questions'&&method==='GET') return json(res,200,PROFILE_QUESTIONS.map(({key,title,options,scale})=>({key,title,options,scale})));
   if(pathname==='/api/public/start'&&method==='POST'){
-    const b=await bodyJson(req),profile=b.profile||{};for(const p of PROFILE_QUESTIONS)if(!p.options.includes(text(profile[p.key])))throw httpError(400,`Atsakykite į klausimą „${p.title}“.`);const exp=db.prepare("SELECT * FROM experiments WHERE status='Aktyvus' ORDER BY id DESC LIMIT 1").get();if(!exp)throw httpError(404,'Šiuo metu nėra aktyvaus eksperimento.');let ids=db.prepare("SELECT q.id FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.status='Aktyvus' ORDER BY eq.position").all(exp.id).map(x=>x.id);if(exp.order_mode==='Atsitiktinė')ids=shuffle(ids);const id=crypto.randomUUID(),n=db.prepare('SELECT COUNT(*) c FROM participant_sessions').get().c+1,label=`Dalyvis #${n}`,ua=req.headers['user-agent']||'',device=text(b.device)||(/Mobi|Android|iPhone|iPad/i.test(ua)?'Mobilusis':'Kompiuteris'),profileColumns=PROFILE_QUESTIONS.map(p=>p.column);db.prepare(`INSERT INTO participant_sessions(id,experiment_id,participant_label,device_type,${profileColumns.join(',')},status,question_order_json,started_at,user_agent) VALUES(?,?,?,?,${profileColumns.map(()=>'?').join(',')},?,?,?,?)`).run(id,exp.id,label,device,...PROFILE_QUESTIONS.map(p=>text(profile[p.key])),'Vykdoma',JSON.stringify(ids),nowIso(),ua);const questions=ids.map(qid=>publicQuestion(questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(qid),true)));return json(res,201,{sessionId:id,participantLabel:label,experiment:{id:exp.id,title:exp.title,description:exp.description},questions});
+    const b=await bodyJson(req),profile=b.profile||{};for(const p of PROFILE_QUESTIONS)if(!p.options.includes(text(profile[p.key])))throw httpError(400,`Atsakykite į klausimą „${p.title}“.`);const {exp,group}=assignExperiment();let ids=experimentQuestionIds(exp.id,group);if(exp.order_mode==='Atsitiktinė')ids=shuffle(ids);const id=crypto.randomUUID(),n=db.prepare('SELECT COUNT(*) c FROM participant_sessions').get().c+1,label=`Dalyvis #${n}`,ua=req.headers['user-agent']||'',device=text(b.device)||(/Mobi|Android|iPhone|iPad/i.test(ua)?'Mobilusis':'Kompiuteris'),profileColumns=PROFILE_QUESTIONS.map(p=>p.column);db.prepare(`INSERT INTO participant_sessions(id,experiment_id,participant_label,device_type,group_label,${profileColumns.join(',')},status,question_order_json,started_at,user_agent) VALUES(?,?,?,?,?,${profileColumns.map(()=>'?').join(',')},?,?,?,?)`).run(id,exp.id,label,device,group,...PROFILE_QUESTIONS.map(p=>text(profile[p.key])),'Vykdoma',JSON.stringify(ids),nowIso(),ua);const questions=ids.map(qid=>publicQuestion(questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(qid),true)));return json(res,201,{sessionId:id,participantLabel:label,experiment:{id:exp.id,title:exp.title,description:exp.description},questions});
   }
   if((params=match(pathname,'/api/public/sessions/:id/answer'))&&method==='POST'){
     const b=await bodyJson(req),s=db.prepare('SELECT * FROM participant_sessions WHERE id=?').get(params.id);if(!s)throw httpError(404,'Sesija nerasta.');if(s.status==='Užbaigta')throw httpError(409,'Sesija jau užbaigta.');const qid=text(b.questionId);if(!parseJSON(s.question_order_json,[]).includes(qid))throw httpError(400,'Klausimas nepriklauso šiai sesijai.');const row=db.prepare('SELECT * FROM questions WHERE id=?').get(qid),q=questionToObject(row,true),elapsed=Math.max(1,Math.round(Number(b.elapsedSeconds)||1)),clarity=Number(b.clarity),appeal=Number(b.appeal),difficulty=Number(b.difficulty);if(![clarity,appeal,difficulty].every(v=>Number.isInteger(v)&&v>=1&&v<=5))throw httpError(400,'Visi trys vertinimai turi būti nuo 1 iki 5.');const correct=isCorrectAnswer(q,b.answer)?1:0;db.prepare('INSERT INTO answers(session_id,question_id,answer_json,is_correct,elapsed_seconds,clarity,appeal,difficulty) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(session_id,question_id) DO UPDATE SET answer_json=excluded.answer_json,is_correct=excluded.is_correct,elapsed_seconds=excluded.elapsed_seconds,clarity=excluded.clarity,appeal=excluded.appeal,difficulty=excluded.difficulty,submitted_at=CURRENT_TIMESTAMP').run(s.id,qid,JSON.stringify(normalizedAnswer(b.answer)),correct,elapsed,clarity,appeal,difficulty);return json(res,200,{ok:true});

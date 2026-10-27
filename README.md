@@ -72,6 +72,12 @@ cloudflared tunnel --url http://localhost:8000
 
 Cloudflare pateiks viešą HTTPS adresą. Dalyviams siųskite pagrindinę nuorodą, o tyrėjo portalas bus prieinamas pridėjus `/admin`.
 
+## Eksperimentai E1–E4 ir A/B grupės
+
+Faile `seed/eksperimentai.json` aprašyti 4 eksperimentai (E1–E4) ir 80 klausimų: kiekvienam iš 40 klausimų yra A ir B grupės variantas su skirtinga diagrama (`public/diagramos/`). Paleidus serverį, trūkstami klausimai ir eksperimentai automatiškai importuojami į DB (esami neperrašomi). Pirmą kartą importavus, E1–E4 tampa aktyvūs, o kiti aktyvūs eksperimentai sustabdomi.
+
+Kiekvienas dalyvis priskiriamas vienam aktyviam eksperimentui ir A arba B grupei – ten, kur iki šiol mažiausiai dalyvių. Grupė, eksperimentas ir matytos diagramos tipas įrašomi į CSV eksportą (`experiment`, `group_label`, `chart_type_seen`). Skaitiniai atsakymai laikomi teisingais, jei patenka į klausimo leistiną nuokrypį.
+
 ## Talpinimas internete (Railway)
 
 Sistema naudoja SQLite failą, todėl serveriui reikia **nuolatinio disko (volume)**, kitaip duomenys dings po kiekvieno perkrovimo.

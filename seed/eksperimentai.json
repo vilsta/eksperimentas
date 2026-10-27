@@ -1,0 +1,2157 @@
+{
+ "experiments": [
+  {
+   "code": "E1",
+   "title": "E1 – Laiko eilutės: linijinė ir stulpelinė diagrama",
+   "desc": "A grupė mato linijines diagramas, B grupė – stulpelines (dviem serijoms – grupuotas stulpelines). Užduotys: laiko eilučių skaitymas, tendencijos, pokyčiai. Duomenys – Oficialiosios statistikos portalas.",
+   "hyps": [
+    "H1",
+    "H6",
+    "H7a",
+    "H7b",
+    "H7c"
+   ],
+   "questions": [
+    "E1-1-A",
+    "E1-1-B",
+    "E1-2-A",
+    "E1-2-B",
+    "E1-3-A",
+    "E1-3-B",
+    "E1-4-A",
+    "E1-4-B",
+    "E1-5-A",
+    "E1-5-B",
+    "E1-6-A",
+    "E1-6-B",
+    "E1-7-A",
+    "E1-7-B",
+    "E1-8-A",
+    "E1-8-B",
+    "E1-9-A",
+    "E1-9-B",
+    "E1-10-A",
+    "E1-10-B"
+   ]
+  },
+  {
+   "code": "E2",
+   "title": "E2 – Kategorijos ir proporcijos: stulpelinė ir skritulinė diagrama",
+   "desc": "A grupė mato stulpelines diagramas, B grupė – skritulines. Užduotys: kategorijų palyginimas ir proporcijų vertinimas. Duomenys – Oficialiosios statistikos portalas.",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3",
+    "H6",
+    "H7a",
+    "H7b",
+    "H7c"
+   ],
+   "questions": [
+    "E2-1-A",
+    "E2-1-B",
+    "E2-2-A",
+    "E2-2-B",
+    "E2-3-A",
+    "E2-3-B",
+    "E2-4-A",
+    "E2-4-B",
+    "E2-5-A",
+    "E2-5-B",
+    "E2-6-A",
+    "E2-6-B",
+    "E2-7-A",
+    "E2-7-B",
+    "E2-8-A",
+    "E2-8-B",
+    "E2-9-A",
+    "E2-9-B",
+    "E2-10-A",
+    "E2-10-B"
+   ]
+  },
+  {
+   "code": "E3",
+   "title": "E3 – Ryšys tarp kintamųjų: sklaidos ir stulpelinė diagrama",
+   "desc": "A grupė mato sklaidos diagramas, B grupė – stulpelines diagramas (Y vidurkiai pagal X intervalus). Užduotys: ryšio krypties, stiprumo ir grupių nustatymas. Duomenys – Oficialiosios statistikos portalas.",
+   "hyps": [
+    "H4",
+    "H6",
+    "H7a",
+    "H7b",
+    "H7c"
+   ],
+   "questions": [
+    "E3-1-A",
+    "E3-1-B",
+    "E3-2-A",
+    "E3-2-B",
+    "E3-3-A",
+    "E3-3-B",
+    "E3-4-A",
+    "E3-4-B",
+    "E3-5-A",
+    "E3-5-B",
+    "E3-6-A",
+    "E3-6-B",
+    "E3-7-A",
+    "E3-7-B",
+    "E3-8-A",
+    "E3-8-B",
+    "E3-9-A",
+    "E3-9-B",
+    "E3-10-A",
+    "E3-10-B"
+   ]
+  },
+  {
+   "code": "E4",
+   "title": "E4 – Pateikimo būdas: su reikšmių žymomis ir be jų",
+   "desc": "A grupė mato diagramas su reikšmių žymomis, B grupė – tas pačias diagramas be reikšmių žymų. Užduotys: reikšmių nuskaitymas, skirtumai, sumos, vidurkiai. Duomenys – Oficialiosios statistikos portalas.",
+   "hyps": [
+    "H5a",
+    "H5b",
+    "H6",
+    "H7a",
+    "H7b",
+    "H7c"
+   ],
+   "questions": [
+    "E4-1-A",
+    "E4-1-B",
+    "E4-2-A",
+    "E4-2-B",
+    "E4-3-A",
+    "E4-3-B",
+    "E4-4-A",
+    "E4-4-B",
+    "E4-5-A",
+    "E4-5-B",
+    "E4-6-A",
+    "E4-6-B",
+    "E4-7-A",
+    "E4-7-B",
+    "E4-8-A",
+    "E4-8-B",
+    "E4-9-A",
+    "E4-9-B",
+    "E4-10-A",
+    "E4-10-B"
+   ]
+  }
+ ],
+ "questions": [
+  {
+   "id": "E1-1-A",
+   "variant": "A",
+   "task": "Didžiausia reikšmė",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kurį mėnesį kainų lūkesčių balansas buvo didžiausias?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2026 m. sausis",
+    "2026 m. kovas",
+    "2026 m. balandis",
+    "2026 m. gegužė"
+   ],
+   "correct": [
+    "2026 m. balandis"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-01_A.png",
+   "source": "Kainų lūkesčių balansas, miestas ir kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-1-B",
+   "variant": "B",
+   "task": "Didžiausia reikšmė",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kurį mėnesį kainų lūkesčių balansas buvo didžiausias?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2026 m. sausis",
+    "2026 m. kovas",
+    "2026 m. balandis",
+    "2026 m. gegužė"
+   ],
+   "correct": [
+    "2026 m. balandis"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-01_B.png",
+   "source": "Kainų lūkesčių balansas, miestas ir kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-2-A",
+   "variant": "A",
+   "task": "Mažiausia reikšmė",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kurį mėnesį kainų lūkesčių balansas buvo mažiausias?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025 m. spalis",
+    "2025 m. lapkritis",
+    "2026 m. vasaris",
+    "2026 m. birželis"
+   ],
+   "correct": [
+    "2025 m. lapkritis"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-02_A.png",
+   "source": "Kainų lūkesčių balansas, kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-2-B",
+   "variant": "B",
+   "task": "Mažiausia reikšmė",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kurį mėnesį kainų lūkesčių balansas buvo mažiausias?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025 m. spalis",
+    "2025 m. lapkritis",
+    "2026 m. vasaris",
+    "2026 m. birželis"
+   ],
+   "correct": [
+    "2025 m. lapkritis"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-02_B.png",
+   "source": "Kainų lūkesčių balansas, kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-3-A",
+   "variant": "A",
+   "task": "Bendra tendencija",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kaip kito bendros išlaidos keliams 2021–2025 m.?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Nuolat didėjo",
+    "Nuolat mažėjo",
+    "Didėjo iki 2024 m., 2025 m. sumažėjo",
+    "Išliko stabilios"
+   ],
+   "correct": [
+    "Didėjo iki 2024 m., 2025 m. sumažėjo"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-03_A.png",
+   "source": "Bendros išlaidos keliams (visi keliai), 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-3-B",
+   "variant": "B",
+   "task": "Bendra tendencija",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kaip kito bendros išlaidos keliams 2021–2025 m.?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Nuolat didėjo",
+    "Nuolat mažėjo",
+    "Didėjo iki 2024 m., 2025 m. sumažėjo",
+    "Išliko stabilios"
+   ],
+   "correct": [
+    "Didėjo iki 2024 m., 2025 m. sumažėjo"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-03_B.png",
+   "source": "Bendros išlaidos keliams (visi keliai), 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-4-A",
+   "variant": "A",
+   "task": "Didžiausias augimas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Tarp kurių gretimų metų išlaidos išaugo labiausiai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2021–2022",
+    "2022–2023",
+    "2023–2024",
+    "2024–2025"
+   ],
+   "correct": [
+    "2023–2024"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-04_A.png",
+   "source": "Bendros išlaidos valstybinės reikšmės keliams, 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-4-B",
+   "variant": "B",
+   "task": "Didžiausias augimas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Tarp kurių gretimų metų išlaidos išaugo labiausiai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2021–2022",
+    "2022–2023",
+    "2023–2024",
+    "2024–2025"
+   ],
+   "correct": [
+    "2023–2024"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-04_B.png",
+   "source": "Bendros išlaidos valstybinės reikšmės keliams, 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-5-A",
+   "variant": "A",
+   "task": "Dviejų serijų palyginimas",
+   "a": "Linijinė",
+   "b": "Grupuota stulpelinė",
+   "text": "Kurį mėnesį miesto gyventojų balansas buvo didesnis nei kaimo?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025 m. spalis",
+    "2025 m. lapkritis",
+    "2026 m. vasaris",
+    "2026 m. birželis"
+   ],
+   "correct": [
+    "2025 m. lapkritis"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-05_A.png",
+   "source": "Kainų lūkesčių balansas, miestas ir kaimas atskirai, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-5-B",
+   "variant": "B",
+   "task": "Dviejų serijų palyginimas",
+   "a": "Linijinė",
+   "b": "Grupuota stulpelinė",
+   "text": "Kurį mėnesį miesto gyventojų balansas buvo didesnis nei kaimo?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025 m. spalis",
+    "2025 m. lapkritis",
+    "2026 m. vasaris",
+    "2026 m. birželis"
+   ],
+   "correct": [
+    "2025 m. lapkritis"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-05_B.png",
+   "source": "Kainų lūkesčių balansas, miestas ir kaimas atskirai, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-6-A",
+   "variant": "A",
+   "task": "Beveik vienodos reikšmės",
+   "a": "Linijinė",
+   "b": "Grupuota stulpelinė",
+   "text": "Kuriais metais valstybinės ir vietinės reikšmės kelių priežiūros išlaidos buvo beveik vienodos?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2021",
+    "2022",
+    "2023",
+    "2024"
+   ],
+   "correct": [
+    "2021"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-06_A.png",
+   "source": "Išlaidos kelių priežiūros darbams pagal kelių rūšį, 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-6-B",
+   "variant": "B",
+   "task": "Beveik vienodos reikšmės",
+   "a": "Linijinė",
+   "b": "Grupuota stulpelinė",
+   "text": "Kuriais metais valstybinės ir vietinės reikšmės kelių priežiūros išlaidos buvo beveik vienodos?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2021",
+    "2022",
+    "2023",
+    "2024"
+   ],
+   "correct": [
+    "2021"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-06_B.png",
+   "source": "Išlaidos kelių priežiūros darbams pagal kelių rūšį, 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-7-A",
+   "variant": "A",
+   "task": "Ribos peržengimas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kuriais metais vidutinė buto kaina pirmą kartą viršijo 1500 EUR/m²?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+   ],
+   "correct": [
+    "2023"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-07_A.png",
+   "source": "Butų daugiabučiuose namuose vidutinė kaina, Lietuvos Respublika, EUR/m², 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-7-B",
+   "variant": "B",
+   "task": "Ribos peržengimas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kuriais metais vidutinė buto kaina pirmą kartą viršijo 1500 EUR/m²?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+   ],
+   "correct": [
+    "2023"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-07_B.png",
+   "source": "Butų daugiabučiuose namuose vidutinė kaina, Lietuvos Respublika, EUR/m², 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-8-A",
+   "variant": "A",
+   "task": "Reikšmės nuskaitymas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kokia buvo vidutinė namo kaina už m² 2024 m. (EUR)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "776"
+   ],
+   "correct": [
+    "776"
+   ],
+   "tolerance": 25.0,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-08_A.png",
+   "source": "Vieno ir dviejų būstų pastatų vidutinė kaina, Lietuvos Respublika, EUR/m², 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-8-B",
+   "variant": "B",
+   "task": "Reikšmės nuskaitymas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kokia buvo vidutinė namo kaina už m² 2024 m. (EUR)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "776"
+   ],
+   "correct": [
+    "776"
+   ],
+   "tolerance": 25.0,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-08_B.png",
+   "source": "Vieno ir dviejų būstų pastatų vidutinė kaina, Lietuvos Respublika, EUR/m², 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-9-A",
+   "variant": "A",
+   "task": "Stabilus laikotarpis",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kuriuo laikotarpiu balansas nesikeitė?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025-09–2025-12",
+    "2026-01–2026-04",
+    "2026-05–2026-08",
+    "2026-06–2026-09"
+   ],
+   "correct": [
+    "2025-09–2025-12"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-09_A.png",
+   "source": "Kainų lūkesčių balansas, miestas ir kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-9-B",
+   "variant": "B",
+   "task": "Stabilus laikotarpis",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kuriuo laikotarpiu balansas nesikeitė?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025-09–2025-12",
+    "2026-01–2026-04",
+    "2026-05–2026-08",
+    "2026-06–2026-09"
+   ],
+   "correct": [
+    "2025-09–2025-12"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-09_B.png",
+   "source": "Kainų lūkesčių balansas, miestas ir kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-10-A",
+   "variant": "A",
+   "task": "Dviejų taškų palyginimas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kaip pasikeitė vidutinė namo kaina Alytuje 2022 m., palyginti su 2021 m.?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Padidėjo",
+    "Sumažėjo",
+    "Nepasikeitė"
+   ],
+   "correct": [
+    "Sumažėjo"
+   ],
+   "tolerance": null,
+   "chart": "line",
+   "image": "/diagramos/E1/E1-10_A.png",
+   "source": "Vieno ir dviejų būstų pastatų vidutinė kaina, Alytaus m. sav., tūkst. EUR, 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E1-10-B",
+   "variant": "B",
+   "task": "Dviejų taškų palyginimas",
+   "a": "Linijinė",
+   "b": "Stulpelinė",
+   "text": "Kaip pasikeitė vidutinė namo kaina Alytuje 2022 m., palyginti su 2021 m.?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Padidėjo",
+    "Sumažėjo",
+    "Nepasikeitė"
+   ],
+   "correct": [
+    "Sumažėjo"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E1/E1-10_B.png",
+   "source": "Vieno ir dviejų būstų pastatų vidutinė kaina, Alytaus m. sav., tūkst. EUR, 2021–2025",
+   "hyps": [
+    "H1"
+   ]
+  },
+  {
+   "id": "E2-1-A",
+   "variant": "A",
+   "task": "Didžiausia kategorija",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kokį atsakymą gyventojai rinkosi dažniausiai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Daug aukštesnės",
+    "Pastebimai aukštesnės",
+    "Truputį aukštesnės",
+    "Kiti atsakymai"
+   ],
+   "correct": [
+    "Pastebimai aukštesnės"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-01_A.png",
+   "source": "Kainų lūkesčių struktūra, miestas ir kaimas, 2026 m. kovas, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-1-B",
+   "variant": "B",
+   "task": "Didžiausia kategorija",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kokį atsakymą gyventojai rinkosi dažniausiai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Daug aukštesnės",
+    "Pastebimai aukštesnės",
+    "Truputį aukštesnės",
+    "Kiti atsakymai"
+   ],
+   "correct": [
+    "Pastebimai aukštesnės"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-01_B.png",
+   "source": "Kainų lūkesčių struktūra, miestas ir kaimas, 2026 m. kovas, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-2-A",
+   "variant": "A",
+   "task": "Mažiausia kategorija",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuriai sričiai teko mažiausia išlaidų dalis?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Valstybinių kelių tiesimas",
+    "Valstybinių kelių priežiūra",
+    "Vietinių kelių tiesimas",
+    "Vietinių kelių priežiūra"
+   ],
+   "correct": [
+    "Valstybinių kelių priežiūra"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-02_A.png",
+   "source": "Išlaidų keliams struktūra, 2025 m., % (apskaičiuota iš mln. EUR)",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-2-B",
+   "variant": "B",
+   "task": "Mažiausia kategorija",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuriai sričiai teko mažiausia išlaidų dalis?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Valstybinių kelių tiesimas",
+    "Valstybinių kelių priežiūra",
+    "Vietinių kelių tiesimas",
+    "Vietinių kelių priežiūra"
+   ],
+   "correct": [
+    "Valstybinių kelių priežiūra"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-02_B.png",
+   "source": "Išlaidų keliams struktūra, 2025 m., % (apskaičiuota iš mln. EUR)",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-3-A",
+   "variant": "A",
+   "task": "Panašiausios kategorijos",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kurie du atsakymai pasirinkti panašiai dažnai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Daug aukštesnės ir truputį aukštesnės",
+    "Daug aukštesnės ir pastebimai aukštesnės",
+    "Pastebimai aukštesnės ir truputį aukštesnės",
+    "Truputį aukštesnės ir kiti atsakymai"
+   ],
+   "correct": [
+    "Daug aukštesnės ir truputį aukštesnės"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-03_A.png",
+   "source": "Kainų lūkesčių struktūra, miestas ir kaimas, 2026 m. birželis, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-3-B",
+   "variant": "B",
+   "task": "Panašiausios kategorijos",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kurie du atsakymai pasirinkti panašiai dažnai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Daug aukštesnės ir truputį aukštesnės",
+    "Daug aukštesnės ir pastebimai aukštesnės",
+    "Pastebimai aukštesnės ir truputį aukštesnės",
+    "Truputį aukštesnės ir kiti atsakymai"
+   ],
+   "correct": [
+    "Daug aukštesnės ir truputį aukštesnės"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-03_B.png",
+   "source": "Kainų lūkesčių struktūra, miestas ir kaimas, 2026 m. birželis, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-4-A",
+   "variant": "A",
+   "task": "Rangas",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuri sritis pagal išlaidų dalį yra antra?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Valstybinių kelių tiesimas",
+    "Valstybinių kelių priežiūra",
+    "Vietinių kelių tiesimas",
+    "Vietinių kelių priežiūra"
+   ],
+   "correct": [
+    "Vietinių kelių tiesimas"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-04_A.png",
+   "source": "Išlaidų keliams struktūra, 2023 m., %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-4-B",
+   "variant": "B",
+   "task": "Rangas",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuri sritis pagal išlaidų dalį yra antra?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Valstybinių kelių tiesimas",
+    "Valstybinių kelių priežiūra",
+    "Vietinių kelių tiesimas",
+    "Vietinių kelių priežiūra"
+   ],
+   "correct": [
+    "Vietinių kelių tiesimas"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-04_B.png",
+   "source": "Išlaidų keliams struktūra, 2023 m., %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-5-A",
+   "variant": "A",
+   "task": "Daugiau nei pusė visumos",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuris atsakymas sudaro daugiau nei pusę visų atsakymų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Daug aukštesnės",
+    "Pastebimai aukštesnės",
+    "Truputį aukštesnės",
+    "Nė vienas"
+   ],
+   "correct": [
+    "Pastebimai aukštesnės"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-05_A.png",
+   "source": "Kainų lūkesčių struktūra, kaimas, 2026 m. gegužė, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-5-B",
+   "variant": "B",
+   "task": "Daugiau nei pusė visumos",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuris atsakymas sudaro daugiau nei pusę visų atsakymų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Daug aukštesnės",
+    "Pastebimai aukštesnės",
+    "Truputį aukštesnės",
+    "Nė vienas"
+   ],
+   "correct": [
+    "Pastebimai aukštesnės"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-05_B.png",
+   "source": "Kainų lūkesčių struktūra, kaimas, 2026 m. gegužė, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-6-A",
+   "variant": "A",
+   "task": "Dalies įvertinimas",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kokia dalis (%) gyventojų mano, kad kainos bus truputį aukštesnės?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "21"
+   ],
+   "correct": [
+    "21"
+   ],
+   "tolerance": 3.0,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-06_A.png",
+   "source": "Kainų lūkesčių struktūra, miestas ir kaimas, 2026 m. rugsėjis, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-6-B",
+   "variant": "B",
+   "task": "Dalies įvertinimas",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kokia dalis (%) gyventojų mano, kad kainos bus truputį aukštesnės?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "21"
+   ],
+   "correct": [
+    "21"
+   ],
+   "tolerance": 3.0,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-06_B.png",
+   "source": "Kainų lūkesčių struktūra, miestas ir kaimas, 2026 m. rugsėjis, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-7-A",
+   "variant": "A",
+   "task": "Daugiau nei ketvirtadalis",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kiek sričių sudaro daugiau nei ketvirtadalį visų išlaidų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "correct": [
+    "2"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-07_A.png",
+   "source": "Išlaidų keliams struktūra, 2021 m., %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-7-B",
+   "variant": "B",
+   "task": "Daugiau nei ketvirtadalis",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kiek sričių sudaro daugiau nei ketvirtadalį visų išlaidų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "correct": [
+    "2"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-07_B.png",
+   "source": "Išlaidų keliams struktūra, 2021 m., %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-8-A",
+   "variant": "A",
+   "task": "Santykis",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kiek kartų daugiau gyventojų atsakė „pastebimai aukštesnės“ nei „truputį aukštesnės“?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "~1,5",
+    "~2",
+    "~3",
+    "~5"
+   ],
+   "correct": [
+    "~3"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-08_A.png",
+   "source": "Kainų lūkesčių struktūra, kaimas, 2026 m. rugsėjis, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-8-B",
+   "variant": "B",
+   "task": "Santykis",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kiek kartų daugiau gyventojų atsakė „pastebimai aukštesnės“ nei „truputį aukštesnės“?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "~1,5",
+    "~2",
+    "~3",
+    "~5"
+   ],
+   "correct": [
+    "~3"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-08_B.png",
+   "source": "Kainų lūkesčių struktūra, kaimas, 2026 m. rugsėjis, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-9-A",
+   "variant": "A",
+   "task": "Kategorijų virš ribos skaičius",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kiek atsakymų pasirinko daugiau nei 20 % gyventojų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "correct": [
+    "3"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-09_A.png",
+   "source": "Kainų lūkesčių struktūra, miestas, 2026 m. liepa, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-9-B",
+   "variant": "B",
+   "task": "Kategorijų virš ribos skaičius",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kiek atsakymų pasirinko daugiau nei 20 % gyventojų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "correct": [
+    "3"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-09_B.png",
+   "source": "Kainų lūkesčių struktūra, miestas, 2026 m. liepa, %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-10-A",
+   "variant": "A",
+   "task": "Dviejų kategorijų palyginimas",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuriai sričiai teko didesnė išlaidų dalis: vietinių ar valstybinių kelių priežiūrai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Vietinių kelių priežiūra",
+    "Valstybinių kelių priežiūra",
+    "Vienoda"
+   ],
+   "correct": [
+    "Vietinių kelių priežiūra"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E2/E2-10_A.png",
+   "source": "Išlaidų keliams struktūra, 2024 m., %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E2-10-B",
+   "variant": "B",
+   "task": "Dviejų kategorijų palyginimas",
+   "a": "Stulpelinė",
+   "b": "Skritulinė",
+   "text": "Kuriai sričiai teko didesnė išlaidų dalis: vietinių ar valstybinių kelių priežiūrai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Vietinių kelių priežiūra",
+    "Valstybinių kelių priežiūra",
+    "Vienoda"
+   ],
+   "correct": [
+    "Vietinių kelių priežiūra"
+   ],
+   "tolerance": null,
+   "chart": "pie",
+   "image": "/diagramos/E2/E2-10_B.png",
+   "source": "Išlaidų keliams struktūra, 2024 m., %",
+   "hyps": [
+    "H2a",
+    "H2b",
+    "H3"
+   ]
+  },
+  {
+   "id": "E3-1-A",
+   "variant": "A",
+   "task": "Ryšio kryptis",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta pajamos vienam nariui didėjant pajamoms vienam namų ūkiui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Didėja"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-01_A.png",
+   "source": "Bendrosios pajamos per mėnesį, 10 apskričių × 3 metai (30 taškų)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-1-B",
+   "variant": "B",
+   "task": "Ryšio kryptis",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta pajamos vienam nariui didėjant pajamoms vienam namų ūkiui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Didėja"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-01_B.png",
+   "source": "Bendrosios pajamos per mėnesį, 10 apskričių × 3 metai (30 taškų)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-2-A",
+   "variant": "A",
+   "task": "Ryšio kryptis",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta dalis asmenų, mačiusių netikros informacijos, didėjant amžiui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Mažėja"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-02_A.png",
+   "source": "Asmenys, internete matę netikros informacijos, % nuo visų asmenų; 6 amžiaus grupės × 4 metai (24 taškai)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-2-B",
+   "variant": "B",
+   "task": "Ryšio kryptis",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta dalis asmenų, mačiusių netikros informacijos, didėjant amžiui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Mažėja"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-02_B.png",
+   "source": "Asmenys, internete matę netikros informacijos, % nuo visų asmenų; 6 amžiaus grupės × 4 metai (24 taškai)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-3-A",
+   "variant": "A",
+   "task": "Ryšio nebuvimas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta kaimo balansas didėjant miesto balansui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Ryšio nėra"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-03_A.png",
+   "source": "Kainų lūkesčių balansas, miestas (X) ir kaimas (Y), 13 mėnesių",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-3-B",
+   "variant": "B",
+   "task": "Ryšio nebuvimas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta kaimo balansas didėjant miesto balansui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Ryšio nėra"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-03_B.png",
+   "source": "Kainų lūkesčių balansas, miestas (X) ir kaimas (Y), 13 mėnesių",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-4-A",
+   "variant": "A",
+   "task": "Ryšio stiprumas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip apibūdintumėte ryšį tarp buto kainos ir kainos už m²?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Stiprus teigiamas",
+    "Silpnas teigiamas",
+    "Ryšio nėra",
+    "Neigiamas"
+   ],
+   "correct": [
+    "Stiprus teigiamas"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-04_A.png",
+   "source": "Būsto kainos, butai, 6 didmiesčių savivaldybės × 5 metai (30 taškų)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-4-B",
+   "variant": "B",
+   "task": "Ryšio stiprumas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip apibūdintumėte ryšį tarp buto kainos ir kainos už m²?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Stiprus teigiamas",
+    "Silpnas teigiamas",
+    "Ryšio nėra",
+    "Neigiamas"
+   ],
+   "correct": [
+    "Stiprus teigiamas"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-04_B.png",
+   "source": "Būsto kainos, butai, 6 didmiesčių savivaldybės × 5 metai (30 taškų)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-5-A",
+   "variant": "A",
+   "task": "Ryšio buvimas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Ar ten, kur brangesni butai, brangesni ir namai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Taip, aiškiai",
+    "Tik šiek tiek",
+    "Ne, ryšio nėra",
+    "Priešingai – namai pigesni"
+   ],
+   "correct": [
+    "Taip, aiškiai"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-05_A.png",
+   "source": "Būsto kainos už m²: butai (X) ir namai (Y), 6 savivaldybės × 5 metai (30 taškų)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-5-B",
+   "variant": "B",
+   "task": "Ryšio buvimas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Ar ten, kur brangesni butai, brangesni ir namai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Taip, aiškiai",
+    "Tik šiek tiek",
+    "Ne, ryšio nėra",
+    "Priešingai – namai pigesni"
+   ],
+   "correct": [
+    "Taip, aiškiai"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-05_B.png",
+   "source": "Būsto kainos už m²: butai (X) ir namai (Y), 6 savivaldybės × 5 metai (30 taškų)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-6-A",
+   "variant": "A",
+   "task": "Didžiausių reikšmių sritis",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kurioje amžiaus grupėje netikros informacijos matė didžiausia dalis asmenų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "16–24",
+    "25–34",
+    "35–44",
+    "45–54"
+   ],
+   "correct": [
+    "25–34"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-06_A.png",
+   "source": "Asmenys, internete matę netikros informacijos, % nuo visų asmenų; 24 taškai",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-6-B",
+   "variant": "B",
+   "task": "Didžiausių reikšmių sritis",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kurioje amžiaus grupėje netikros informacijos matė didžiausia dalis asmenų?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "16–24",
+    "25–34",
+    "35–44",
+    "45–54"
+   ],
+   "correct": [
+    "25–34"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-06_B.png",
+   "source": "Asmenys, internete matę netikros informacijos, % nuo visų asmenų; 24 taškai",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-7-A",
+   "variant": "A",
+   "task": "Prognozė pagal ryšį",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kokia apytikslė kaina už m², kai vidutinė buto kaina yra 100 tūkst. EUR?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Apie 1 000 EUR",
+    "Apie 2 000 EUR",
+    "Apie 3 000 EUR",
+    "Apie 4 000 EUR"
+   ],
+   "correct": [
+    "Apie 2 000 EUR"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-07_A.png",
+   "source": "Būsto kainos, butai, 30 taškų",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-7-B",
+   "variant": "B",
+   "task": "Prognozė pagal ryšį",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kokia apytikslė kaina už m², kai vidutinė buto kaina yra 100 tūkst. EUR?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Apie 1 000 EUR",
+    "Apie 2 000 EUR",
+    "Apie 3 000 EUR",
+    "Apie 4 000 EUR"
+   ],
+   "correct": [
+    "Apie 2 000 EUR"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-07_B.png",
+   "source": "Būsto kainos, butai, 30 taškų",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-8-A",
+   "variant": "A",
+   "task": "Prognozė pagal ryšį",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kokia apytikslė kaina už m², kai vidutinė namo kaina yra 150 tūkst. EUR?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Apie 600 EUR",
+    "Apie 1 200 EUR",
+    "Apie 1 800 EUR",
+    "Apie 2 400 EUR"
+   ],
+   "correct": [
+    "Apie 1 200 EUR"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-08_A.png",
+   "source": "Būsto kainos, vieno ir dviejų būstų pastatai, 30 taškų",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-8-B",
+   "variant": "B",
+   "task": "Prognozė pagal ryšį",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kokia apytikslė kaina už m², kai vidutinė namo kaina yra 150 tūkst. EUR?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Apie 600 EUR",
+    "Apie 1 200 EUR",
+    "Apie 1 800 EUR",
+    "Apie 2 400 EUR"
+   ],
+   "correct": [
+    "Apie 1 200 EUR"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-08_B.png",
+   "source": "Būsto kainos, vieno ir dviejų būstų pastatai, 30 taškų",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-9-A",
+   "variant": "A",
+   "task": "Ryšio nebuvimas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta pajamos vienam nariui didėjant namų ūkio dydžiui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Ryšio nėra"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-09_A.png",
+   "source": "Bendrosios pajamos per mėnesį; namų ūkio dydis = pajamos namų ūkiui / pajamos nariui; 30 taškų",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-9-B",
+   "variant": "B",
+   "task": "Ryšio nebuvimas",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kaip kinta pajamos vienam nariui didėjant namų ūkio dydžiui?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Didėja",
+    "Mažėja",
+    "Ryšio nėra"
+   ],
+   "correct": [
+    "Ryšio nėra"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-09_B.png",
+   "source": "Bendrosios pajamos per mėnesį; namų ūkio dydis = pajamos namų ūkiui / pajamos nariui; 30 taškų",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-10-A",
+   "variant": "A",
+   "task": "Taškų grupės",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kiek atskirų taškų grupių matote?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "correct": [
+    "2"
+   ],
+   "tolerance": null,
+   "chart": "scatter",
+   "image": "/diagramos/E3/E3-10_A.png",
+   "source": "Būsto kainos, namai ir butai kartu (60 taškų, tipas nepažymėtas)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E3-10-B",
+   "variant": "B",
+   "task": "Taškų grupės",
+   "a": "Sklaidos",
+   "b": "Stulpelinė (Y vidurkiai pagal X intervalus)",
+   "text": "Kiek atskirų taškų grupių matote?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "correct": [
+    "2"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E3/E3-10_B.png",
+   "source": "Būsto kainos, namai ir butai kartu (60 taškų, tipas nepažymėtas)",
+   "hyps": [
+    "H4"
+   ]
+  },
+  {
+   "id": "E4-1-A",
+   "variant": "A",
+   "task": "Reikšmės nuskaitymas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kokia buvo vidutinė buto kaina Kaune (EUR/m²)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "1988"
+   ],
+   "correct": [
+    "1988"
+   ],
+   "tolerance": 50.0,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-01_A.png",
+   "source": "Butų vidutinė kaina, 6 didmiesčių savivaldybės, 2025 m., EUR/m²",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-1-B",
+   "variant": "B",
+   "task": "Reikšmės nuskaitymas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kokia buvo vidutinė buto kaina Kaune (EUR/m²)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "1988"
+   ],
+   "correct": [
+    "1988"
+   ],
+   "tolerance": 50.0,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-01_B.png",
+   "source": "Butų vidutinė kaina, 6 didmiesčių savivaldybės, 2025 m., EUR/m²",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-2-A",
+   "variant": "A",
+   "task": "Skirtumas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kiek Kauno apskrities namų ūkių pajamos didesnės nei Klaipėdos (EUR)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "136"
+   ],
+   "correct": [
+    "136"
+   ],
+   "tolerance": 30.0,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-02_A.png",
+   "source": "Bendrosios pajamos vienam namų ūkiui, 6 apskritys, 2025 m.",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-2-B",
+   "variant": "B",
+   "task": "Skirtumas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kiek Kauno apskrities namų ūkių pajamos didesnės nei Klaipėdos (EUR)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "136"
+   ],
+   "correct": [
+    "136"
+   ],
+   "tolerance": 30.0,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-02_B.png",
+   "source": "Bendrosios pajamos vienam namų ūkiui, 6 apskritys, 2025 m.",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-3-A",
+   "variant": "A",
+   "task": "Artimų reikšmių palyginimas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kurioje savivaldybėje namo kaina už m² didžiausia: Alytaus, Panevėžio ar Šiaulių?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Alytaus",
+    "Panevėžio",
+    "Šiaulių",
+    "Visose vienoda"
+   ],
+   "correct": [
+    "Šiaulių"
+   ],
+   "tolerance": null,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-03_A.png",
+   "source": "Vieno ir dviejų būstų pastatų vidutinė kaina, 6 savivaldybės, 2025 m., EUR/m²",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-3-B",
+   "variant": "B",
+   "task": "Artimų reikšmių palyginimas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kurioje savivaldybėje namo kaina už m² didžiausia: Alytaus, Panevėžio ar Šiaulių?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Alytaus",
+    "Panevėžio",
+    "Šiaulių",
+    "Visose vienoda"
+   ],
+   "correct": [
+    "Šiaulių"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-03_B.png",
+   "source": "Vieno ir dviejų būstų pastatų vidutinė kaina, 6 savivaldybės, 2025 m., EUR/m²",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-4-A",
+   "variant": "A",
+   "task": "Ribos viršijimas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Keliose apskrityse pajamos vienam nariui viršijo 1 100 EUR?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "correct": [
+    "4"
+   ],
+   "tolerance": null,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-04_A.png",
+   "source": "Bendrosios pajamos vienam namų ūkio nariui, 10 apskričių, 2025 m.",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-4-B",
+   "variant": "B",
+   "task": "Ribos viršijimas",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Keliose apskrityse pajamos vienam nariui viršijo 1 100 EUR?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "correct": [
+    "4"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-04_B.png",
+   "source": "Bendrosios pajamos vienam namų ūkio nariui, 10 apskričių, 2025 m.",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-5-A",
+   "variant": "A",
+   "task": "Procentinis pokytis",
+   "a": "Linijinė su reikšmių žymomis",
+   "b": "Linijinė be reikšmių žymų",
+   "text": "Keliais procentais išlaidos keliams 2025 m. buvo didesnės nei 2021 m.?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "30 %",
+    "45 %",
+    "58 %",
+    "75 %"
+   ],
+   "correct": [
+    "58 %"
+   ],
+   "tolerance": null,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-05_A.png",
+   "source": "Bendros išlaidos keliams (visi keliai), 2021–2025, mln. EUR",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-5-B",
+   "variant": "B",
+   "task": "Procentinis pokytis",
+   "a": "Linijinė su reikšmių žymomis",
+   "b": "Linijinė be reikšmių žymų",
+   "text": "Keliais procentais išlaidos keliams 2025 m. buvo didesnės nei 2021 m.?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "30 %",
+    "45 %",
+    "58 %",
+    "75 %"
+   ],
+   "correct": [
+    "58 %"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-05_B.png",
+   "source": "Bendros išlaidos keliams (visi keliai), 2021–2025, mln. EUR",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-6-A",
+   "variant": "A",
+   "task": "Suma",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kiek iš viso išleista kelių priežiūrai 2024 ir 2025 m. kartu (mln. EUR)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "577,1"
+   ],
+   "correct": [
+    "577,1"
+   ],
+   "tolerance": 20.0,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-06_A.png",
+   "source": "Išlaidos kelių priežiūros darbams (visi keliai), 2021–2025, mln. EUR",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-6-B",
+   "variant": "B",
+   "task": "Suma",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kiek iš viso išleista kelių priežiūrai 2024 ir 2025 m. kartu (mln. EUR)?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "577,1"
+   ],
+   "correct": [
+    "577,1"
+   ],
+   "tolerance": 20.0,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-06_B.png",
+   "source": "Išlaidos kelių priežiūros darbams (visi keliai), 2021–2025, mln. EUR",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-7-A",
+   "variant": "A",
+   "task": "Kategorijos paieška pagal reikšmę",
+   "a": "Linijinė su reikšmių žymomis",
+   "b": "Linijinė be reikšmių žymų",
+   "text": "Kurį mėnesį balansas buvo lygus 55?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025 m. rugsėjis",
+    "2026 m. sausis",
+    "2026 m. gegužė",
+    "2026 m. rugsėjis"
+   ],
+   "correct": [
+    "2026 m. sausis"
+   ],
+   "tolerance": null,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-07_A.png",
+   "source": "Kainų lūkesčių balansas, kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-7-B",
+   "variant": "B",
+   "task": "Kategorijos paieška pagal reikšmę",
+   "a": "Linijinė su reikšmių žymomis",
+   "b": "Linijinė be reikšmių žymų",
+   "text": "Kurį mėnesį balansas buvo lygus 55?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "2025 m. rugsėjis",
+    "2026 m. sausis",
+    "2026 m. gegužė",
+    "2026 m. rugsėjis"
+   ],
+   "correct": [
+    "2026 m. sausis"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-07_B.png",
+   "source": "Kainų lūkesčių balansas, kaimas, 2025-09–2026-09",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-8-A",
+   "variant": "A",
+   "task": "Pokytis tarp serijų",
+   "a": "Grupuota stulpelinė su reikšmių žymomis",
+   "b": "Grupuota stulpelinė be reikšmių žymų",
+   "text": "Kurioje apskrityje namų ūkių pajamos 2025 m. padidėjo labiausiai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Kauno",
+    "Klaipėdos",
+    "Šiaulių",
+    "Telšių"
+   ],
+   "correct": [
+    "Kauno"
+   ],
+   "tolerance": null,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-08_A.png",
+   "source": "Bendrosios pajamos vienam namų ūkiui, 6 apskritys, 2024 ir 2025 m.",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-8-B",
+   "variant": "B",
+   "task": "Pokytis tarp serijų",
+   "a": "Grupuota stulpelinė su reikšmių žymomis",
+   "b": "Grupuota stulpelinė be reikšmių žymų",
+   "text": "Kurioje apskrityje namų ūkių pajamos 2025 m. padidėjo labiausiai?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "Kauno",
+    "Klaipėdos",
+    "Šiaulių",
+    "Telšių"
+   ],
+   "correct": [
+    "Kauno"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-08_B.png",
+   "source": "Bendrosios pajamos vienam namų ūkiui, 6 apskritys, 2024 ir 2025 m.",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-9-A",
+   "variant": "A",
+   "task": "Vidurkis",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kokios buvo vidutinės metinės išlaidos 2021–2025 m. (mln. EUR)?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "380",
+    "415",
+    "450",
+    "485"
+   ],
+   "correct": [
+    "415"
+   ],
+   "tolerance": null,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-09_A.png",
+   "source": "Bendros išlaidos vietinės reikšmės keliams, 2021–2025, mln. EUR",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-9-B",
+   "variant": "B",
+   "task": "Vidurkis",
+   "a": "Stulpelinė su reikšmių žymomis",
+   "b": "Stulpelinė be reikšmių žymų",
+   "text": "Kokios buvo vidutinės metinės išlaidos 2021–2025 m. (mln. EUR)?",
+   "format": "Vienas pasirinkimas",
+   "options": [
+    "380",
+    "415",
+    "450",
+    "485"
+   ],
+   "correct": [
+    "415"
+   ],
+   "tolerance": null,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-09_B.png",
+   "source": "Bendros išlaidos vietinės reikšmės keliams, 2021–2025, mln. EUR",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-10-A",
+   "variant": "A",
+   "task": "Reikšmės nuskaitymas",
+   "a": "Linijinė su reikšmių žymomis",
+   "b": "Linijinė be reikšmių žymų",
+   "text": "Koks buvo balansas 2026 m. rugpjūtį?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "41"
+   ],
+   "correct": [
+    "41"
+   ],
+   "tolerance": 2.0,
+   "chart": "barlabels",
+   "image": "/diagramos/E4/E4-10_A.png",
+   "source": "Kainų lūkesčių balansas, miestas, 2025-09–2026-09",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  },
+  {
+   "id": "E4-10-B",
+   "variant": "B",
+   "task": "Reikšmės nuskaitymas",
+   "a": "Linijinė su reikšmių žymomis",
+   "b": "Linijinė be reikšmių žymų",
+   "text": "Koks buvo balansas 2026 m. rugpjūtį?",
+   "format": "Skaitinis atsakymas",
+   "options": [
+    "41"
+   ],
+   "correct": [
+    "41"
+   ],
+   "tolerance": 2.0,
+   "chart": "bar",
+   "image": "/diagramos/E4/E4-10_B.png",
+   "source": "Kainų lūkesčių balansas, miestas, 2025-09–2026-09",
+   "hyps": [
+    "H5a",
+    "H5b"
+   ]
+  }
+ ]
+}
