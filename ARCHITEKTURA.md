@@ -65,5 +65,6 @@ hypotheses 1 --- N recommendation_versions
 - `GET/POST/PUT/PATCH /api/admin/experiments...`
 - `GET /api/admin/sessions`
 - `GET /api/admin/sessions/:id`
-- `GET /api/admin/results/summary`
+- `GET /api/admin/analysis` – eksperimentai su A/B grupėmis
+- `GET /api/admin/analysis/:id` – eksperimento statistinė analizė
 - `GET /api/admin/export.csv`

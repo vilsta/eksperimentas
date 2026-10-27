@@ -271,7 +271,7 @@
           body: JSON.stringify({
             questionId:q.id,
             answer,
-            elapsedSeconds:Math.max(1,Math.round((Date.now()-taskStartedAt)/1000)),
+            elapsedSeconds:Math.round(Date.now()-taskStartedAt)/1000,
             clarity:Number(ratings.clarity),
             appeal:Number(ratings.appeal),
             difficulty:Number(ratings.difficulty)

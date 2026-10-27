@@ -78,6 +78,19 @@ Faile `seed/eksperimentai.json` aprašyti 4 eksperimentai (E1–E4) ir 80 klausi
 
 Kiekvienas dalyvis priskiriamas vienam aktyviam eksperimentui ir A arba B grupei – ten, kur iki šiol mažiausiai dalyvių. Grupė, eksperimentas ir matytos diagramos tipas įrašomi į CSV eksportą (`experiment`, `group_label`, `chart_type_seen`). Skaitiniai atsakymai laikomi teisingais, jei patenka į klausimo leistiną nuokrypį.
 
+## Rezultatų analizė
+
+Tyrėjo portalo skiltyje „Rezultatai“ kiekvienam eksperimentui atskirai pateikiama statistinė analizė (`analysis.js`, testai – `stats.js`):
+
+1. **Duomenų paruošimas** – šalinamos neužbaigtos sesijos, sesijos, kuriose dauguma atsakymų pateikta greičiau nei per 2 s arba visi vertinimai vienodi, ir bandymai, trumpesni nei 1 s.
+2. **Aprašomoji statistika** – dalyvių pasiskirstymas A ir B grupėse pagal lytį, amžių, sritį, patirtį ir įrenginį; teisingų atsakymų dalis, laiko vidurkis ir mediana, vertinimų pasiskirstymas.
+3. **Grupavimas** – laikas į tris grupes pagal tertiles (keturias pagal kvartiles, kai dalyvių ≥ 40), vertinimai: 1–2 / 3 / 4–5, patirtis: 1–2 / 3–5.
+4. **Hipotezių tikrinimas** – H1–H5: grupė × rodiklis (χ², Fišerio testas 2×2 lentelėms su mažais tikėtinais dažniais, Mann–Whitney U laikui ir paklaidai); H6–H7: patirtis ir įrenginys, A/B palyginimas pogrupiuose, CMH; H8–H10: amžius, lytis, sritis; H11: CMH kontroliuojant demografinius veiksnius.
+5. **Korekcija** – Holmo–Bonferronio metodas visiems eksperimento testams arba kiekvienai hipotezei atskirai (pasirenkama); efekto dydis – Kramerio V (Mann–Whitney U – r).
+6. **Interpretavimas** – reikšmingos priklausomybės, jų stiprumas ir kryptis pagal dažnių lentelę.
+
+Analizės vienetas – atskiras bandymas (atsakymas į vieną klausimą). Testų rezultatai sutikrinti su SciPy ir statsmodels.
+
 ## Talpinimas internete (Railway)
 
 Sistema naudoja SQLite failą, todėl serveriui reikia **nuolatinio disko (volume)**, kitaip duomenys dings po kiekvieno perkrovimo.
