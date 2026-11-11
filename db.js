@@ -147,17 +147,9 @@ CREATE INDEX IF NOT EXISTS idx_answers_question ON answers(question_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_experiment ON participant_sessions(experiment_id);
 `);
 
-// Dalyvio profilio klausimai, užduodami prieš eksperimentą.
-export const PROFILE_QUESTIONS = [
-  { key: 'gender', column: 'gender', title: 'Lytis', options: ['Moteris', 'Vyras', 'Kita', 'Nenoriu nurodyti'] },
-  { key: 'ageGroup', column: 'age_group', title: 'Amžiaus grupė', options: ['Iki 18 m.', '18–24 m.', '25–34 m.', '35–44 m.', '45–54 m.', '55–64 m.', '65 m. ir daugiau'] },
-  { key: 'field', column: 'field_area', title: 'Išsilavinimo arba darbo sritis', options: ['Informacinės technologijos', 'Duomenų analitika / statistika', 'Inžinerija / technologijos', 'Ekonomika / verslas / finansai', 'Vadyba / administravimas', 'Socialiniai mokslai', 'Humanitariniai mokslai / menai', 'Gamtos mokslai / medicina', 'Švietimas', 'Kita'] },
-  { key: 'vizFrequency', column: 'viz_frequency', title: 'Kaip dažnai dirbate su duomenų vizualizacijomis?', options: ['1', '2', '3', '4', '5'], scale: ['Niekada', 'Labai dažnai'] },
-  { key: 'analysisExperience', column: 'analysis_experience', title: 'Duomenų analizės patirtis', options: ['1', '2', '3', '4', '5'], scale: ['Neturiu patirties', 'Labai didelė patirtis'] }
-];
-
+// Ankstesnės versijos profilio stulpeliai (dabar profilis saugomas profile_json).
 const sessionColumns = new Set(db.prepare('PRAGMA table_info(participant_sessions)').all().map(c => c.name));
-for (const { column } of PROFILE_QUESTIONS) {
+for (const column of ['gender', 'age_group', 'field_area', 'viz_frequency', 'analysis_experience']) {
   if (!sessionColumns.has(column)) db.exec(`ALTER TABLE participant_sessions ADD COLUMN ${column} TEXT DEFAULT ''`);
 }
 
@@ -171,6 +163,12 @@ addColumn('questions', 'variant', "TEXT NOT NULL DEFAULT ''");
 addColumn('questions', 'tolerance', 'REAL');
 addColumn('questions', 'source', "TEXT NOT NULL DEFAULT ''");
 addColumn('experiments', 'code', "TEXT DEFAULT ''");
+// Dalyvio profilis (JSON pagal nustatymų klausimų raktus), kalba ir klausimų vertimai į anglų k.
+addColumn('participant_sessions', 'profile_json', 'TEXT');
+addColumn('participant_sessions', 'language', "TEXT NOT NULL DEFAULT 'lt'");
+addColumn('questions', 'text_en', "TEXT NOT NULL DEFAULT ''");
+addColumn('questions', 'image_en', "TEXT NOT NULL DEFAULT ''");
+addColumn('question_options', 'option_text_en', "TEXT NOT NULL DEFAULT ''");
 
 function tx(fn) {
   db.exec('BEGIN');
@@ -303,7 +301,7 @@ function importSeedExperiments() {
 importSeedExperiments();
 
 export function questionToObject(row, includeCorrect = true) {
-  const options = db.prepare('SELECT option_text,is_correct FROM question_options WHERE question_id=? ORDER BY position,id').all(row.id);
+  const options = db.prepare('SELECT option_text,option_text_en,is_correct FROM question_options WHERE question_id=? ORDER BY position,id').all(row.id);
   const hyps = db.prepare('SELECT hypothesis_code FROM question_hypotheses WHERE question_id=? ORDER BY hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
   const obj = {
     id: row.id,
@@ -315,6 +313,9 @@ export function questionToObject(row, includeCorrect = true) {
     text: row.text,
     format: row.answer_format,
     options: options.map(x=>x.option_text),
+    optionsEn: options.map(x=>x.option_text_en || ''),
+    textEn: row.text_en || '',
+    imageEn: row.image_en || '',
     status: row.status,
     chart: row.chart_type,
     image: row.image_data || '',
@@ -335,12 +336,12 @@ export function getExperimentObject(row) {
   return { id: row.id, code: row.code || '', title: row.title, desc: row.description, status: row.status, order: row.order_mode, questions, hyps };
 }
 
-export function replaceQuestionRelations(questionId, options, correct, hyps) {
+export function replaceQuestionRelations(questionId, options, correct, hyps, optionsEn = []) {
   tx(() => {
     db.prepare('DELETE FROM question_options WHERE question_id=?').run(questionId);
     db.prepare('DELETE FROM question_hypotheses WHERE question_id=?').run(questionId);
-    const io = db.prepare('INSERT INTO question_options(question_id,option_text,is_correct,position) VALUES(?,?,?,?)');
-    options.forEach((o,i)=>io.run(questionId,o,correct.includes(o)?1:0,i));
+    const io = db.prepare('INSERT INTO question_options(question_id,option_text,is_correct,position,option_text_en) VALUES(?,?,?,?,?)');
+    options.forEach((o,i)=>io.run(questionId,o,correct.includes(o)?1:0,i,String(optionsEn[i]||'').trim()));
     const ih = db.prepare('INSERT INTO question_hypotheses(question_id,hypothesis_code) VALUES(?,?)');
     hyps.forEach(h=>ih.run(questionId,h));
   });

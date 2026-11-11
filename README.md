@@ -11,7 +11,7 @@ Pilna lokaliai paleidžiama versija su:
 - klausimo paveikslėlio saugojimu;
 - dalyvio atsakymų, laiko ir 1–5 vertinimų registravimu;
 - sesijos peržiūra su visais klausimais ir pasirinktais atsakymais;
-- dalyvio profilio klausimais (lytis, amžiaus grupė, išsilavinimo / darbo sritis, darbo su vizualizacijomis dažnis, duomenų analizės patirtis);
+- kalbos pasirinkimu (lietuvių / anglų) ir redaguojamais tekstais bei profilio klausimais (skiltis „Nustatymai“);
 - rezultatų suvestine ir CSV eksportu.
 
 ## Reikalavimai
@@ -71,6 +71,14 @@ cloudflared tunnel --url http://localhost:8000
 ```
 
 Cloudflare pateiks viešą HTTPS adresą. Dalyviams siųskite pagrindinę nuorodą, o tyrėjo portalas bus prieinamas pridėjus `/admin`.
+
+## Kalbos ir nustatymai
+
+Dalyvis pirmiausia pasirenka kalbą (lietuvių arba anglų). Visi dalyviui rodomi tekstai – pasisveikinimas, profilio klausimai, užduoties vertinimai, atsisveikinimas, kontaktai ir pranešimai – redaguojami tyrėjo portalo skiltyje **„Nustatymai“** abiem kalbomis (`settings.js`, DB lentelė `settings`).
+
+Profilio klausimus galima pridėti, šalinti, perrikiuoti, keisti jų tipą (išskleidžiamasis sąrašas arba skalė 1–5) ir analizės vaidmenį: patirtis (H6), amžius (H8), lytis (H9), sritis (H10). Atsakymai saugomi sesijos lauke `profile_json`.
+
+Klausimo redagavimo lange galima įrašyti angliškus klausimo tekstą, atsakymo variantus ir (neprivaloma) anglišką diagramos paveikslėlį. Kol vertimo nėra, anglų kalba rodomas lietuviškas tekstas. Teisingumas visada tikrinamas pagal lietuvišką variantą. Dalyvio kalba įrašoma į sesiją ir CSV (`language`).
 
 ## Eksperimentai E1–E4 ir A/B grupės
 

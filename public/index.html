@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diagramos tipo parinkimo tyrimas</title>
+  <title>Diagramos tipo parinkimo tyrimas · Chart type selection study</title>
   <style>
     :root{
       --blue:#4054bf;--blue-dark:#3549ad;--ink:#171b25;--muted:#65718a;--line:#e1e6ef;
@@ -17,13 +17,20 @@
     .shell{width:min(1080px,calc(100% - 40px));min-height:100vh;margin:0 auto;padding:76px 0 22px;display:flex;flex-direction:column}
     .top{display:flex;align-items:center;justify-content:center;text-align:center;margin-bottom:48px}
     .brand{color:var(--blue);font-size:46px;line-height:1.05;font-weight:900;letter-spacing:.2px;text-transform:uppercase}
-    #intro-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:0 0 52px}
+    #intro-screen,#language-screen{flex:1;display:flex;align-items:center;justify-content:center;padding:0 0 52px}
+    .intro-card .intro-body p{margin:0 auto 16px}.intro-card .intro-body p:last-child{margin-bottom:36px}
+    .language-card{width:min(640px,100%);margin:0 auto;padding:46px 40px 44px;text-align:center}
+    .language-card h1{margin:0 0 6px;font-size:26px;letter-spacing:-.3px}.language-card .language-sub{margin:0 0 30px;color:#647087;font-size:17px}
+    .language-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .language-btn{display:flex;flex-direction:column;align-items:center;gap:14px;padding:26px 16px 22px;border:1px solid #d8deea;border-radius:12px;background:#fff;color:#2f3a52;font-size:18px;font-weight:750;transition:border-color .15s,background .15s,transform .15s}
+    .language-btn:hover{border-color:#8d9de0;background:#f7f8ff;transform:translateY(-1px)}
+    .language-btn:focus-visible{outline:3px solid rgba(64,84,191,.25);outline-offset:2px}
+    .language-btn svg{height:56px;width:auto;border-radius:6px;box-shadow:0 1px 4px rgba(15,23,42,.18)}
 
     .card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
     .intro-card{width:min(950px,100%);margin:0 auto;padding:66px 70px 64px;text-align:center}
     .intro-card h1{margin:0 0 22px;font-size:37px;letter-spacing:-.7px}
-    .intro-card p{margin:0 auto 16px;color:#647087;line-height:1.65;max-width:760px;font-size:17px}
-    .intro-card p:last-of-type{margin-bottom:36px}
+    .intro-card p{margin:0 auto;color:#647087;line-height:1.65;max-width:760px;font-size:17px}
 
     .primary{border:0;border-radius:9px;background:var(--blue);color:#fff;font-weight:750;min-height:49px;padding:0 28px;font-size:17px}
     .primary:hover{background:var(--blue-dark)}
@@ -95,46 +102,55 @@
     .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#202737;color:#fff;padding:11px 16px;border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.18);font-size:13px;z-index:1000}
 
     @media(max-width:850px){.brand{font-size:38px}.rating-grid{grid-template-columns:1fr}.chart-area{height:250px;padding:8px}.chart-area svg{height:225px}.profile-card{padding:25px 22px}.profile-selects{grid-template-columns:1fr}.profile-scales{grid-template-columns:1fr}}
-    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px;margin-bottom:14px}.intro-card p:last-of-type{margin-bottom:28px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.profile-card{margin-top:20px;padding:24px 18px}.profile-card h1{font-size:24px}.profile-actions{flex-direction:column}.profile-actions button{width:100%}}
+    @media(max-width:600px){.shell{width:min(100% - 24px,1080px);padding:46px 0 18px}.top{margin-bottom:34px}.brand{font-size:31px;line-height:1.1}.intro-card{padding:44px 22px}.intro-card h1{font-size:29px}.intro-card p{font-size:15px}.intro-card .intro-body p{margin-bottom:14px}.intro-card .intro-body p:last-child{margin-bottom:28px}.language-card{padding:34px 20px}.language-btn{padding:20px 10px 18px;font-size:16px}.language-btn svg{height:46px}#intro-screen{padding-bottom:34px}.contact-footer{font-size:12px;padding-top:14px}.task-header{align-items:flex-start;flex-direction:column}.task-content{padding:19px}.chart-area{height:225px}.chart-area svg{height:205px}.actions{flex-direction:column}.actions button{width:100%}.finish-card{margin-top:45px;padding:30px 20px}.profile-card{margin-top:20px;padding:24px 18px}.profile-card h1{font-size:24px}.profile-actions{flex-direction:column}.profile-actions button{width:100%}}
   </style>
 </head>
 <body>
   <main class="shell">
     <header class="top">
-      <div class="brand">Diagramos tipo parinkimo tyrimas</div>
+      <div class="brand" data-t="brand"></div>
     </header>
 
-    <section id="intro-screen">
+    <section id="language-screen">
+      <div class="card language-card">
+        <h1 id="language-prompt"></h1>
+        <p class="language-sub" id="language-prompt-en"></p>
+        <div class="language-options">
+          <button type="button" class="language-btn" data-lang="lt" lang="lt">
+            <svg viewBox="0 0 5 3" aria-hidden="true"><rect width="5" height="1" fill="#FDB913"/><rect y="1" width="5" height="1" fill="#006A44"/><rect y="2" width="5" height="1" fill="#C1272D"/></svg>
+            <span>Lietuvių</span>
+          </button>
+          <button type="button" class="language-btn" data-lang="en" lang="en">
+            <svg viewBox="0 0 60 30" aria-hidden="true"><clipPath id="uk-s"><path d="M0,0 v30 h60 v-30 z"/></clipPath><clipPath id="uk-t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath><g clip-path="url(#uk-s)"><path d="M0,0 v30 h60 v-30 z" fill="#012169"/><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#uk-t)" stroke="#C8102E" stroke-width="4"/><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/><path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/></g></svg>
+            <span>English</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="intro-screen" class="hidden">
       <div class="card intro-card">
-        <h1>Sveiki!</h1>
-        <p>
-          Esu Viltė Stankutė, Kauno technologijos universiteto magistrantūros studijų programos „Veiklos skaitmeninimas ir sistemų architektūros“ studentė.
-          Savo magistro baigiamajame darbe „Diagramos tipo parinkimo kuriant duomenų vizualizacijas rekomendacijų paieška ir eksperimentiniai tyrimai“ nagrinėju, kaip suvokiamos duomenų vizualizacijos.
-        </p>
-        <p>
-          Kviečiu Jus dalyvauti trumpame eksperimente, kuris truks apie 10 minučių.
-          Jums bus pateiktos įvairios diagramos ir klausimai apie jose pateiktą informaciją.
-          Dalyvavimas yra anoniminis, o atsakymai bus naudojami tik apibendrintai analizei.
-        </p>
-        <button class="primary wide" id="start-btn">Pradėti</button>
+        <h1 data-t="introTitle"></h1>
+        <div class="intro-body" id="intro-body"></div>
+        <button class="primary wide" id="start-btn" data-t="startButton"></button>
       </div>
     </section>
 
     <section id="profile-screen" class="hidden">
       <div class="card profile-card">
-        <h1>Trumpai apie jus</h1>
-        <p>Prieš pradėdami eksperimentą atsakykite į kelis klausimus. Atsakymai anonimiški ir naudojami tik apibendrintai rezultatų analizei.</p>
+        <h1 data-t="profileTitle"></h1>
+        <p data-t="profileIntro"></p>
         <div id="profile-content"></div>
-        <div class="profile-actions"><button class="primary wide" id="profile-btn">Pradėti eksperimentą</button></div>
+        <div class="profile-actions"><button class="primary wide" id="profile-btn" data-t="profileStartButton"></button></div>
       </div>
     </section>
 
     <section id="task-screen" class="hidden">
       <div class="task-header">
-        <h1>Eksperimento užduotis</h1>
-        <div class="stepcount" id="stepcount">1 / 10</div>
+        <h1 data-t="taskHeading"></h1>
+        <div class="stepcount" id="stepcount"></div>
       </div>
-      <div class="progress"><span id="progressbar" style="width:10%"></span></div>
+      <div class="progress"><span id="progressbar" style="width:0"></span></div>
       <div class="card chart-card">
         <div class="chart-title" id="chart-title"></div>
         <div class="chart-area" id="chart-area"></div>
@@ -145,12 +161,12 @@
           <div id="answer-area"></div>
 
           <div class="ratings">
-            <h3>Papildomi vertinimai</h3>
-            <p>Pažymėkite po vieną atsakymą kiekvienoje skalėje.</p>
+            <h3 data-t="ratingsTitle"></h3>
+            <p data-t="ratingsHint"></p>
             <div class="rating-grid" id="rating-grid"></div>
           </div>
 
-          <div class="actions"><button class="primary" id="next-btn">Toliau</button></div>
+          <div class="actions"><button class="primary" id="next-btn" data-t="nextButton"></button></div>
         </div>
       </div>
     </section>
@@ -158,113 +174,137 @@
     <section id="finish-screen" class="hidden">
       <div class="card finish-card">
         <div class="finish-icon">✓</div>
-        <h1>Ačiū už dalyvavimą!</h1>
-        <p>Atsakėte į visus eksperimento klausimus, dėkoju už skirtą laiką!</p>
+        <h1 data-t="finishTitle"></h1>
+        <div id="finish-body"></div>
       </div>
     </section>
-    <footer class="contact-footer">
-      <span>Kilus klausimams, galime bendrauti čia:</span>
-      <a class="linkedin-link" href="https://www.linkedin.com/in/vilt%C4%97-stankut%C4%97-094b0a268" target="_blank" rel="noopener noreferrer" aria-label="Susisiekti per LinkedIn">
+
+    <footer class="contact-footer hidden" id="contact-footer">
+      <span data-t="contactText"></span>
+      <a class="linkedin-link" id="contact-link" target="_blank" rel="noopener noreferrer">
         <svg class="linkedin-icon" viewBox="0 0 24 24" aria-hidden="true">
           <rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor"/>
           <circle cx="7.1" cy="8" r="1.35" fill="white"/>
           <rect x="5.95" y="10" width="2.3" height="7.6" rx=".4" fill="white"/>
           <path d="M10.2 10h2.2v1.05c.68-.82 1.62-1.28 2.9-1.28 2.22 0 3.75 1.44 3.75 4.28v3.55h-2.33v-3.31c0-1.58-.58-2.38-1.78-2.38-1.33 0-2.11.91-2.11 2.57v3.12H10.5V10z" fill="white"/>
         </svg>
-        <span>LinkedIn</span>
+        <span data-t="contactLinkLabel"></span>
       </a>
     </footer>
   </main>
 
   <script>
+    // Visi tekstai ir profilio klausimai ateina iš tyrėjo „Nustatymų“ (/api/public/settings).
+    let settings = null;
+    let lang = 'lt';
     let questions = [];
-
     let index = 0;
     let taskStartedAt = 0;
     let session = null;
-    let profileQuestions = [];
 
-    const intro = document.getElementById('intro-screen');
-    const task = document.getElementById('task-screen');
-    const finish = document.getElementById('finish-screen');
-    const profileScreen = document.getElementById('profile-screen');
+    const screens = ['language-screen','intro-screen','profile-screen','task-screen','finish-screen'];
+    const FORMAT_KEYS = { 'Vienas pasirinkimas':'formatSingle', 'Keli pasirinkimai':'formatMultiple', 'Skaitinis atsakymas':'formatNumeric', 'Taip / Ne':'formatYesNo' };
+    const RATINGS = [['clarity','ratingClarity'],['appeal','ratingAppeal'],['difficulty','ratingDifficulty']];
 
-    document.getElementById('start-btn').addEventListener('click', async () => {
-      const btn = document.getElementById('start-btn');
-      btn.disabled = true; btn.textContent = 'Kraunama...';
+    function t(key){ return settings?.texts?.[lang]?.[key] ?? ''; }
+    function showScreen(id){
+      screens.forEach(s => document.getElementById(s).classList.toggle('hidden', s !== id));
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function paragraphs(text){
+      return String(text || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean).map(p => `<p>${escapeHtml(p).replace(/\n/g,'<br>')}</p>`).join('');
+    }
+    function applyTexts(){
+      document.documentElement.lang = lang;
+      document.title = t('brand');
+      document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+      document.getElementById('intro-body').innerHTML = paragraphs(t('introBody'));
+      document.getElementById('finish-body').innerHTML = paragraphs(t('finishBody'));
+      const url = t('contactUrl').trim(), footer = document.getElementById('contact-footer'), link = document.getElementById('contact-link');
+      footer.classList.toggle('hidden', !t('contactText') && !url);
+      link.classList.toggle('hidden', !url);
+      if (url) { link.href = url; link.setAttribute('aria-label', `${t('contactText')} ${t('contactLinkLabel')}`.trim()); }
+    }
+
+    (async () => {
       try {
-        if (!profileQuestions.length) profileQuestions = await api('/api/public/profile-questions');
-        renderProfile();
-        intro.classList.add('hidden');
-        profileScreen.classList.remove('hidden');
-        window.scrollTo({top:0,behavior:'smooth'});
+        settings = await api('/api/public/settings');
+        document.querySelector('.brand').textContent = settings.texts.lt.brand;
+        document.getElementById('language-prompt').textContent = settings.texts.lt.languagePrompt;
+        document.getElementById('language-prompt').lang = 'lt';
+        document.getElementById('language-prompt-en').textContent = settings.texts.en.languagePrompt;
+        document.getElementById('language-prompt-en').lang = 'en';
       } catch (e) {
-        toast(e.message || 'Nepavyko pradėti eksperimento.');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Pradėti';
+        toast(e.message);
       }
-    });
+    })();
+
+    document.querySelectorAll('.language-btn').forEach(btn => btn.addEventListener('click', () => {
+      if (!settings) return;
+      lang = btn.dataset.lang;
+      applyTexts();
+      renderProfile();
+      showScreen('intro-screen');
+    }));
+
+    document.getElementById('start-btn').addEventListener('click', () => showScreen('profile-screen'));
 
     document.getElementById('profile-btn').addEventListener('click', async () => {
       const profile = {};
-      for (const pq of profileQuestions) {
-        const value = pq.scale
+      for (const pq of settings.profileQuestions[lang]) {
+        const value = pq.type === 'scale'
           ? document.querySelector(`input[name="profile-${pq.key}"]:checked`)?.value
           : document.getElementById(`profile-${pq.key}`).value;
-        if (!value) return toast(`Atsakykite į klausimą „${pq.title}“.`);
+        if (!value) return toast(t('profileMissing').replace('{title}', pq.title));
         profile[pq.key] = value;
       }
       const btn = document.getElementById('profile-btn');
-      btn.disabled = true; btn.textContent = 'Pradedama...';
+      btn.disabled = true; btn.textContent = t('starting');
       try {
         const data = await api('/api/public/start', {
           method:'POST',
-          body: JSON.stringify({ device: detectDevice(), profile })
+          body: JSON.stringify({ device: detectDevice(), language: lang, profile })
         });
-        session = { id:data.sessionId, participantLabel:data.participantLabel, startedAt:new Date().toISOString() };
+        session = { id:data.sessionId };
         questions = data.questions || [];
-        if (!questions.length) throw new Error('Eksperimente nėra aktyvių klausimų.');
+        if (!questions.length) throw new Error(t('noQuestions'));
         index = 0;
-        profileScreen.classList.add('hidden');
-        task.classList.remove('hidden');
+        showScreen('task-screen');
         renderQuestion();
       } catch (e) {
-        toast(e.message || 'Nepavyko pradėti eksperimento.');
+        toast(e.message || t('startFailed'));
       } finally {
-        btn.disabled = false; btn.textContent = 'Pradėti eksperimentą';
+        btn.disabled = false; btn.textContent = t('profileStartButton');
       }
     });
 
     function renderProfile(){
-      const selects = profileQuestions.filter(pq => !pq.scale).map(pq => `<div class="profile-field">
+      const list = settings.profileQuestions[lang];
+      const selects = list.filter(pq => pq.type !== 'scale').map(pq => `<div class="profile-field">
           <label for="profile-${pq.key}">${escapeHtml(pq.title)}</label>
           <select class="profile-select" id="profile-${pq.key}" required>
-            <option value="" disabled selected>Pasirinkite...</option>
-            ${pq.options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}
+            <option value="" disabled selected>${escapeHtml(t('selectPlaceholder'))}</option>
+            ${pq.options.map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
           </select>
         </div>`).join('');
-      const scales = profileQuestions.filter(pq => pq.scale).map(pq => `<div class="rating-block" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
+      const scales = list.filter(pq => pq.type === 'scale').map(pq => `<div class="rating-block" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
           <label>${escapeHtml(pq.title)}</label>
-          <div class="rating-scale">${pq.options.map(o => `<input id="profile-${pq.key}-${o}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o)}"><label for="profile-${pq.key}-${o}">${escapeHtml(o)}</label>`).join('')}</div>
-          <div class="scale-caption"><span>${escapeHtml(pq.scale[0])}</span><span>${escapeHtml(pq.scale[1])}</span></div>
+          <div class="rating-scale">${pq.options.map((o,i) => `<input id="profile-${pq.key}-${i}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o.value)}"><label for="profile-${pq.key}-${i}">${escapeHtml(o.label)}</label>`).join('')}</div>
+          <div class="scale-caption"><span>${escapeHtml(pq.scaleMin)}</span><span>${escapeHtml(pq.scaleMax)}</span></div>
         </div>`).join('');
-      document.getElementById('profile-content').innerHTML = `<div class="profile-selects">${selects}</div><div class="profile-scales">${scales}</div>`;
+      document.getElementById('profile-content').innerHTML = (selects ? `<div class="profile-selects">${selects}</div>` : '') + (scales ? `<div class="profile-scales">${scales}</div>` : '');
     }
 
     document.getElementById('next-btn').addEventListener('click', async () => {
       const q = questions[index];
       const answer = getAnswer(q);
-      const ratings = {
-        clarity: document.querySelector('input[name="clarity"]:checked')?.value || '',
-        appeal: document.querySelector('input[name="appeal"]:checked')?.value || '',
-        difficulty: document.querySelector('input[name="difficulty"]:checked')?.value || ''
-      };
+      const ratings = Object.fromEntries(RATINGS.map(([name]) => [name, document.querySelector(`input[name="${name}"]:checked`)?.value || '']));
 
-      if (!answer || (Array.isArray(answer) && !answer.length)) return toast('Pateikite atsakymą į klausimą.');
-      if (!ratings.clarity || !ratings.appeal || !ratings.difficulty) return toast('Įvertinkite visas tris skales.');
+      if (!answer || (Array.isArray(answer) && !answer.length)) return toast(t('answerMissing'));
+      if (RATINGS.some(([name]) => !ratings[name])) return toast(t('ratingsMissing'));
 
       const btn = document.getElementById('next-btn');
-      btn.disabled = true; btn.textContent = 'Išsaugoma...';
+      btn.disabled = true; btn.textContent = t('saving');
       try {
         await api(`/api/public/sessions/${encodeURIComponent(session.id)}/answer`, {
           method:'POST',
@@ -281,9 +321,9 @@
         if (index >= questions.length) await completeExperiment();
         else renderQuestion();
       } catch (e) {
-        toast(e.message || 'Nepavyko išsaugoti atsakymo.');
+        toast(e.message || t('saveFailed'));
       } finally {
-        btn.disabled = false; btn.textContent = 'Toliau';
+        btn.disabled = false; btn.textContent = t('nextButton');
       }
     });
 
@@ -292,14 +332,14 @@
       taskStartedAt = Date.now();
       document.getElementById('stepcount').textContent = `${index+1} / ${questions.length}`;
       document.getElementById('progressbar').style.width = `${((index+1)/questions.length)*100}%`;
-      document.getElementById('chart-title').textContent = q.image ? '' : chartTitle(q);
+      document.getElementById('chart-title').textContent = q.image ? '' : t('chartFallbackTitle');
       document.getElementById('chart-title').classList.toggle('hidden', !!q.image);
       document.getElementById('chart-area').classList.toggle('has-image', !!q.image);
-      document.getElementById('chart-area').innerHTML = q.image ? `<button type="button" class="zoom-btn" aria-label="Padidinti diagramą"><img src="${escapeHtml(q.image)}" alt="Klausimo diagrama"></button><div class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>Paspauskite diagramą, kad padidintumėte</div>` : chartSvg(q.chart);
+      document.getElementById('chart-area').innerHTML = q.image ? `<button type="button" class="zoom-btn" aria-label="${escapeHtml(t('zoomOpen'))}"><img src="${escapeHtml(q.image)}" alt=""></button><div class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>${escapeHtml(t('zoomHint'))}</div>` : chartSvg(q.chart);
       document.querySelector('#chart-area .zoom-btn')?.addEventListener('click', () => openLightbox(q.image));
-      document.getElementById('format-pill').textContent = q.format;
+      document.getElementById('format-pill').textContent = t(FORMAT_KEYS[q.format] || 'formatSingle');
       document.getElementById('question-text').textContent = q.text;
-      document.getElementById('question-hint').textContent = q.format==='Keli pasirinkimai' ? 'Galite pažymėti daugiau nei vieną atsakymą.' : q.format==='Skaitinis atsakymas' ? 'Įrašykite skaitinį atsakymą.' : 'Pasirinkite vieną atsakymą.';
+      document.getElementById('question-hint').textContent = t(q.format==='Keli pasirinkimai' ? 'hintMultiple' : q.format==='Skaitinis atsakymas' ? 'hintNumeric' : 'hintSingle');
       document.getElementById('answer-area').innerHTML = answerHtml(q);
       document.getElementById('rating-grid').innerHTML = ratingHtml();
       window.scrollTo({top:0,behavior:'smooth'});
@@ -307,16 +347,13 @@
 
     async function completeExperiment(){
       await api(`/api/public/sessions/${encodeURIComponent(session.id)}/complete`, { method:'POST' });
-      session.finishedAt = new Date().toISOString();
-      task.classList.add('hidden');
-      finish.classList.remove('hidden');
-      window.scrollTo({top:0,behavior:'smooth'});
+      showScreen('finish-screen');
     }
 
     function answerHtml(q){
-      if (q.format==='Skaitinis atsakymas') return `<input class="answer-input" id="numeric-answer" type="text" inputmode="decimal" autocomplete="off" placeholder="Įrašykite skaičių">`;
+      if (q.format==='Skaitinis atsakymas') return `<input class="answer-input" id="numeric-answer" type="text" inputmode="decimal" autocomplete="off" placeholder="${escapeHtml(t('numericPlaceholder'))}">`;
       const type = q.format==='Keli pasirinkimai' ? 'checkbox' : 'radio';
-      return `<div class="answers">${q.options.map(o=>`<label class="answer-option"><input type="${type}" name="task-answer" value="${escapeHtml(o)}"><span>${escapeHtml(o)}</span></label>`).join('')}</div>`;
+      return `<div class="answers">${q.options.map(o=>`<label class="answer-option"><input type="${type}" name="task-answer" value="${escapeHtml(o.value)}"><span>${escapeHtml(o.label)}</span></label>`).join('')}</div>`;
     }
 
     function getAnswer(q){
@@ -326,23 +363,11 @@
     }
 
     function ratingHtml(){
-      const groups = [
-        ['clarity','Ar diagrama buvo aiški?','Visiškai neaiški','Labai aiški'],
-        ['appeal','Ar diagrama jums vizualiai patraukli?','Visiškai nepatraukli','Labai patraukli'],
-        ['difficulty','Ar užduotis pareikalavo daug protinių pastangų?','Visiškai nesudėtinga','Labai sudėtinga']
-      ];
-      return groups.map(([name,title,left,right])=>`<div class="rating-block"><label>${title}</label><div class="rating-scale">${[1,2,3,4,5].map(v=>`<input id="${name}-${v}" type="radio" name="${name}" value="${v}"><label for="${name}-${v}">${v}</label>`).join('')}</div><div class="scale-caption"><span>${left}</span><span>${right}</span></div></div>`).join('');
-    }
-
-    function chartTitle(q){
-      if(q.id==='U3'||q.id==='U4') return 'Pardavimų pokytis 2019–2023 m.';
-      if(q.id==='U7'||q.id==='U8') return 'Reklamos išlaidų ir pardavimų ryšys';
-      if(q.id==='U5'||q.id==='U6') return 'Pardavimų pasiskirstymas pagal kategoriją';
-      return 'Duomenų vizualizacijos užduotis';
+      return RATINGS.map(([name,key])=>`<div class="rating-block"><label>${escapeHtml(t(key))}</label><div class="rating-scale">${[1,2,3,4,5].map(v=>`<input id="${name}-${v}" type="radio" name="${name}" value="${v}"><label for="${name}-${v}">${v}</label>`).join('')}</div><div class="scale-caption"><span>${escapeHtml(t(key+'Min'))}</span><span>${escapeHtml(t(key+'Max'))}</span></div></div>`).join('');
     }
 
     function chartSvg(type){
-      const w=720,h=240,px=42,py=22,base=`viewBox="0 0 ${w} ${h}" role="img" aria-label="Diagrama"`;
+      const w=720,h=240,px=42,py=22,base=`viewBox="0 0 ${w} ${h}" role="img" aria-label="${escapeHtml(t('chartFallbackTitle'))}"`;
       if(type==='line') return `<svg ${base}><line x1="${px}" y1="${h-py}" x2="${w-px}" y2="${h-py}" stroke="#cbd3e1"/><line x1="${px}" y1="${py}" x2="${px}" y2="${h-py}" stroke="#cbd3e1"/><polyline points="55,190 195,150 330,70 470,115 655,38" fill="none" stroke="#4054bf" stroke-width="5"/><g fill="#4054bf">${[[55,190],[195,150],[330,70],[470,115],[655,38]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6"/>`).join('')}</g><g font-size="13" fill="#6d778b"><text x="45" y="220">2019</text><text x="185" y="220">2020</text><text x="320" y="220">2021</text><text x="460" y="220">2022</text><text x="640" y="220">2023</text></g></svg>`;
       if(type==='pie') return `<svg ${base}><g transform="translate(360 120)"><path d="M0 0 L0 -95 A95 95 0 0 1 89 -28 Z" fill="#4054bf"/><path d="M0 0 L89 -28 A95 95 0 0 1 40 86 Z" fill="#6e82dc"/><path d="M0 0 L40 86 A95 95 0 0 1 -91 23 Z" fill="#9fa9db"/><path d="M0 0 L-91 23 A95 95 0 0 1 0 -95 Z" fill="#c7cdee"/></g><g font-size="13" fill="#536079"><text x="472" y="80">A</text><text x="462" y="176">B</text><text x="244" y="179">C</text><text x="250" y="70">D</text></g></svg>`;
       if(type==='scatter') return `<svg ${base}><line x1="${px}" y1="${h-py}" x2="${w-px}" y2="${h-py}" stroke="#cbd3e1"/><line x1="${px}" y1="${py}" x2="${px}" y2="${h-py}" stroke="#cbd3e1"/><g fill="#4054bf">${[[72,192],[112,171],[158,178],[210,145],[258,151],[307,120],[355,126],[421,89],[487,94],[552,62],[618,51],[505,188]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6"/>`).join('')}</g><text x="665" y="219" font-size="13" fill="#6d778b">X</text><text x="25" y="35" font-size="13" fill="#6d778b">Y</text></svg>`;
@@ -366,8 +391,8 @@
     function openLightbox(src){
       closeLightbox();
       const box = document.createElement('div');
-      box.className = 'lightbox'; box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label','Padidinta diagrama');
-      box.innerHTML = `<div class="lightbox-bar"><span>Slinkite, jei diagrama netelpa ekrane</span><button type="button" class="lightbox-close" aria-label="Uždaryti">×</button></div><div class="lightbox-scroll"><img src="${escapeHtml(src)}" alt="Padidinta diagrama"></div>`;
+      box.className = 'lightbox'; box.setAttribute('role','dialog'); box.setAttribute('aria-modal','true'); box.setAttribute('aria-label', t('zoomOpen'));
+      box.innerHTML = `<div class="lightbox-bar"><span>${escapeHtml(t('zoomBar'))}</span><button type="button" class="lightbox-close" aria-label="${escapeHtml(t('zoomClose'))}">×</button></div><div class="lightbox-scroll"><img src="${escapeHtml(src)}" alt=""></div>`;
       box.addEventListener('click', e => { if (e.target === box || e.target.classList.contains('lightbox-scroll') || e.target.classList.contains('lightbox-close')) closeLightbox(); });
       document.body.appendChild(box);
       document.body.style.overflow = 'hidden';

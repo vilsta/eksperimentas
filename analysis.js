@@ -1,17 +1,25 @@
 // Rezultatų analizė pagal 2.6 skyriaus principus: duomenų paruošimas, aprašomoji statistika,
 // grupavimas, hipotezių tikrinimas, Holmo–Bonferronio korekcija ir interpretavimas.
-import { db, parseJSON, PROFILE_QUESTIONS } from './db.js';
+import { db, parseJSON } from './db.js';
+import { getSettings, sessionProfile, optionLabel } from './settings.js';
 import { chiSquare, fisherExact, mannWhitney, cmh, holm, mean, median, quantile } from './stats.js';
 
 const ALPHA = 0.05;
 const GROUPS = ['A', 'B'];
 const MAIN_HYPOTHESIS = { E1: 'H1', E2: 'H2–H3', E3: 'H4', E4: 'H5' };
-const profileOptions = key => PROFILE_QUESTIONS.find(p => p.key === key)?.options || [];
 
 const RATING_LEVELS = ['Žemas (1–2)', 'Vidutinis (3)', 'Aukštas (4–5)'];
 const ratingLevel = v => (v <= 2 ? RATING_LEVELS[0] : v === 3 ? RATING_LEVELS[1] : RATING_LEVELS[2]);
-const EXPERIENCE_LEVELS = ['Mažesnė (1–2)', 'Didesnė (3–5)'];
-const experienceLevel = v => { const n = Number(v); return n >= 1 && n <= 2 ? EXPERIENCE_LEVELS[0] : n >= 3 && n <= 5 ? EXPERIENCE_LEVELS[1] : null; };
+// Profilio klausimas pagal analizės vaidmenį (nustatymuose) ir jo reikšmės lietuviška etikete.
+const roleQuestion = (settings, role) => settings.profileQuestions.find(q => q.role === role) || null;
+const levelsOf = q => (q ? q.options.map(o => optionLabel(q, o.value)) : []);
+// Patirtis: 1–5 skalėje 1–2 – mažesnė, 3–5 – didesnė; sąraše – pirmoji variantų pusė mažesnė.
+function experienceLevels(q) {
+  if (!q) return { levels: [], level: () => null };
+  if (q.type === 'scale') return { levels: ['Mažesnė (1–2)', 'Didesnė (3–5)'], level: v => { const n = Number(v); return n >= 1 && n <= 2 ? 'Mažesnė (1–2)' : n >= 3 && n <= 5 ? 'Didesnė (3–5)' : null; } };
+  const half = Math.floor(q.options.length / 2), low = q.options.slice(0, half).map(o => o.value);
+  return { levels: ['Mažesnė', 'Didesnė'], level: v => (!v ? null : low.includes(v) ? 'Mažesnė' : q.options.some(o => o.value === v) ? 'Didesnė' : null) };
+}
 
 export function strength(v) {
   if (v == null) return '';
@@ -30,7 +38,9 @@ export function analysisExperiments() {
 }
 
 // ---------------------------------------------------------------- 1. Duomenų paruošimas
-function prepare(experimentId) {
+function prepare(experimentId, settings) {
+  const roles = Object.fromEntries(['gender', 'age', 'field'].map(r => [r, roleQuestion(settings, r)]));
+  const experience = experienceLevels(roleQuestion(settings, 'experience'));
   const sessions = db.prepare("SELECT * FROM participant_sessions WHERE experiment_id=? AND group_label IN ('A','B') ORDER BY started_at").all(experimentId);
   const answers = db.prepare(`SELECT a.*,q.task_type,q.answer_format,q.variant,q.variant_a,q.variant_b,q.tolerance
       FROM answers a JOIN questions q ON q.id=a.question_id JOIN participant_sessions s ON s.id=a.session_id
@@ -49,6 +59,7 @@ function prepare(experimentId) {
     if (list.length && ratings.size === 1) { prep.sameRatingSessions++; continue; }
     prep.includedSessions++;
     participants.push(s);
+    const profile = sessionProfile(s);
     for (const a of list) {
       const complete = s.group_label && a.task_type !== null && a.answer_json && a.is_correct !== null && a.elapsed_seconds !== null && a.clarity && a.appeal && a.difficulty;
       if (!complete) { prep.incompleteTrials++; continue; }
@@ -62,8 +73,8 @@ function prepare(experimentId) {
       trials.push({
         session: s.id, group: s.group_label, task: a.task_type, correct: a.is_correct ? 1 : 0, time: a.elapsed_seconds,
         clarity: a.clarity, appeal: a.appeal, difficulty: a.difficulty, error,
-        gender: s.gender || null, age: s.age_group || null, field: s.field_area || null,
-        experience: experienceLevel(s.analysis_experience), device: s.device_type || null
+        ...Object.fromEntries(Object.entries(roles).map(([r, q]) => [r, q && profile[q.key] ? optionLabel(q, profile[q.key]) : null])),
+        experience: experience.level(profile[roleQuestion(settings, 'experience')?.key]), device: s.device_type || null
       });
     }
   }
@@ -72,18 +83,16 @@ function prepare(experimentId) {
 }
 
 // ---------------------------------------------------------------- 2. Aprašomoji statistika
-function describe(participants, trials) {
-  const demographic = [
-    ['Lytis', 'gender', profileOptions('gender')],
-    ['Amžiaus grupė', 'age_group', profileOptions('ageGroup')],
-    ['Išsilavinimo / darbo sritis', 'field_area', profileOptions('field')],
-    ['Duomenų analizės patirtis (1–5)', 'analysis_experience', ['1', '2', '3', '4', '5']],
-    ['Darbo su vizualizacijomis dažnis (1–5)', 'viz_frequency', ['1', '2', '3', '4', '5']],
-    ['Įrenginys', 'device_type', ['Kompiuteris', 'Mobilusis']]
-  ].map(([title, column, order]) => {
-    const values = [...new Set([...order, ...participants.map(p => p[column] || 'Nenurodyta')])];
-    const rows = values.map(value => ({ value, A: 0, B: 0 }));
-    participants.forEach(p => { const row = rows.find(r => r.value === (p[column] || 'Nenurodyta')); row[p.group_label]++; });
+function describe(participants, trials, settings) {
+  const variables = [
+    ...settings.profileQuestions.map(q => ({ title: q.title.lt + (q.type === 'scale' ? ' (1–5)' : ''), order: levelsOf(q), value: p => { const v = sessionProfile(p)[q.key]; return v ? optionLabel(q, v) : null; } })),
+    { title: 'Įrenginys', order: ['Kompiuteris', 'Mobilusis'], value: p => p.device_type || null },
+    { title: 'Kalba', order: ['LT', 'EN'], value: p => String(p.language || 'lt').toUpperCase() }
+  ];
+  const demographic = variables.map(({ title, order, value }) => {
+    const values = [...new Set([...order, ...participants.map(p => value(p) || 'Nenurodyta')])];
+    const rows = values.map(v => ({ value: v, A: 0, B: 0 }));
+    participants.forEach(p => { const row = rows.find(r => r.value === (value(p) || 'Nenurodyta')); row[p.group_label]++; });
     return { title, rows: rows.filter(r => r.A + r.B > 0) };
   });
   const indicators = GROUPS.map(g => {
@@ -183,7 +192,8 @@ function mannWhitneyTest(base, trials, valueFn, unit) {
     direction: mA === mB ? '' : `${mA < mB ? 'A' : 'B'} grupės mediana mažesnė (${fmt(Math.min(mA, mB))} ${unit} prieš ${fmt(Math.max(mA, mB))} ${unit})` };
 }
 
-function hypothesisTests(code, trials, grouping) {
+function hypothesisTests(code, trials, grouping, settings) {
+  const experienceQ = roleQuestion(settings, 'experience');
   const tests = [];
   const ind = grouping.indicators;
   const group = { fn: t => t.group, levels: GROUPS, name: groupName };
@@ -197,8 +207,9 @@ function hypothesisTests(code, trials, grouping) {
   }
 
   // H6, H7: patirtis ir įrenginys.
+  // Hipotezė praleidžiama, jei nustatymuose nėra klausimo su atitinkamu analizės vaidmeniu.
   const moderators = [
-    ['H6', 'Patirtis', { fn: t => t.experience, levels: EXPERIENCE_LEVELS, name: v => `${v} patirtis` }],
+    ...(experienceQ ? [['H6', 'Patirtis', { fn: t => t.experience, levels: experienceLevels(experienceQ).levels, name: v => `${v} patirtis` }]] : []),
     ['H7', 'Įrenginys', { fn: t => t.device, levels: ['Kompiuteris', 'Mobilusis'], name: v => v }]
   ];
   for (const [hyp, label, variable] of moderators) {
@@ -211,11 +222,9 @@ function hypothesisTests(code, trials, grouping) {
   }
 
   // H8–H10: amžius, lytis, išsilavinimo sritis (A ir B kartu).
-  const demographics = [
-    ['H8', 'Amžiaus grupė', { fn: t => t.age, levels: profileOptions('ageGroup'), name: v => v }],
-    ['H9', 'Lytis', { fn: t => t.gender, levels: profileOptions('gender'), name: v => v }],
-    ['H10', 'Išsilavinimo sritis', { fn: t => t.field, levels: profileOptions('field'), name: v => v }]
-  ];
+  const demographics = [['H8', 'age'], ['H9', 'gender'], ['H10', 'field']]
+    .map(([hyp, role]) => [hyp, roleQuestion(settings, role)?.title.lt, { fn: t => t[role], levels: levelsOf(roleQuestion(settings, role)), name: v => v }])
+    .filter(([, label]) => label);
   for (const [hyp, label, variable] of demographics) {
     ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, trials, variable, i)));
   }
@@ -240,7 +249,8 @@ function hypothesisTests(code, trials, grouping) {
 export function analyzeExperiment(experimentId) {
   const exp = db.prepare('SELECT * FROM experiments WHERE id=?').get(experimentId);
   if (!exp) return null;
-  const { prep, participants, trials } = prepare(exp.id);
+  const settings = getSettings();
+  const { prep, participants, trials } = prepare(exp.id, settings);
   const variants = db.prepare(`SELECT DISTINCT q.variant_a a,q.variant_b b FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.variant<>''`).all(exp.id);
   const g = grouping(participants, trials);
   return {
@@ -248,8 +258,8 @@ export function analyzeExperiment(experimentId) {
     variants: { A: [...new Set(variants.map(v => v.a))], B: [...new Set(variants.map(v => v.b))] },
     alpha: ALPHA,
     preparation: prep,
-    descriptive: describe(participants, trials),
-    grouping: { k: g.k, cuts: g.cuts, timeLabels: g.labels, ratingLevels: RATING_LEVELS, experienceLevels: EXPERIENCE_LEVELS },
-    tests: hypothesisTests(exp.code, trials, g)
+    descriptive: describe(participants, trials, settings),
+    grouping: { k: g.k, cuts: g.cuts, timeLabels: g.labels, ratingLevels: RATING_LEVELS, experienceLevels: experienceLevels(roleQuestion(settings, 'experience')).levels, experienceTitle: roleQuestion(settings, 'experience')?.title.lt || '' },
+    tests: hypothesisTests(exp.code, trials, g, settings)
   };
 }
