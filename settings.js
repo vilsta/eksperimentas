@@ -44,6 +44,8 @@ export const TEXT_FIELDS = [
   ['Užduoties vertinimai', 'ratingDifficultyMax', 'Sudėtingumas: 5 reiškia'],
   ['Atsisveikinimas', 'finishTitle', 'Atsisveikinimo antraštė'],
   ['Atsisveikinimas', 'finishBody', 'Atsisveikinimo tekstas', true],
+  ['Atsisveikinimas', 'anotherQuestion', 'Kvietimas dalyvauti dar viename eksperimente'],
+  ['Atsisveikinimas', 'anotherButton', 'Kvietimo mygtukas'],
   ['Kontaktai', 'contactText', 'Kontaktų tekstas'],
   ['Kontaktai', 'contactLinkLabel', 'Nuorodos pavadinimas'],
   ['Kontaktai', 'contactUrl', 'Nuorodos adresas (palikite tuščią, jei nuorodos nereikia)'],
@@ -56,6 +58,10 @@ export const TEXT_FIELDS = [
   ['Pranešimai', 'noQuestions', 'Eksperimente nėra klausimų'],
   ['Pranešimai', 'noActiveExperiment', 'Nėra aktyvaus eksperimento']
 ].map(([group, key, label, multiline]) => ({ group, key, label, multiline: !!multiline }));
+
+// Šių grupių tekstai tyrėjo „Nustatymuose“ nerodomi (naudojamos išsaugotos arba numatytosios reikšmės).
+const HIDDEN_GROUPS = ['Bendra', 'Užduotis', 'Užduoties vertinimai', 'Pranešimai'];
+export const EDITABLE_TEXT_FIELDS = TEXT_FIELDS.filter(f => !HIDDEN_GROUPS.includes(f.group));
 
 const DEFAULT_TEXTS = {
   lt: {
@@ -97,6 +103,8 @@ const DEFAULT_TEXTS = {
     ratingDifficultyMax: 'Labai sudėtinga',
     finishTitle: 'Ačiū už dalyvavimą!',
     finishBody: 'Atsakėte į visus eksperimento klausimus, dėkoju už skirtą laiką!',
+    anotherQuestion: 'Ar norite dalyvauti dar viename eksperimente?',
+    anotherButton: 'Taip',
     contactText: 'Kilus klausimams, galime bendrauti čia:',
     contactLinkLabel: 'LinkedIn',
     contactUrl: 'https://www.linkedin.com/in/vilt%C4%97-stankut%C4%97-094b0a268',
@@ -148,6 +156,8 @@ const DEFAULT_TEXTS = {
     ratingDifficultyMax: 'Very demanding',
     finishTitle: 'Thank you for participating!',
     finishBody: 'You have answered all the questions of the experiment. Thank you for your time!',
+    anotherQuestion: 'Would you like to take part in another experiment?',
+    anotherButton: 'Yes',
     contactText: 'If you have any questions, you can reach me here:',
     contactLinkLabel: 'LinkedIn',
     contactUrl: 'https://www.linkedin.com/in/vilt%C4%97-stankut%C4%97-094b0a268',

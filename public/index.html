@@ -65,6 +65,7 @@
     .actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
 
     .finish-card{max-width:720px;margin:95px auto 0;padding:42px 44px;text-align:center}
+    .another-box{margin:24px 0 4px;padding:22px;border-radius:12px;background:#f7f8ff;border:1px solid #dfe4fb}.another-box strong{display:block;font-size:17px;margin-bottom:16px;color:#2f3a52}
     .finish-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 18px;background:#eff8ee;color:#4e9850;display:grid;place-items:center;font-size:34px;font-weight:800}
     .finish-card h1{margin:0 0 12px;font-size:30px}.finish-card p{color:#66738a;line-height:1.65;margin:0 auto 12px;max-width:590px}
 
@@ -176,6 +177,10 @@
         <div class="finish-icon">✓</div>
         <h1 data-t="finishTitle"></h1>
         <div id="finish-body"></div>
+        <div class="another-box hidden" id="another-box">
+          <strong data-t="anotherQuestion"></strong>
+          <button class="primary wide" id="another-btn" data-t="anotherButton"></button>
+        </div>
       </div>
     </section>
 
@@ -346,9 +351,30 @@
     }
 
     async function completeExperiment(){
-      await api(`/api/public/sessions/${encodeURIComponent(session.id)}/complete`, { method:'POST' });
+      const result = await api(`/api/public/sessions/${encodeURIComponent(session.id)}/complete`, { method:'POST' });
+      document.getElementById('another-box').classList.toggle('hidden', !result.anotherAvailable);
       showScreen('finish-screen');
     }
+
+    // Kitas eksperimentas: profilio klausimai nebeužduodami, serveris perima juos iš baigtos sesijos.
+    document.getElementById('another-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('another-btn');
+      btn.disabled = true; btn.textContent = t('starting');
+      try {
+        const data = await api(`/api/public/sessions/${encodeURIComponent(session.id)}/next`, { method:'POST' });
+        session = { id:data.sessionId };
+        questions = data.questions || [];
+        if (!questions.length) throw new Error(t('noQuestions'));
+        index = 0;
+        showScreen('task-screen');
+        renderQuestion();
+      } catch (e) {
+        toast(e.message || t('startFailed'));
+        document.getElementById('another-box').classList.add('hidden');
+      } finally {
+        btn.disabled = false; btn.textContent = t('anotherButton');
+      }
+    });
 
     function answerHtml(q){
       if (q.format==='Skaitinis atsakymas') return `<input class="answer-input" id="numeric-answer" type="text" inputmode="decimal" autocomplete="off" placeholder="${escapeHtml(t('numericPlaceholder'))}">`;

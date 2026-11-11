@@ -55,6 +55,7 @@ hypotheses 1 --- N recommendation_versions
 - `POST /api/public/start`
 - `POST /api/public/sessions/:id/answer`
 - `POST /api/public/sessions/:id/complete`
+- `POST /api/public/sessions/:id/next` – kitas eksperimentas tam pačiam dalyviui
 
 ### Tyrėjo dalis
 

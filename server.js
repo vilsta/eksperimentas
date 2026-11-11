@@ -4,7 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { db, parseJSON, questionToObject, getExperimentObject, replaceQuestionRelations, replaceExperimentRelations, verifyPassword, adminSetup } from './db.js';
-import { getSettings, saveSettings, publicSettings, sessionProfile, optionLabel, TEXT_FIELDS, PROFILE_ROLES, LANGUAGES } from './settings.js';
+import { getSettings, saveSettings, publicSettings, sessionProfile, optionLabel, EDITABLE_TEXT_FIELDS, PROFILE_ROLES, LANGUAGES } from './settings.js';
 import { analyzeExperiment, analysisExperiments } from './analysis.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -32,9 +32,10 @@ function variantOf(q){ const v=text(q.variant).toUpperCase(); return v==='A'||v=
 function toleranceOf(q){ const n=Number(String(q.tolerance??'').replace(',','.')); return String(q.tolerance??'').trim()!==''&&Number.isFinite(n)?Math.abs(n):null; }
 function experimentQuestionIds(experimentId,group){ return db.prepare("SELECT q.id FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.status='Aktyvus' AND (q.variant='' OR q.variant=?) ORDER BY eq.position").all(experimentId,group).map(x=>x.id); }
 // Dalyvis priskiriamas aktyviam eksperimentui ir grupei, kuriuose iki šiol mažiausiai dalyvių (lygybės atveju – atsitiktinai).
-function assignExperiment(){
+function assignExperiment(excludeIds=[]){
   const cells=[];
   for(const exp of db.prepare("SELECT * FROM experiments WHERE status='Aktyvus'").all()){
+    if(excludeIds.includes(exp.id))continue;
     const hasVariants=!!db.prepare("SELECT 1 FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.status='Aktyvus' AND q.variant<>'' LIMIT 1").get(exp.id);
     for(const group of hasVariants?['A','B']:['']){
       if(!experimentQuestionIds(exp.id,group).length)continue;
@@ -46,6 +47,15 @@ function assignExperiment(){
   return pool[Math.floor(Math.random()*pool.length)];
 }
 // Dalyviui: klausimas pasirinkta kalba. Atsakymo reikšmė visada lietuviškas variantas (pagal jį tikrinamas teisingumas).
+// Eksperimentai, kuriuos dalyvis jau pradėjo (visos to paties dalyvio sesijos).
+function participantExperimentIds(s){ return s.participant_id?db.prepare('SELECT DISTINCT experiment_id FROM participant_sessions WHERE participant_id=?').all(s.participant_id).map(r=>r.experiment_id):[s.experiment_id]; }
+function hasAnotherExperiment(s){ try{assignExperiment(participantExperimentIds(s));return true}catch{return false} }
+function createSession({exp,group,lang,profile,device,ua,participantId,label}){
+  let ids=experimentQuestionIds(exp.id,group);if(exp.order_mode==='Atsitiktinė')ids=shuffle(ids);
+  const id=crypto.randomUUID();
+  db.prepare('INSERT INTO participant_sessions(id,experiment_id,participant_label,device_type,group_label,language,profile_json,status,question_order_json,started_at,user_agent,participant_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)').run(id,exp.id,label,device,group,lang,JSON.stringify(profile),'Vykdoma',JSON.stringify(ids),nowIso(),ua,participantId);
+  return {sessionId:id,questions:ids.map(qid=>publicQuestion(questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(qid),true),lang))};
+}
 function publicQuestion(q,lang='lt'){ const en=lang==='en'; return {id:q.id,format:q.format,chart:q.chart,image:(en&&q.imageEn)||q.image,text:(en&&q.textEn)||q.text,options:q.options.map((o,i)=>({value:o,label:(en&&q.optionsEn?.[i])||o}))}; }
 const langOf=v=>LANGUAGES.includes(v)?v:'lt';
 
@@ -176,7 +186,7 @@ async function api(req,res,pathname){
   }
 
   if(pathname==='/api/admin/settings'&&method==='GET'){
-    requireAdmin(req);return json(res,200,{settings:getSettings(),textFields:TEXT_FIELDS,roles:PROFILE_ROLES,languages:LANGUAGES});
+    requireAdmin(req);return json(res,200,{settings:getSettings(),textFields:EDITABLE_TEXT_FIELDS,roles:PROFILE_ROLES,languages:LANGUAGES});
   }
   if(pathname==='/api/admin/settings'&&method==='PUT'){
     requireAdmin(req);const b=await bodyJson(req);try{return json(res,200,{settings:saveSettings(b)})}catch(e){throw httpError(400,e.message)}
@@ -188,18 +198,29 @@ async function api(req,res,pathname){
     requireAdmin(req);const r=analyzeExperiment(Number(params.id));if(!r)throw httpError(404,'Eksperimentas nerastas.');return json(res,200,r);
   }
   if(pathname==='/api/admin/export.csv'&&method==='GET'){
-    requireAdmin(req);const profileQs=getSettings().profileQuestions;const rows=db.prepare(`SELECT s.participant_label participant,s.id session_id,e.code experiment,s.group_label,s.language,s.device_type,s.profile_json,s.gender,s.age_group,s.field_area,s.viz_frequency,s.analysis_experience,q.id question_id,q.level question_level,q.task_type,CASE q.variant WHEN 'A' THEN q.variant_a WHEN 'B' THEN q.variant_b ELSE '' END chart_type_seen,q.answer_format,a.answer_json,a.is_correct,a.elapsed_seconds,a.clarity,a.appeal,a.difficulty,a.submitted_at FROM answers a JOIN participant_sessions s ON s.id=a.session_id JOIN questions q ON q.id=a.question_id JOIN experiments e ON e.id=s.experiment_id ORDER BY s.started_at,q.id`).all();rows.forEach(r=>{const pr=sessionProfile(r);profileQs.forEach(p=>{r['profile_'+p.key]=optionLabel(p,pr[p.key]||'')})});const headers=['participant','session_id','experiment','group_label','language','device_type',...profileQs.map(p=>'profile_'+p.key),'question_id','question_level','task_type','chart_type_seen','answer_format','answer','is_correct','elapsed_seconds','clarity','appeal','difficulty','submitted_at'];const csvEsc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[headers.map(csvEsc).join(','),...rows.map(r=>headers.map(h=>csvEsc(h==='answer'?parseJSON(r.answer_json,[]).join(' | '):r[h])).join(','))].join('\n');return sendText(res,200,csv,'text/csv; charset=utf-8',{'Content-Disposition':'attachment; filename="eksperimento_rezultatai.csv"'});
+    requireAdmin(req);const profileQs=getSettings().profileQuestions;const rows=db.prepare(`SELECT s.participant_label participant,s.participant_id,s.id session_id,e.code experiment,s.group_label,s.language,s.device_type,s.profile_json,s.gender,s.age_group,s.field_area,s.viz_frequency,s.analysis_experience,q.id question_id,q.level question_level,q.task_type,CASE q.variant WHEN 'A' THEN q.variant_a WHEN 'B' THEN q.variant_b ELSE '' END chart_type_seen,q.answer_format,a.answer_json,a.is_correct,a.elapsed_seconds,a.clarity,a.appeal,a.difficulty,a.submitted_at FROM answers a JOIN participant_sessions s ON s.id=a.session_id JOIN questions q ON q.id=a.question_id JOIN experiments e ON e.id=s.experiment_id ORDER BY s.started_at,q.id`).all();rows.forEach(r=>{const pr=sessionProfile(r);profileQs.forEach(p=>{r['profile_'+p.key]=optionLabel(p,pr[p.key]||'')})});const headers=['participant','participant_id','session_id','experiment','group_label','language','device_type',...profileQs.map(p=>'profile_'+p.key),'question_id','question_level','task_type','chart_type_seen','answer_format','answer','is_correct','elapsed_seconds','clarity','appeal','difficulty','submitted_at'];const csvEsc=v=>'"'+String(v??'').replaceAll('"','""')+'"';const csv='\ufeff'+[headers.map(csvEsc).join(','),...rows.map(r=>headers.map(h=>csvEsc(h==='answer'?parseJSON(r.answer_json,[]).join(' | '):r[h])).join(','))].join('\n');return sendText(res,200,csv,'text/csv; charset=utf-8',{'Content-Disposition':'attachment; filename="eksperimento_rezultatai.csv"'});
   }
 
   if(pathname==='/api/public/settings'&&method==='GET') return json(res,200,publicSettings());
   if(pathname==='/api/public/start'&&method==='POST'){
-    const b=await bodyJson(req),lang=langOf(b.language),settings=getSettings(),input=b.profile||{},profile={};for(const p of settings.profileQuestions){const v=text(input[p.key]);if(!p.options.some(o=>o.value===v))throw httpError(400,settings.texts[lang].profileMissing.replace('{title}',p.title[lang]||p.title.lt));profile[p.key]=v}let assigned;try{assigned=assignExperiment()}catch(e){if(e.status===404)throw httpError(404,settings.texts[lang].noActiveExperiment);throw e}const {exp,group}=assigned;let ids=experimentQuestionIds(exp.id,group);if(exp.order_mode==='Atsitiktinė')ids=shuffle(ids);const id=crypto.randomUUID(),n=db.prepare('SELECT COUNT(*) c FROM participant_sessions').get().c+1,label=`Dalyvis #${n}`,ua=req.headers['user-agent']||'',device=text(b.device)||(/Mobi|Android|iPhone|iPad/i.test(ua)?'Mobilusis':'Kompiuteris');db.prepare('INSERT INTO participant_sessions(id,experiment_id,participant_label,device_type,group_label,language,profile_json,status,question_order_json,started_at,user_agent) VALUES(?,?,?,?,?,?,?,?,?,?,?)').run(id,exp.id,label,device,group,lang,JSON.stringify(profile),'Vykdoma',JSON.stringify(ids),nowIso(),ua);const questions=ids.map(qid=>publicQuestion(questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(qid),true),lang));return json(res,201,{sessionId:id,questions});
+    const b=await bodyJson(req),lang=langOf(b.language),settings=getSettings(),input=b.profile||{},profile={};for(const p of settings.profileQuestions){const v=text(input[p.key]);if(!p.options.some(o=>o.value===v))throw httpError(400,settings.texts[lang].profileMissing.replace('{title}',p.title[lang]||p.title.lt));profile[p.key]=v}let assigned;try{assigned=assignExperiment()}catch(e){if(e.status===404)throw httpError(404,settings.texts[lang].noActiveExperiment);throw e}const {exp,group}=assigned;const n=db.prepare('SELECT COUNT(DISTINCT COALESCE(participant_id,id)) c FROM participant_sessions').get().c+1,ua=req.headers['user-agent']||'',device=text(b.device)||(/Mobi|Android|iPhone|iPad/i.test(ua)?'Mobilusis':'Kompiuteris');return json(res,201,createSession({exp,group,lang,profile,device,ua,participantId:crypto.randomUUID(),label:`Dalyvis #${n}`}));
   }
   if((params=match(pathname,'/api/public/sessions/:id/answer'))&&method==='POST'){
     const b=await bodyJson(req),s=db.prepare('SELECT * FROM participant_sessions WHERE id=?').get(params.id);if(!s)throw httpError(404,'Sesija nerasta.');if(s.status==='Užbaigta')throw httpError(409,'Sesija jau užbaigta.');const qid=text(b.questionId);if(!parseJSON(s.question_order_json,[]).includes(qid))throw httpError(400,'Klausimas nepriklauso šiai sesijai.');const row=db.prepare('SELECT * FROM questions WHERE id=?').get(qid),q=questionToObject(row,true),elapsed=Math.max(0,Math.round((Number(b.elapsedSeconds)||0)*1000)/1000),clarity=Number(b.clarity),appeal=Number(b.appeal),difficulty=Number(b.difficulty);if(![clarity,appeal,difficulty].every(v=>Number.isInteger(v)&&v>=1&&v<=5))throw httpError(400,'Visi trys vertinimai turi būti nuo 1 iki 5.');const correct=isCorrectAnswer(q,b.answer)?1:0;db.prepare('INSERT INTO answers(session_id,question_id,answer_json,is_correct,elapsed_seconds,clarity,appeal,difficulty) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(session_id,question_id) DO UPDATE SET answer_json=excluded.answer_json,is_correct=excluded.is_correct,elapsed_seconds=excluded.elapsed_seconds,clarity=excluded.clarity,appeal=excluded.appeal,difficulty=excluded.difficulty,submitted_at=CURRENT_TIMESTAMP').run(s.id,qid,JSON.stringify(normalizedAnswer(b.answer)),correct,elapsed,clarity,appeal,difficulty);return json(res,200,{ok:true});
   }
+  // Kitas eksperimentas tam pačiam dalyviui: profilis, kalba ir įrenginys perimami iš baigtos sesijos.
+  if((params=match(pathname,'/api/public/sessions/:id/next'))&&method==='POST'){
+    const s=db.prepare('SELECT * FROM participant_sessions WHERE id=?').get(params.id);if(!s)throw httpError(404,'Sesija nerasta.');if(s.status!=='Užbaigta')throw httpError(409,'Pirmiausia užbaikite eksperimentą.');
+    const lang=langOf(s.language);
+    if(s.next_session_id){const n=db.prepare('SELECT * FROM participant_sessions WHERE id=?').get(s.next_session_id);if(n)return json(res,200,{sessionId:n.id,questions:parseJSON(n.question_order_json,[]).map(qid=>publicQuestion(questionToObject(db.prepare('SELECT * FROM questions WHERE id=?').get(qid),true),lang))})}
+    let assigned;try{assigned=assignExperiment(participantExperimentIds(s))}catch(e){if(e.status===404)throw httpError(404,getSettings().texts[lang].noActiveExperiment);throw e}
+    const participantId=s.participant_id||crypto.randomUUID();if(!s.participant_id)db.prepare('UPDATE participant_sessions SET participant_id=? WHERE id=?').run(participantId,s.id);
+    const created=createSession({exp:assigned.exp,group:assigned.group,lang,profile:sessionProfile(s),device:s.device_type,ua:req.headers['user-agent']||s.user_agent||'',participantId,label:s.participant_label});
+    db.prepare('UPDATE participant_sessions SET next_session_id=? WHERE id=?').run(created.sessionId,s.id);
+    return json(res,201,created);
+  }
   if((params=match(pathname,'/api/public/sessions/:id/complete'))&&method==='POST'){
-    const s=db.prepare('SELECT * FROM participant_sessions WHERE id=?').get(params.id);if(!s)throw httpError(404,'Sesija nerasta.');const expected=parseJSON(s.question_order_json,[]).length,answered=db.prepare('SELECT COUNT(*) c FROM answers WHERE session_id=?').get(s.id).c;if(answered<expected)throw httpError(400,`Atsakyta ${answered} iš ${expected} klausimų.`);db.prepare("UPDATE participant_sessions SET status='Užbaigta',finished_at=? WHERE id=?").run(nowIso(),s.id);return json(res,200,{ok:true});
+    const s=db.prepare('SELECT * FROM participant_sessions WHERE id=?').get(params.id);if(!s)throw httpError(404,'Sesija nerasta.');const expected=parseJSON(s.question_order_json,[]).length,answered=db.prepare('SELECT COUNT(*) c FROM answers WHERE session_id=?').get(s.id).c;if(answered<expected)throw httpError(400,`Atsakyta ${answered} iš ${expected} klausimų.`);db.prepare("UPDATE participant_sessions SET status='Užbaigta',finished_at=? WHERE id=?").run(nowIso(),s.id);return json(res,200,{ok:true,anotherAvailable:hasAnotherExperiment(s)});
   }
 
   throw httpError(404,'API maršrutas nerastas.');

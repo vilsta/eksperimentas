@@ -172,6 +172,9 @@ addColumn('question_options', 'option_text_en', "TEXT NOT NULL DEFAULT ''");
 // Klausimo sunkumo žyma (Lengvas / Vidutinis / Sunkus) ir eksperimentų rinkinio versija.
 addColumn('questions', 'level', "TEXT NOT NULL DEFAULT ''");
 addColumn('experiments', 'seed_version', 'INTEGER NOT NULL DEFAULT 1');
+// Tas pats dalyvis keliuose eksperimentuose: bendras participant_id ir nuoroda į kitą sesiją.
+addColumn('participant_sessions', 'participant_id', 'TEXT');
+addColumn('participant_sessions', 'next_session_id', 'TEXT');
 
 function tx(fn) {
   db.exec('BEGIN');

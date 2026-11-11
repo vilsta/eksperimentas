@@ -74,7 +74,7 @@ Cloudflare pateiks viešą HTTPS adresą. Dalyviams siųskite pagrindinę nuorod
 
 ## Kalbos ir nustatymai
 
-Dalyvis pirmiausia pasirenka kalbą (lietuvių arba anglų). Visi dalyviui rodomi tekstai – pasisveikinimas, profilio klausimai, užduoties vertinimai, atsisveikinimas, kontaktai ir pranešimai – redaguojami tyrėjo portalo skiltyje **„Nustatymai“** abiem kalbomis (`settings.js`, DB lentelė `settings`).
+Dalyvis pirmiausia pasirenka kalbą (lietuvių arba anglų). Pasisveikinimo, profilio klausimų, atsisveikinimo ir kontaktų tekstai redaguojami tyrėjo portalo skiltyje **„Nustatymai“** abiem kalbomis (`settings.js`, DB lentelė `settings`). Kiti sąsajos tekstai (mygtukai, užduoties vertinimai, pranešimai) laikomi tame pačiame nustatymų rinkinyje, bet tyrėjo portale nerodomi.
 
 Profilio klausimus galima pridėti, šalinti, perrikiuoti, keisti jų tipą (išskleidžiamasis sąrašas arba skalė 1–5) ir analizės vaidmenį: patirtis (H6), amžius (H8), lytis (H9), sritis (H10). Atsakymai saugomi sesijos lauke `profile_json`.
 
@@ -87,6 +87,10 @@ Faile `seed/eksperimentai.json` (2 versija) aprašyti 4 eksperimentai ir 80 klau
 Paleidus serverį, trūkstami klausimai ir eksperimentai automatiškai importuojami į DB (esami neperrašomi). Jei DB jau yra ankstesnės versijos E1–E4, jie sustabdomi ir pervadinami į E1-v1…E4-v1, o jų klausimai pažymimi neaktyviais – senos sesijos ir jų rezultatai lieka atskirai.
 
 Kiekvienas dalyvis priskiriamas vienam aktyviam eksperimentui ir A arba B grupei – ten, kur iki šiol mažiausiai dalyvių. CSV eksporte yra `experiment`, `group_label`, `chart_type_seen` ir `question_level`. Skaitiniai atsakymai laikomi teisingais, jei patenka į klausimo leistiną nuokrypį.
+
+## Keli eksperimentai vienam dalyviui
+
+Baigus eksperimentą, dalyviui siūloma dalyvauti dar viename („Ar norite dalyvauti dar viename eksperimente?“). Paspaudus „Taip“, jis priskiriamas kitam aktyviam eksperimentui, kurio dar nebuvo atlikęs (taip pat tolygiai pagal eksperimentus ir A/B grupes). Profilio klausimai antrą kartą neužduodami – profilis, kalba ir įrenginys perimami iš ankstesnės sesijos. Visos to paties dalyvio sesijos turi bendrą `participant_id` (yra CSV eksporte). Kai neatliktų aktyvių eksperimentų nebelieka, kvietimas nerodomas.
 
 ## Rezultatų analizė
 
