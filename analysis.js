@@ -6,6 +6,8 @@ import { chiSquare, fisherExact, mannWhitney, cmh, holm, mean, median, quantile 
 
 const ALPHA = 0.05;
 const GROUPS = ['A', 'B'];
+// Senosios versijos eksperimentų kodai turi priesagą (E1-v1), todėl hipotezė parenkama pagal pradžią.
+const mainHypothesis = code => MAIN_HYPOTHESIS[String(code || '').split('-')[0]] || 'H1–H5';
 const MAIN_HYPOTHESIS = { E1: 'H1', E2: 'H2–H3', E3: 'H4', E4: 'H5' };
 
 const RATING_LEVELS = ['Žemas (1–2)', 'Vidutinis (3)', 'Aukštas (4–5)'];
@@ -197,7 +199,7 @@ function hypothesisTests(code, trials, grouping, settings) {
   const tests = [];
   const ind = grouping.indicators;
   const group = { fn: t => t.group, levels: GROUPS, name: groupName };
-  const mainCode = MAIN_HYPOTHESIS[code] || 'H1–H5';
+  const mainCode = mainHypothesis(code);
 
   // H1–H5: ar rezultatai priklauso nuo grupės.
   ind.forEach(i => tests.push(associationTest({ hyp: mainCode, family: 'main', title: `Grupė × ${i.label.toLowerCase()}` }, trials, group, i)));
@@ -254,7 +256,7 @@ export function analyzeExperiment(experimentId) {
   const variants = db.prepare(`SELECT DISTINCT q.variant_a a,q.variant_b b FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.variant<>''`).all(exp.id);
   const g = grouping(participants, trials);
   return {
-    experiment: { id: exp.id, code: exp.code || '', title: exp.title, mainHypothesis: MAIN_HYPOTHESIS[exp.code] || 'H1–H5' },
+    experiment: { id: exp.id, code: exp.code || '', title: exp.title, mainHypothesis: mainHypothesis(exp.code) },
     variants: { A: [...new Set(variants.map(v => v.a))], B: [...new Set(variants.map(v => v.b))] },
     alpha: ALPHA,
     preparation: prep,

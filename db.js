@@ -169,6 +169,9 @@ addColumn('participant_sessions', 'language', "TEXT NOT NULL DEFAULT 'lt'");
 addColumn('questions', 'text_en', "TEXT NOT NULL DEFAULT ''");
 addColumn('questions', 'image_en', "TEXT NOT NULL DEFAULT ''");
 addColumn('question_options', 'option_text_en', "TEXT NOT NULL DEFAULT ''");
+// Klausimo sunkumo žyma (Lengvas / Vidutinis / Sunkus) ir eksperimentų rinkinio versija.
+addColumn('questions', 'level', "TEXT NOT NULL DEFAULT ''");
+addColumn('experiments', 'seed_version', 'INTEGER NOT NULL DEFAULT 1');
 
 function tx(fn) {
   db.exec('BEGIN');
@@ -265,26 +268,37 @@ seed();
 
 // Eksperimentų rinkiniai iš seed/eksperimentai.json. Importuojama tik tai, ko DB dar nėra
 // (klausimai – pagal ID, eksperimentai – pagal kodą), todėl tyrėjo pakeitimai neperrašomi.
+// Kai rinkinio versija naujesnė, ankstesnės versijos eksperimentai sustabdomi ir pervadinami
+// (pvz., E1 → E1-v1), kad jų sesijos ir rezultatai liktų atskirai nuo naujų.
 function importSeedExperiments() {
   const file = path.join(path.dirname(fileURLToPath(import.meta.url)), 'seed', 'eksperimentai.json');
   if (!fs.existsSync(file)) return;
   const data = JSON.parse(fs.readFileSync(file, 'utf8'));
   const hypothesisCodes = new Set(db.prepare('SELECT code FROM hypotheses').all().map(h => h.code));
+  const version = Number(data.version) || 1, newIds = new Set((data.questions || []).map(q => q.id));
   const createdCodes = [];
   tx(() => {
+    for (const e of data.experiments || []) {
+      const old = db.prepare('SELECT * FROM experiments WHERE code=?').get(e.code);
+      if (!old || (old.seed_version || 1) >= version) continue;
+      const v = old.seed_version || 1;
+      db.prepare("UPDATE experiments SET code=?,title=?,status='Sustabdytas',updated_at=CURRENT_TIMESTAMP WHERE id=?").run(`${e.code}-v${v}`, `${old.title} (senoji versija v${v})`, old.id);
+      const oldIds = db.prepare('SELECT question_id FROM experiment_questions WHERE experiment_id=?').all(old.id).map(r => r.question_id).filter(id => !newIds.has(id));
+      oldIds.forEach(id => db.prepare("UPDATE questions SET status='Neaktyvus' WHERE id=?").run(id));
+    }
     for (const q of data.questions || []) {
       if (db.prepare('SELECT 1 FROM questions WHERE id=?').get(q.id)) continue;
-      db.prepare('INSERT INTO questions(id,task_type,variant_a,variant_b,text,answer_format,status,chart_type,image_data,variant,tolerance,source) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)')
-        .run(q.id, q.task, q.a, q.b, q.text, q.format, 'Aktyvus', q.chart || 'bar', q.image || '', q.variant || '', q.tolerance ?? null, q.source || '');
-      const io = db.prepare('INSERT INTO question_options(question_id,option_text,is_correct,position) VALUES(?,?,?,?)');
-      q.options.forEach((o, i) => io.run(q.id, o, q.correct.includes(o) ? 1 : 0, i));
+      db.prepare('INSERT INTO questions(id,task_type,variant_a,variant_b,text,answer_format,status,chart_type,image_data,variant,tolerance,source,text_en,image_en,level) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+        .run(q.id, q.task, q.a, q.b, q.text, q.format, 'Aktyvus', q.chart || 'bar', q.image || '', q.variant || '', q.tolerance ?? null, q.source || '', q.textEn || '', q.imageEn || '', q.level || '');
+      const io = db.prepare('INSERT INTO question_options(question_id,option_text,is_correct,position,option_text_en) VALUES(?,?,?,?,?)');
+      q.options.forEach((o, i) => io.run(q.id, o, q.correct.includes(o) ? 1 : 0, i, q.optionsEn?.[i] || ''));
       const ih = db.prepare('INSERT INTO question_hypotheses(question_id,hypothesis_code) VALUES(?,?)');
       (q.hyps || []).filter(h => hypothesisCodes.has(h)).forEach(h => ih.run(q.id, h));
     }
     for (const e of data.experiments || []) {
       if (db.prepare('SELECT 1 FROM experiments WHERE code=?').get(e.code)) continue;
-      const id = Number(db.prepare('INSERT INTO experiments(title,description,status,order_mode,code) VALUES(?,?,?,?,?)')
-        .run(e.title, e.desc, 'Aktyvus', 'Atsitiktinė', e.code).lastInsertRowid);
+      const id = Number(db.prepare('INSERT INTO experiments(title,description,status,order_mode,code,seed_version) VALUES(?,?,?,?,?,?)')
+        .run(e.title, e.desc, 'Aktyvus', e.order || 'Atsitiktinė', e.code, version).lastInsertRowid);
       const iq = db.prepare('INSERT INTO experiment_questions(experiment_id,question_id,position) VALUES(?,?,?)');
       e.questions.forEach((qid, i) => iq.run(id, qid, i));
       const ih = db.prepare('INSERT INTO experiment_hypotheses(experiment_id,hypothesis_code) VALUES(?,?)');
@@ -320,6 +334,7 @@ export function questionToObject(row, includeCorrect = true) {
     chart: row.chart_type,
     image: row.image_data || '',
     variant: row.variant || '',
+    level: row.level || '',
     tolerance: row.tolerance ?? null,
     source: row.source || ''
   };

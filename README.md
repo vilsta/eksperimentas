@@ -82,9 +82,11 @@ Klausimo redagavimo lange galima įrašyti angliškus klausimo tekstą, atsakymo
 
 ## Eksperimentai E1–E4 ir A/B grupės
 
-Faile `seed/eksperimentai.json` aprašyti 4 eksperimentai (E1–E4) ir 80 klausimų: kiekvienam iš 40 klausimų yra A ir B grupės variantas su skirtinga diagrama (`public/diagramos/`). Paleidus serverį, trūkstami klausimai ir eksperimentai automatiškai importuojami į DB (esami neperrašomi). Pirmą kartą importavus, E1–E4 tampa aktyvūs, o kiti aktyvūs eksperimentai sustabdomi.
+Faile `seed/eksperimentai.json` (2 versija) aprašyti 4 eksperimentai ir 80 klausimų pagal dokumentus „Eksperimentų klausimai ir diagramos“ (LT ir EN): kiekvienam iš 40 klausimų yra A ir B grupės variantas, lietuviška ir angliška diagrama (`public/diagramos/lt/`, `public/diagramos/en/`), sunkumo žyma (Lengvas / Vidutinis / Sunkus). Klausimai pateikiami fiksuota tvarka – nuo lengvesnių iki sunkesnių.
 
-Kiekvienas dalyvis priskiriamas vienam aktyviam eksperimentui ir A arba B grupei – ten, kur iki šiol mažiausiai dalyvių. Grupė, eksperimentas ir matytos diagramos tipas įrašomi į CSV eksportą (`experiment`, `group_label`, `chart_type_seen`). Skaitiniai atsakymai laikomi teisingais, jei patenka į klausimo leistiną nuokrypį.
+Paleidus serverį, trūkstami klausimai ir eksperimentai automatiškai importuojami į DB (esami neperrašomi). Jei DB jau yra ankstesnės versijos E1–E4, jie sustabdomi ir pervadinami į E1-v1…E4-v1, o jų klausimai pažymimi neaktyviais – senos sesijos ir jų rezultatai lieka atskirai.
+
+Kiekvienas dalyvis priskiriamas vienam aktyviam eksperimentui ir A arba B grupei – ten, kur iki šiol mažiausiai dalyvių. CSV eksporte yra `experiment`, `group_label`, `chart_type_seen` ir `question_level`. Skaitiniai atsakymai laikomi teisingais, jei patenka į klausimo leistiną nuokrypį.
 
 ## Rezultatų analizė
 
