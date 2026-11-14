@@ -66,6 +66,9 @@
 
     .finish-card{max-width:720px;margin:95px auto 0;padding:42px 44px;text-align:center}
     .another-box{margin:24px 0 4px;padding:22px;border-radius:12px;background:#f7f8ff;border:1px solid #dfe4fb}.another-box strong{display:block;font-size:17px;margin-bottom:16px;color:#2f3a52}
+    .req{color:#c8464b;font-weight:800;margin-left:3px}
+    .ratings-intro p{margin:0 0 18px;color:#718097;font-size:14px;line-height:1.55}
+    .ratings-final{grid-template-columns:1fr;gap:22px;padding:18px 0 22px;border-top:1px solid #edf0f5}.ratings-final .rating-block>label{font-size:15px;color:#30394c}
     .finish-icon{width:72px;height:72px;border-radius:50%;margin:0 auto 18px;background:#eff8ee;color:#4e9850;display:grid;place-items:center;font-size:34px;font-weight:800}
     .finish-card h1{margin:0 0 12px;font-size:30px}.finish-card p{color:#66738a;line-height:1.65;margin:0 auto 12px;max-width:590px}
 
@@ -148,7 +151,7 @@
 
     <section id="task-screen" class="hidden">
       <div class="task-header">
-        <h1 data-t="taskHeading"></h1>
+        <h1 data-t="progressHeading"></h1>
         <div class="stepcount" id="stepcount"></div>
       </div>
       <div class="progress"><span id="progressbar" style="width:0"></span></div>
@@ -156,19 +159,21 @@
         <div class="chart-title" id="chart-title"></div>
         <div class="chart-area" id="chart-area"></div>
         <div class="task-content">
-          <div class="task-meta"><span class="pill" id="format-pill"></span></div>
           <h2 id="question-text"></h2>
           <div class="hint" id="question-hint"></div>
           <div id="answer-area"></div>
 
-          <div class="ratings">
-            <h3 data-t="ratingsTitle"></h3>
-            <p data-t="ratingsHint"></p>
-            <div class="rating-grid" id="rating-grid"></div>
-          </div>
-
           <div class="actions"><button class="primary" id="next-btn" data-t="nextButton"></button></div>
         </div>
+      </div>
+    </section>
+
+    <section id="ratings-screen" class="hidden">
+      <div class="card profile-card">
+        <h1 data-t="ratingsScreenTitle"></h1>
+        <div class="ratings-intro" id="ratings-intro"></div>
+        <div class="rating-grid ratings-final" id="rating-grid"></div>
+        <div class="profile-actions"><button class="primary wide" id="ratings-btn" data-t="ratingsSubmit"></button></div>
       </div>
     </section>
 
@@ -207,13 +212,15 @@
     let taskStartedAt = 0;
     let session = null;
 
-    const screens = ['language-screen','intro-screen','profile-screen','task-screen','finish-screen'];
-    const FORMAT_KEYS = { 'Vienas pasirinkimas':'formatSingle', 'Keli pasirinkimai':'formatMultiple', 'Skaitinis atsakymas':'formatNumeric', 'Taip / Ne':'formatYesNo' };
-    const RATINGS = [['clarity','ratingClarity'],['appeal','ratingAppeal'],['difficulty','ratingDifficulty']];
+    const screens = ['language-screen','intro-screen','profile-screen','task-screen','ratings-screen','finish-screen'];
+    // Eksperimento metu (užduotys ir vertinimai) tyrimo pavadinimas nerodomas.
+    const HIDE_BRAND_ON = ['task-screen','ratings-screen'];
+    const REQ = '<span class="req" aria-hidden="true">*</span>';
 
     function t(key){ return settings?.texts?.[lang]?.[key] ?? ''; }
     function showScreen(id){
       screens.forEach(s => document.getElementById(s).classList.toggle('hidden', s !== id));
+      document.querySelector('.top').classList.toggle('hidden', HIDE_BRAND_ON.includes(id));
       window.scrollTo({top:0,behavior:'smooth'});
     }
     function paragraphs(text){
@@ -225,6 +232,7 @@
       document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
       document.getElementById('intro-body').innerHTML = paragraphs(t('introBody'));
       document.getElementById('finish-body').innerHTML = paragraphs(t('finishBody'));
+      document.getElementById('ratings-intro').innerHTML = paragraphs(t('ratingsScreenIntro'));
       const url = t('contactUrl').trim(), footer = document.getElementById('contact-footer'), link = document.getElementById('contact-link');
       footer.classList.toggle('hidden', !t('contactText') && !url);
       link.classList.toggle('hidden', !url);
@@ -260,7 +268,7 @@
         const value = pq.type === 'scale'
           ? document.querySelector(`input[name="profile-${pq.key}"]:checked`)?.value
           : document.getElementById(`profile-${pq.key}`).value;
-        if (!value) return toast(t('profileMissing').replace('{title}', pq.title));
+        if (!value) return toast(t('requiredMissing'));
         profile[pq.key] = value;
       }
       const btn = document.getElementById('profile-btn');
@@ -286,14 +294,14 @@
     function renderProfile(){
       const list = settings.profileQuestions[lang];
       const selects = list.filter(pq => pq.type !== 'scale').map(pq => `<div class="profile-field">
-          <label for="profile-${pq.key}">${escapeHtml(pq.title)}</label>
-          <select class="profile-select" id="profile-${pq.key}" required>
+          <label for="profile-${pq.key}">${escapeHtml(pq.title)}${REQ}</label>
+          <select class="profile-select" id="profile-${pq.key}" required aria-required="true">
             <option value="" disabled selected>${escapeHtml(t('selectPlaceholder'))}</option>
             ${pq.options.map(o => `<option value="${escapeHtml(o.value)}">${escapeHtml(o.label)}</option>`).join('')}
           </select>
         </div>`).join('');
-      const scales = list.filter(pq => pq.type === 'scale').map(pq => `<div class="rating-block" role="radiogroup" aria-label="${escapeHtml(pq.title)}">
-          <label>${escapeHtml(pq.title)}</label>
+      const scales = list.filter(pq => pq.type === 'scale').map(pq => `<div class="rating-block" role="radiogroup" aria-required="true" aria-label="${escapeHtml(pq.title)}">
+          <label>${escapeHtml(pq.title)}${REQ}</label>
           <div class="rating-scale">${pq.options.map((o,i) => `<input id="profile-${pq.key}-${i}" type="radio" name="profile-${pq.key}" value="${escapeHtml(o.value)}"><label for="profile-${pq.key}-${i}">${escapeHtml(o.label)}</label>`).join('')}</div>
           <div class="scale-caption"><span>${escapeHtml(pq.scaleMin)}</span><span>${escapeHtml(pq.scaleMax)}</span></div>
         </div>`).join('');
@@ -303,10 +311,7 @@
     document.getElementById('next-btn').addEventListener('click', async () => {
       const q = questions[index];
       const answer = getAnswer(q);
-      const ratings = Object.fromEntries(RATINGS.map(([name]) => [name, document.querySelector(`input[name="${name}"]:checked`)?.value || '']));
-
       if (!answer || (Array.isArray(answer) && !answer.length)) return toast(t('answerMissing'));
-      if (RATINGS.some(([name]) => !ratings[name])) return toast(t('ratingsMissing'));
 
       const btn = document.getElementById('next-btn');
       btn.disabled = true; btn.textContent = t('saving');
@@ -316,14 +321,11 @@
           body: JSON.stringify({
             questionId:q.id,
             answer,
-            elapsedSeconds:Math.round(Date.now()-taskStartedAt)/1000,
-            clarity:Number(ratings.clarity),
-            appeal:Number(ratings.appeal),
-            difficulty:Number(ratings.difficulty)
+            elapsedSeconds:Math.round(Date.now()-taskStartedAt)/1000
           })
         });
         index++;
-        if (index >= questions.length) await completeExperiment();
+        if (index >= questions.length) showRatings();
         else renderQuestion();
       } catch (e) {
         toast(e.message || t('saveFailed'));
@@ -340,18 +342,45 @@
       document.getElementById('chart-title').textContent = q.image ? '' : t('chartFallbackTitle');
       document.getElementById('chart-title').classList.toggle('hidden', !!q.image);
       document.getElementById('chart-area').classList.toggle('has-image', !!q.image);
-      document.getElementById('chart-area').innerHTML = q.image ? `<button type="button" class="zoom-btn" aria-label="${escapeHtml(t('zoomOpen'))}"><img src="${escapeHtml(q.image)}" alt=""></button><div class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>${escapeHtml(t('zoomHint'))}</div>` : chartSvg(q.chart);
+      // Padidinimas – tik telefone; kompiuteryje diagrama rodoma be jo.
+      const zoomable = detectDevice() === 'Mobilusis';
+      document.getElementById('chart-area').innerHTML = !q.image ? chartSvg(q.chart) : !zoomable ? `<img src="${escapeHtml(q.image)}" alt="">` : `<button type="button" class="zoom-btn" aria-label="${escapeHtml(t('zoomOpen'))}"><img src="${escapeHtml(q.image)}" alt=""></button><div class="zoom-hint"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg>${escapeHtml(t('zoomHint'))}</div>`;
       document.querySelector('#chart-area .zoom-btn')?.addEventListener('click', () => openLightbox(q.image));
-      document.getElementById('format-pill').textContent = t(FORMAT_KEYS[q.format] || 'formatSingle');
       document.getElementById('question-text').textContent = q.text;
-      document.getElementById('question-hint').textContent = t(q.format==='Keli pasirinkimai' ? 'hintMultiple' : q.format==='Skaitinis atsakymas' ? 'hintNumeric' : 'hintSingle');
+      // Užuomina rodoma tik keliems pasirinkimams ir skaitiniam atsakymui.
+      const hint = q.format==='Keli pasirinkimai' ? t('hintMultiple') : q.format==='Skaitinis atsakymas' ? t('hintNumeric') : '';
+      document.getElementById('question-hint').textContent = hint;
+      document.getElementById('question-hint').classList.toggle('hidden', !hint);
       document.getElementById('answer-area').innerHTML = answerHtml(q);
-      document.getElementById('rating-grid').innerHTML = ratingHtml();
       window.scrollTo({top:0,behavior:'smooth'});
     }
 
-    async function completeExperiment(){
-      const result = await api(`/api/public/sessions/${encodeURIComponent(session.id)}/complete`, { method:'POST' });
+    // Subjektyvūs vertinimai – vieną kartą, atsakius į visus eksperimento klausimus.
+    function showRatings(){
+      document.getElementById('rating-grid').innerHTML = ratingHtml();
+      showScreen('ratings-screen');
+    }
+
+    document.getElementById('ratings-btn').addEventListener('click', async () => {
+      const ratings = {};
+      for (const rq of settings.ratingQuestions[lang]) {
+        const value = document.querySelector(`input[name="rating-${rq.key}"]:checked`)?.value;
+        if (!value) return toast(t('requiredMissing'));
+        ratings[rq.key] = Number(value);
+      }
+      const btn = document.getElementById('ratings-btn');
+      btn.disabled = true; btn.textContent = t('saving');
+      try {
+        await completeExperiment(ratings);
+      } catch (e) {
+        toast(e.message || t('saveFailed'));
+      } finally {
+        btn.disabled = false; btn.textContent = t('ratingsSubmit');
+      }
+    });
+
+    async function completeExperiment(ratings){
+      const result = await api(`/api/public/sessions/${encodeURIComponent(session.id)}/complete`, { method:'POST', body: JSON.stringify({ ratings }) });
       document.getElementById('another-box').classList.toggle('hidden', !result.anotherAvailable);
       showScreen('finish-screen');
     }
@@ -389,7 +418,7 @@
     }
 
     function ratingHtml(){
-      return RATINGS.map(([name,key])=>`<div class="rating-block"><label>${escapeHtml(t(key))}</label><div class="rating-scale">${[1,2,3,4,5].map(v=>`<input id="${name}-${v}" type="radio" name="${name}" value="${v}"><label for="${name}-${v}">${v}</label>`).join('')}</div><div class="scale-caption"><span>${escapeHtml(t(key+'Min'))}</span><span>${escapeHtml(t(key+'Max'))}</span></div></div>`).join('');
+      return settings.ratingQuestions[lang].map(rq=>`<div class="rating-block" role="radiogroup" aria-required="true" aria-label="${escapeHtml(rq.title)}"><label>${escapeHtml(rq.title)}${REQ}</label><div class="rating-scale">${[1,2,3,4,5].map(v=>`<input id="rating-${rq.key}-${v}" type="radio" name="rating-${rq.key}" value="${v}"><label for="rating-${rq.key}-${v}">${v}</label>`).join('')}</div><div class="scale-caption"><span>${escapeHtml(rq.min)}</span><span>${escapeHtml(rq.max)}</span></div></div>`).join('');
     }
 
     function chartSvg(type){
@@ -435,7 +464,7 @@
 
     function toast(message){
       document.querySelector('.toast')?.remove();
-      const el=document.createElement('div');el.className='toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2600);
+      const el=document.createElement('div');el.className='toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),6000);
     }
     function escapeHtml(v){return String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));}
   </script>

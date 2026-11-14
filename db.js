@@ -175,6 +175,8 @@ addColumn('experiments', 'seed_version', 'INTEGER NOT NULL DEFAULT 1');
 // Tas pats dalyvis keliuose eksperimentuose: bendras participant_id ir nuoroda į kitą sesiją.
 addColumn('participant_sessions', 'participant_id', 'TEXT');
 addColumn('participant_sessions', 'next_session_id', 'TEXT');
+// Subjektyvūs vertinimai, pateikti eksperimento pabaigoje (JSON pagal nustatymų raktus).
+addColumn('participant_sessions', 'ratings_json', 'TEXT');
 
 function tx(fn) {
   db.exec('BEGIN');

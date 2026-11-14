@@ -15,14 +15,8 @@ export const TEXT_FIELDS = [
   ['Profilio klausimai', 'profileIntro', 'Įžanginis tekstas', true],
   ['Profilio klausimai', 'selectPlaceholder', 'Išskleidžiamojo sąrašo tekstas'],
   ['Profilio klausimai', 'profileStartButton', 'Mygtukas „Pradėti eksperimentą“'],
-  ['Profilio klausimai', 'profileMissing', 'Pranešimas, kai neatsakyta ({title} – klausimo pavadinimas)'],
-  ['Užduotis', 'taskHeading', 'Užduoties antraštė'],
+  ['Užduotis', 'progressHeading', 'Eksperimento progreso antraštė'],
   ['Užduotis', 'chartFallbackTitle', 'Diagramos antraštė, kai klausimas be paveikslėlio'],
-  ['Užduotis', 'formatSingle', 'Formatas: vienas pasirinkimas'],
-  ['Užduotis', 'formatMultiple', 'Formatas: keli pasirinkimai'],
-  ['Užduotis', 'formatNumeric', 'Formatas: skaitinis atsakymas'],
-  ['Užduotis', 'formatYesNo', 'Formatas: taip / ne'],
-  ['Užduotis', 'hintSingle', 'Užuomina: vienas pasirinkimas'],
   ['Užduotis', 'hintMultiple', 'Užuomina: keli pasirinkimai'],
   ['Užduotis', 'hintNumeric', 'Užuomina: skaitinis atsakymas'],
   ['Užduotis', 'numericPlaceholder', 'Skaitinio atsakymo lauko tekstas'],
@@ -31,17 +25,9 @@ export const TEXT_FIELDS = [
   ['Užduotis', 'zoomOpen', 'Diagramos padidinimo mygtuko aprašas (ekrano skaitytuvams)'],
   ['Užduotis', 'zoomClose', 'Uždarymo mygtuko aprašas (ekrano skaitytuvams)'],
   ['Užduotis', 'nextButton', 'Mygtukas „Toliau“'],
-  ['Užduoties vertinimai', 'ratingsTitle', 'Vertinimų antraštė'],
-  ['Užduoties vertinimai', 'ratingsHint', 'Vertinimų paaiškinimas'],
-  ['Užduoties vertinimai', 'ratingClarity', 'Aiškumo klausimas'],
-  ['Užduoties vertinimai', 'ratingClarityMin', 'Aiškumas: 1 reiškia'],
-  ['Užduoties vertinimai', 'ratingClarityMax', 'Aiškumas: 5 reiškia'],
-  ['Užduoties vertinimai', 'ratingAppeal', 'Patrauklumo klausimas'],
-  ['Užduoties vertinimai', 'ratingAppealMin', 'Patrauklumas: 1 reiškia'],
-  ['Užduoties vertinimai', 'ratingAppealMax', 'Patrauklumas: 5 reiškia'],
-  ['Užduoties vertinimai', 'ratingDifficulty', 'Sudėtingumo klausimas'],
-  ['Užduoties vertinimai', 'ratingDifficultyMin', 'Sudėtingumas: 1 reiškia'],
-  ['Užduoties vertinimai', 'ratingDifficultyMax', 'Sudėtingumas: 5 reiškia'],
+  ['Subjektyvūs vertinimai', 'ratingsScreenTitle', 'Vertinimų lango antraštė'],
+  ['Subjektyvūs vertinimai', 'ratingsScreenIntro', 'Vertinimų lango įžanga', true],
+  ['Subjektyvūs vertinimai', 'ratingsSubmit', 'Mygtukas „Pateikti“'],
   ['Atsisveikinimas', 'finishTitle', 'Atsisveikinimo antraštė'],
   ['Atsisveikinimas', 'finishBody', 'Atsisveikinimo tekstas', true],
   ['Atsisveikinimas', 'anotherQuestion', 'Kvietimas dalyvauti dar viename eksperimente'],
@@ -51,8 +37,8 @@ export const TEXT_FIELDS = [
   ['Kontaktai', 'contactUrl', 'Nuorodos adresas (palikite tuščią, jei nuorodos nereikia)'],
   ['Pranešimai', 'starting', 'Pradedama'],
   ['Pranešimai', 'saving', 'Išsaugoma'],
-  ['Pranešimai', 'answerMissing', 'Neatsakyta į klausimą'],
-  ['Pranešimai', 'ratingsMissing', 'Neįvertintos visos skalės'],
+  ['Pranešimai', 'answerMissing', 'Neatsakyta į užduoties klausimą'],
+  ['Pranešimai', 'requiredMissing', 'Neatsakyta į privalomus klausimus (profilis, vertinimai)'],
   ['Pranešimai', 'startFailed', 'Nepavyko pradėti'],
   ['Pranešimai', 'saveFailed', 'Nepavyko išsaugoti atsakymo'],
   ['Pranešimai', 'noQuestions', 'Eksperimente nėra klausimų'],
@@ -60,7 +46,7 @@ export const TEXT_FIELDS = [
 ].map(([group, key, label, multiline]) => ({ group, key, label, multiline: !!multiline }));
 
 // Šių grupių tekstai tyrėjo „Nustatymuose“ nerodomi (naudojamos išsaugotos arba numatytosios reikšmės).
-const HIDDEN_GROUPS = ['Bendra', 'Užduotis', 'Užduoties vertinimai', 'Pranešimai'];
+const HIDDEN_GROUPS = ['Bendra', 'Užduotis', 'Pranešimai'];
 export const EDITABLE_TEXT_FIELDS = TEXT_FIELDS.filter(f => !HIDDEN_GROUPS.includes(f.group));
 
 const DEFAULT_TEXTS = {
@@ -74,14 +60,8 @@ const DEFAULT_TEXTS = {
     profileIntro: 'Prieš pradėdami eksperimentą atsakykite į kelis klausimus. Atsakymai anonimiški ir naudojami tik apibendrintai rezultatų analizei.',
     selectPlaceholder: 'Pasirinkite...',
     profileStartButton: 'Pradėti eksperimentą',
-    profileMissing: 'Atsakykite į klausimą „{title}“.',
-    taskHeading: 'Eksperimento užduotis',
+    progressHeading: 'Eksperimento progresas',
     chartFallbackTitle: 'Duomenų vizualizacijos užduotis',
-    formatSingle: 'Vienas pasirinkimas',
-    formatMultiple: 'Keli pasirinkimai',
-    formatNumeric: 'Skaitinis atsakymas',
-    formatYesNo: 'Taip / Ne',
-    hintSingle: 'Pasirinkite vieną atsakymą.',
     hintMultiple: 'Galite pažymėti daugiau nei vieną atsakymą.',
     hintNumeric: 'Įrašykite skaitinį atsakymą.',
     numericPlaceholder: 'Įrašykite skaičių',
@@ -90,17 +70,9 @@ const DEFAULT_TEXTS = {
     zoomOpen: 'Padidinti diagramą',
     zoomClose: 'Uždaryti',
     nextButton: 'Toliau',
-    ratingsTitle: 'Papildomi vertinimai',
-    ratingsHint: 'Pažymėkite po vieną atsakymą kiekvienoje skalėje.',
-    ratingClarity: 'Ar diagrama buvo aiški?',
-    ratingClarityMin: 'Visiškai neaiški',
-    ratingClarityMax: 'Labai aiški',
-    ratingAppeal: 'Ar diagrama jums vizualiai patraukli?',
-    ratingAppealMin: 'Visiškai nepatraukli',
-    ratingAppealMax: 'Labai patraukli',
-    ratingDifficulty: 'Ar užduotis pareikalavo daug protinių pastangų?',
-    ratingDifficultyMin: 'Visiškai nesudėtinga',
-    ratingDifficultyMax: 'Labai sudėtinga',
+    ratingsScreenTitle: 'Diagramų vertinimas',
+    ratingsScreenIntro: 'Įvertinkite šiame eksperimente matytas diagramas ir užduotis. Pažymėkite po vieną atsakymą kiekvienoje skalėje.',
+    ratingsSubmit: 'Pateikti',
     finishTitle: 'Ačiū už dalyvavimą!',
     finishBody: 'Atsakėte į visus eksperimento klausimus, dėkoju už skirtą laiką!',
     anotherQuestion: 'Ar norite dalyvauti dar viename eksperimente?',
@@ -111,7 +83,7 @@ const DEFAULT_TEXTS = {
     starting: 'Pradedama...',
     saving: 'Išsaugoma...',
     answerMissing: 'Pateikite atsakymą į klausimą.',
-    ratingsMissing: 'Įvertinkite visas tris skales.',
+    requiredMissing: 'Būtina atsakyti į visus pateiktus klausimus.',
     startFailed: 'Nepavyko pradėti eksperimento.',
     saveFailed: 'Nepavyko išsaugoti atsakymo.',
     noQuestions: 'Eksperimente nėra aktyvių klausimų.',
@@ -127,14 +99,8 @@ const DEFAULT_TEXTS = {
     profileIntro: 'Before starting the experiment, please answer a few questions. The answers are anonymous and used only for aggregated analysis of the results.',
     selectPlaceholder: 'Select...',
     profileStartButton: 'Start the experiment',
-    profileMissing: 'Please answer the question “{title}”.',
-    taskHeading: 'Experiment task',
+    progressHeading: 'Experiment progress',
     chartFallbackTitle: 'Data visualization task',
-    formatSingle: 'Single choice',
-    formatMultiple: 'Multiple choice',
-    formatNumeric: 'Numeric answer',
-    formatYesNo: 'Yes / No',
-    hintSingle: 'Choose one answer.',
     hintMultiple: 'You may select more than one answer.',
     hintNumeric: 'Enter a numeric answer.',
     numericPlaceholder: 'Enter a number',
@@ -143,17 +109,9 @@ const DEFAULT_TEXTS = {
     zoomOpen: 'Enlarge chart',
     zoomClose: 'Close',
     nextButton: 'Next',
-    ratingsTitle: 'Additional ratings',
-    ratingsHint: 'Select one answer on each scale.',
-    ratingClarity: 'Was the chart clear?',
-    ratingClarityMin: 'Not clear at all',
-    ratingClarityMax: 'Very clear',
-    ratingAppeal: 'Is the chart visually appealing to you?',
-    ratingAppealMin: 'Not appealing at all',
-    ratingAppealMax: 'Very appealing',
-    ratingDifficulty: 'Did the task require a lot of mental effort?',
-    ratingDifficultyMin: 'Not demanding at all',
-    ratingDifficultyMax: 'Very demanding',
+    ratingsScreenTitle: 'Rating the charts',
+    ratingsScreenIntro: 'Please rate the charts and tasks you saw in this experiment. Select one answer on each scale.',
+    ratingsSubmit: 'Submit',
     finishTitle: 'Thank you for participating!',
     finishBody: 'You have answered all the questions of the experiment. Thank you for your time!',
     anotherQuestion: 'Would you like to take part in another experiment?',
@@ -164,7 +122,7 @@ const DEFAULT_TEXTS = {
     starting: 'Starting...',
     saving: 'Saving...',
     answerMissing: 'Please answer the question.',
-    ratingsMissing: 'Please rate all three scales.',
+    requiredMissing: 'Please answer all the questions.',
     startFailed: 'Could not start the experiment.',
     saveFailed: 'Could not save the answer.',
     noQuestions: 'The experiment has no active questions.',
@@ -196,6 +154,17 @@ const DEFAULT_PROFILE_QUESTIONS = [
     options: SCALE_OPTIONS, scaleMin: { lt: 'Neturiu patirties', en: 'No experience' }, scaleMax: { lt: 'Labai didelė patirtis', en: 'Very extensive experience' } }
 ];
 
+// Subjektyvūs vertinimai (skalė 1–5), užduodami vieną kartą eksperimento pabaigoje.
+// label – trumpas pavadinimas rezultatų analizei.
+const DEFAULT_RATING_QUESTIONS = [
+  { key: 'clarity', label: 'Aiškumas', title: { lt: 'Ar diagramos buvo aiškios?', en: 'Were the charts clear?' },
+    min: { lt: 'Visiškai neaiškios', en: 'Not clear at all' }, max: { lt: 'Labai aiškios', en: 'Very clear' } },
+  { key: 'appeal', label: 'Patrauklumas', title: { lt: 'Ar diagramos jums buvo vizualiai patrauklios?', en: 'Were the charts visually appealing to you?' },
+    min: { lt: 'Visiškai nepatrauklios', en: 'Not appealing at all' }, max: { lt: 'Labai patrauklios', en: 'Very appealing' } },
+  { key: 'difficulty', label: 'Sudėtingumas', title: { lt: 'Ar užduotys pareikalavo daug protinių pastangų?', en: 'Did the tasks require a lot of mental effort?' },
+    min: { lt: 'Visiškai nesudėtingos', en: 'Not demanding at all' }, max: { lt: 'Labai sudėtingos', en: 'Very demanding' } }
+];
+
 db.exec('CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)');
 
 const clone = v => JSON.parse(JSON.stringify(v));
@@ -207,7 +176,8 @@ export function getSettings() {
   const texts = {};
   for (const lang of LANGUAGES) texts[lang] = { ...DEFAULT_TEXTS[lang], ...(stored.texts?.[lang] || {}) };
   const profileQuestions = Array.isArray(stored.profileQuestions) ? stored.profileQuestions : clone(DEFAULT_PROFILE_QUESTIONS);
-  return { texts, profileQuestions };
+  const ratingQuestions = Array.isArray(stored.ratingQuestions) && stored.ratingQuestions.length ? stored.ratingQuestions : clone(DEFAULT_RATING_QUESTIONS);
+  return { texts, profileQuestions, ratingQuestions };
 }
 
 function slug(text) {
@@ -258,7 +228,19 @@ export function normalizeSettings(input) {
     }
     return out;
   });
-  return { texts, profileQuestions };
+  const ratingList = Array.isArray(input?.ratingQuestions) ? input.ratingQuestions : [];
+  if (!ratingList.length) throw new Error('Reikia bent vieno subjektyvaus vertinimo klausimo.');
+  if (ratingList.length > 10) throw new Error('Vertinimo klausimų gali būti ne daugiau nei 10.');
+  const ratingKeys = new Set();
+  const ratingQuestions = ratingList.map((q, i) => {
+    const title = bilingual(q.title);
+    if (!title.lt) throw new Error(`${i + 1}-am vertinimo klausimui nurodykite tekstą lietuviškai.`);
+    let key = /^[A-Za-z][A-Za-z0-9_]{0,40}$/.test(String(q.key || '')) ? q.key : slug(str(q.label, 100) || title.lt);
+    while (ratingKeys.has(key)) key = `${key}_${i + 1}`;
+    ratingKeys.add(key);
+    return { key, label: str(q.label, 100).trim() || title.lt, title, min: bilingual(q.min, 200), max: bilingual(q.max, 200) };
+  });
+  return { texts, profileQuestions, ratingQuestions };
 }
 
 export function saveSettings(input) {
@@ -271,7 +253,7 @@ export function saveSettings(input) {
 export function publicSettings() {
   const s = getSettings();
   const pick = (v, lang) => (v?.[lang] || v?.lt || '');
-  const result = { languages: LANGUAGES, texts: {}, profileQuestions: {} };
+  const result = { languages: LANGUAGES, texts: {}, profileQuestions: {}, ratingQuestions: {} };
   for (const lang of LANGUAGES) {
     result.texts[lang] = Object.fromEntries(Object.entries(s.texts[lang]).map(([k, v]) => [k, v || s.texts.lt[k] || '']));
     result.profileQuestions[lang] = s.profileQuestions.map(q => ({
@@ -279,6 +261,7 @@ export function publicSettings() {
       options: q.options.map(o => ({ value: o.value, label: pick(o, lang) })),
       ...(q.type === 'scale' ? { scaleMin: pick(q.scaleMin, lang), scaleMax: pick(q.scaleMax, lang) } : {})
     }));
+    result.ratingQuestions[lang] = s.ratingQuestions.map(q => ({ key: q.key, title: pick(q.title, lang), min: pick(q.min, lang), max: pick(q.max, lang) }));
   }
   return result;
 }

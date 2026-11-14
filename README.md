@@ -74,7 +74,7 @@ Cloudflare pateiks viešą HTTPS adresą. Dalyviams siųskite pagrindinę nuorod
 
 ## Kalbos ir nustatymai
 
-Dalyvis pirmiausia pasirenka kalbą (lietuvių arba anglų). Pasisveikinimo, profilio klausimų, atsisveikinimo ir kontaktų tekstai redaguojami tyrėjo portalo skiltyje **„Nustatymai“** abiem kalbomis (`settings.js`, DB lentelė `settings`). Kiti sąsajos tekstai (mygtukai, užduoties vertinimai, pranešimai) laikomi tame pačiame nustatymų rinkinyje, bet tyrėjo portale nerodomi.
+Dalyvis pirmiausia pasirenka kalbą (lietuvių arba anglų). Pasisveikinimo, profilio klausimų, subjektyvių vertinimų, atsisveikinimo ir kontaktų tekstai redaguojami tyrėjo portalo skiltyje **„Nustatymai“** abiem kalbomis (`settings.js`, DB lentelė `settings`). Kiti sąsajos tekstai (mygtukai, užduoties langas, pranešimai) laikomi tame pačiame nustatymų rinkinyje, bet tyrėjo portale nerodomi.
 
 Profilio klausimus galima pridėti, šalinti, perrikiuoti, keisti jų tipą (išskleidžiamasis sąrašas arba skalė 1–5) ir analizės vaidmenį: patirtis (H6), amžius (H8), lytis (H9), sritis (H10). Atsakymai saugomi sesijos lauke `profile_json`.
 
@@ -87,6 +87,10 @@ Faile `seed/eksperimentai.json` (2 versija) aprašyti 4 eksperimentai ir 80 klau
 Paleidus serverį, trūkstami klausimai ir eksperimentai automatiškai importuojami į DB (esami neperrašomi). Jei DB jau yra ankstesnės versijos E1–E4, jie sustabdomi ir pervadinami į E1-v1…E4-v1, o jų klausimai pažymimi neaktyviais – senos sesijos ir jų rezultatai lieka atskirai.
 
 Kiekvienas dalyvis priskiriamas vienam aktyviam eksperimentui ir A arba B grupei – ten, kur iki šiol mažiausiai dalyvių. CSV eksporte yra `experiment`, `group_label`, `chart_type_seen` ir `question_level`. Skaitiniai atsakymai laikomi teisingais, jei patenka į klausimo leistiną nuokrypį.
+
+## Subjektyvūs vertinimai
+
+Dalyvis atsako į visus eksperimento klausimus, o tada vieną kartą įvertina matytas diagramas ir užduotis (skalė 1–5, visi klausimai privalomi). Vertinimo klausimus (tekstą LT/EN, skalės galų paaiškinimus, trumpą pavadinimą analizei) galima keisti, pridėti ir šalinti tyrėjo portalo skiltyje **„Nustatymai → Subjektyvūs vertinimai“**. Vertinimai saugomi sesijos lauke `ratings_json`, CSV eksporte – stulpeliuose `rating_<raktas>`. Rezultatų analizėje teisingumas ir laikas tikrinami kiekvienam atsakymui, o vertinimai – kiekvienam dalyviui. Ankstesnių sesijų (kai vertinta po kiekvienos užduoties) vertinimu laikomas dalyvio vidurkis.
 
 ## Keli eksperimentai vienam dalyviui
 

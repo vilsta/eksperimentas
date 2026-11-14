@@ -52,18 +52,25 @@ function prepare(experimentId, settings) {
   answers.forEach(a => bySession.get(a.session_id)?.push(a));
 
   const prep = { sessionsTotal: sessions.length, incomplete: 0, fastSessions: 0, sameRatingSessions: 0, incompleteTrials: 0, shortTrials: 0, includedSessions: 0, includedTrials: 0 };
-  const participants = [], trials = [];
+  const participants = [], trials = [], units = [];
   for (const s of sessions) {
     const list = bySession.get(s.id) || [];
     if (s.status !== 'Užbaigta') { prep.incomplete++; continue; }
     if (list.length && list.filter(a => a.elapsed_seconds < 2).length > list.length / 2) { prep.fastSessions++; continue; }
-    const ratings = new Set(list.flatMap(a => [a.clarity, a.appeal, a.difficulty]));
-    if (list.length && ratings.size === 1) { prep.sameRatingSessions++; continue; }
+    const ratings = sessionRatings(s, list);
+    const ratingValues = Object.keys(ratings).length ? Object.values(ratings) : list.flatMap(a => [a.clarity, a.appeal, a.difficulty]).filter(Boolean);
+    if (ratingValues.length && new Set(ratingValues).size === 1) { prep.sameRatingSessions++; continue; }
     prep.includedSessions++;
     participants.push(s);
     const profile = sessionProfile(s);
+    const who = {
+      ...Object.fromEntries(Object.entries(roles).map(([r, q]) => [r, q && profile[q.key] ? optionLabel(q, profile[q.key]) : null])),
+      experience: experience.level(profile[roleQuestion(settings, 'experience')?.key]), device: s.device_type || null
+    };
+    // Vertinimai – vienas įrašas dalyviui (eksperimento pabaigoje).
+    units.push({ session: s.id, group: s.group_label, ratings, ...who });
     for (const a of list) {
-      const complete = s.group_label && a.task_type !== null && a.answer_json && a.is_correct !== null && a.elapsed_seconds !== null && a.clarity && a.appeal && a.difficulty;
+      const complete = s.group_label && a.task_type !== null && a.answer_json && a.is_correct !== null && a.elapsed_seconds !== null;
       if (!complete) { prep.incompleteTrials++; continue; }
       if (a.elapsed_seconds < 1) { prep.shortTrials++; continue; }
       let error = null;
@@ -74,18 +81,28 @@ function prepare(experimentId, settings) {
       }
       trials.push({
         session: s.id, group: s.group_label, task: a.task_type, correct: a.is_correct ? 1 : 0, time: a.elapsed_seconds,
-        clarity: a.clarity, appeal: a.appeal, difficulty: a.difficulty, error,
-        ...Object.fromEntries(Object.entries(roles).map(([r, q]) => [r, q && profile[q.key] ? optionLabel(q, profile[q.key]) : null])),
-        experience: experience.level(profile[roleQuestion(settings, 'experience')?.key]), device: s.device_type || null
+        error, ...who
       });
     }
   }
   prep.includedTrials = trials.length;
-  return { prep, participants, trials };
+  return { prep, participants, trials, units };
+}
+
+// Sesijos vertinimai: nauji – iš eksperimento pabaigos (ratings_json); seni – dalyvio užduočių vertinimų vidurkis.
+function sessionRatings(s, answers) {
+  const stored = parseJSON(s.ratings_json, null);
+  if (stored && typeof stored === 'object' && Object.keys(stored).length) return stored;
+  const legacy = {};
+  for (const key of ['clarity', 'appeal', 'difficulty']) {
+    const values = answers.map(a => a[key]).filter(v => v >= 1 && v <= 5);
+    if (values.length) legacy[key] = Math.round(mean(values));
+  }
+  return legacy;
 }
 
 // ---------------------------------------------------------------- 2. Aprašomoji statistika
-function describe(participants, trials, settings) {
+function describe(participants, trials, units, settings) {
   const variables = [
     ...settings.profileQuestions.map(q => ({ title: q.title.lt + (q.type === 'scale' ? ' (1–5)' : ''), order: levelsOf(q), value: p => { const v = sessionProfile(p)[q.key]; return v ? optionLabel(q, v) : null; } })),
     { title: 'Įrenginys', order: ['Kompiuteris', 'Mobilusis'], value: p => p.device_type || null },
@@ -98,14 +115,14 @@ function describe(participants, trials, settings) {
     return { title, rows: rows.filter(r => r.A + r.B > 0) };
   });
   const indicators = GROUPS.map(g => {
-    const t = trials.filter(x => x.group === g), times = t.map(x => x.time);
-    const scale = key => ({ mean: mean(t.map(x => x[key])), counts: [1, 2, 3, 4, 5].map(v => t.filter(x => x[key] === v).length) });
+    const t = trials.filter(x => x.group === g), times = t.map(x => x.time), u = units.filter(x => x.group === g);
+    const scale = key => { const v = u.map(x => x.ratings[key]).filter(x => x >= 1 && x <= 5); return { key, mean: mean(v), n: v.length, counts: [1, 2, 3, 4, 5].map(k => v.filter(x => x === k).length) }; };
     const errors = t.filter(x => x.error != null).map(x => x.error);
     return {
       group: g, participants: participants.filter(p => p.group_label === g).length, trials: t.length,
       accuracy: t.length ? (100 * t.filter(x => x.correct).length) / t.length : null,
       meanTime: mean(times), medianTime: median(times),
-      clarity: scale('clarity'), appeal: scale('appeal'), difficulty: scale('difficulty'),
+      ratings: settings.ratingQuestions.map(q => ({ ...scale(q.key), label: q.label })),
       medianError: errors.length ? median(errors) : null, errorCount: errors.length
     };
   });
@@ -113,18 +130,17 @@ function describe(participants, trials, settings) {
 }
 
 // ---------------------------------------------------------------- 3. Grupavimas
-function grouping(participants, trials) {
+function grouping(participants, trials, settings) {
   const k = participants.length >= 40 ? 4 : 3;
   const labels = k === 4 ? ['Labai greitas', 'Greitas', 'Lėtas', 'Labai lėtas'] : ['Greitas', 'Vidutinis', 'Lėtas'];
   const times = trials.map(t => t.time);
   const cuts = Array.from({ length: k - 1 }, (_, i) => quantile(times, (i + 1) / k));
   const timeLevel = v => labels[cuts.filter(c => v > c).length];
   const indicators = [
-    { key: 'correct', label: 'Teisingumas', levels: ['Teisingas', 'Neteisingas'], value: t => (t.correct ? 'Teisingas' : 'Neteisingas') },
-    { key: 'time', label: 'Atlikimo laikas', levels: labels, value: t => timeLevel(t.time) },
-    { key: 'clarity', label: 'Aiškumas', levels: RATING_LEVELS, value: t => ratingLevel(t.clarity) },
-    { key: 'appeal', label: 'Patrauklumas', levels: RATING_LEVELS, value: t => ratingLevel(t.appeal) },
-    { key: 'difficulty', label: 'Sudėtingumas', levels: RATING_LEVELS, value: t => ratingLevel(t.difficulty) }
+    { key: 'correct', label: 'Teisingumas', unit: 'trial', levels: ['Teisingas', 'Neteisingas'], value: t => (t.correct ? 'Teisingas' : 'Neteisingas') },
+    { key: 'time', label: 'Atlikimo laikas', unit: 'trial', levels: labels, value: t => timeLevel(t.time) },
+    ...settings.ratingQuestions.map(q => ({ key: q.key, label: q.label, unit: 'session', levels: RATING_LEVELS,
+      value: u => { const v = u.ratings?.[q.key]; return v >= 1 && v <= 5 ? ratingLevel(v) : null; } }))
   ];
   return { k, cuts, labels, indicators };
 }
@@ -147,7 +163,7 @@ const groupName = g => `${g} grupėje`;
 
 function associationTest(base, trials, rowVar, indicator) {
   const tab = crossTab(trials, rowVar.fn, rowVar.levels, indicator.value, indicator.levels);
-  const result = { ...base, method: 'χ²', n: tab.counts.flat().reduce((a, b) => a + b, 0), table: tab };
+  const result = { ...base, unit: indicator.unit, method: 'χ²', n: tab.counts.flat().reduce((a, b) => a + b, 0), table: tab };
   if (tab.rows.length < 2 || tab.cols.length < 2) return { ...result, insufficient: true, note: 'Nepakanka duomenų (lentelėje mažiau nei 2 eilutės arba stulpeliai).' };
   const chi = chiSquare(tab.counts);
   Object.assign(result, { stat: chi.chi2, statName: 'χ²', df: chi.df, p: chi.p, effect: chi.v, effectName: 'V', expected: chi.expected });
@@ -166,7 +182,7 @@ function cmhTest(base, trials, stratumVar, indicator) {
   const strata = stratumVar.levels.map(level => ({ level, trials: trials.filter(t => stratumVar.fn(t) === level) }))
     .filter(s => GROUPS.every(g => s.trials.some(t => t.group === g)));
   const pooled = crossTab(strata.flatMap(s => s.trials), groupVar.fn, GROUPS, indicator.value, indicator.levels);
-  const result = { ...base, method: 'CMH', n: pooled.counts.flat().reduce((a, b) => a + b, 0), table: pooled };
+  const result = { ...base, unit: indicator.unit, method: 'CMH', n: pooled.counts.flat().reduce((a, b) => a + b, 0), table: pooled };
   result.strata = strata.map(s => {
     const tab = crossTab(s.trials, groupVar.fn, GROUPS, indicator.value, pooled.cols);
     return { level: s.level, table: tab };
@@ -185,7 +201,7 @@ function cmhTest(base, trials, stratumVar, indicator) {
 function mannWhitneyTest(base, trials, valueFn, unit) {
   const [a, b] = GROUPS.map(g => trials.filter(t => t.group === g).map(valueFn).filter(v => v != null));
   const res = mannWhitney(a, b);
-  const result = { ...base, method: 'Mann–Whitney U', n: a.length + b.length, medians: { A: median(a), B: median(b) }, unit };
+  const result = { ...base, unit: 'trial', valueUnit: unit, method: 'Mann–Whitney U', n: a.length + b.length, medians: { A: median(a), B: median(b) } };
   if (!res || a.length < 2 || b.length < 2) return { ...result, insufficient: true, note: 'Nepakanka duomenų.' };
   const fmt = v => (v == null ? '—' : v.toFixed(2).replace('.', ','));
   const [mA, mB] = [median(a), median(b)];
@@ -194,7 +210,9 @@ function mannWhitneyTest(base, trials, valueFn, unit) {
     direction: mA === mB ? '' : `${mA < mB ? 'A' : 'B'} grupės mediana mažesnė (${fmt(Math.min(mA, mB))} ${unit} prieš ${fmt(Math.max(mA, mB))} ${unit})` };
 }
 
-function hypothesisTests(code, trials, grouping, settings) {
+function hypothesisTests(code, trials, units, grouping, settings) {
+  // Teisingumas ir laikas – kiekvienam atsakymui; vertinimai – kiekvienam dalyviui.
+  const data = i => (i.unit === 'session' ? units : trials);
   const experienceQ = roleQuestion(settings, 'experience');
   const tests = [];
   const ind = grouping.indicators;
@@ -202,7 +220,7 @@ function hypothesisTests(code, trials, grouping, settings) {
   const mainCode = mainHypothesis(code);
 
   // H1–H5: ar rezultatai priklauso nuo grupės.
-  ind.forEach(i => tests.push(associationTest({ hyp: mainCode, family: 'main', title: `Grupė × ${i.label.toLowerCase()}` }, trials, group, i)));
+  ind.forEach(i => tests.push(associationTest({ hyp: mainCode, family: 'main', title: `Grupė × ${i.label.toLowerCase()}` }, data(i), group, i)));
   tests.push(mannWhitneyTest({ hyp: mainCode, family: 'main', title: 'Atlikimo laikas (tikslios reikšmės), A ir B' }, trials, t => t.time, 's'));
   if (trials.some(t => t.error != null)) {
     tests.push(mannWhitneyTest({ hyp: mainCode, family: 'main', title: 'Skaitinio atsakymo paklaida (%), A ir B' }, trials.filter(t => t.error != null), t => t.error, '%'));
@@ -215,12 +233,11 @@ function hypothesisTests(code, trials, grouping, settings) {
     ['H7', 'Įrenginys', { fn: t => t.device, levels: ['Kompiuteris', 'Mobilusis'], name: v => v }]
   ];
   for (const [hyp, label, variable] of moderators) {
-    ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, trials, variable, i)));
+    ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, data(i), variable, i)));
     for (const level of variable.levels) {
-      const subset = trials.filter(t => variable.fn(t) === level);
-      ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `Grupė × ${i.label.toLowerCase()} (${variable.name(level)})`, subgroup: true }, subset, group, i)));
+      ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `Grupė × ${i.label.toLowerCase()} (${variable.name(level)})`, subgroup: true }, data(i).filter(t => variable.fn(t) === level), group, i)));
     }
-    ind.forEach(i => tests.push(cmhTest({ hyp, family: hyp, title: `Grupė × ${i.label.toLowerCase()}, kontroliuojant: ${label.toLowerCase()}` }, trials, variable, i)));
+    ind.forEach(i => tests.push(cmhTest({ hyp, family: hyp, title: `Grupė × ${i.label.toLowerCase()}, kontroliuojant: ${label.toLowerCase()}` }, data(i), variable, i)));
   }
 
   // H8–H10: amžius, lytis, išsilavinimo sritis (A ir B kartu).
@@ -228,12 +245,12 @@ function hypothesisTests(code, trials, grouping, settings) {
     .map(([hyp, role]) => [hyp, roleQuestion(settings, role)?.title.lt, { fn: t => t[role], levels: levelsOf(roleQuestion(settings, role)), name: v => v }])
     .filter(([, label]) => label);
   for (const [hyp, label, variable] of demographics) {
-    ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, trials, variable, i)));
+    ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, data(i), variable, i)));
   }
 
   // H11: grupės poveikis kontroliuojant demografinius veiksnius (CMH).
   for (const [, label, variable] of demographics) {
-    ind.forEach(i => tests.push(cmhTest({ hyp: 'H11', family: 'H11', title: `Grupė × ${i.label.toLowerCase()}, kontroliuojant: ${label.toLowerCase()}` }, trials, variable, i)));
+    ind.forEach(i => tests.push(cmhTest({ hyp: 'H11', family: 'H11', title: `Grupė × ${i.label.toLowerCase()}, kontroliuojant: ${label.toLowerCase()}` }, data(i), variable, i)));
   }
 
   // 5. Daugkartinių palyginimų korekcija: visam eksperimentui ir kiekvienai hipotezei atskirai.
@@ -252,16 +269,16 @@ export function analyzeExperiment(experimentId) {
   const exp = db.prepare('SELECT * FROM experiments WHERE id=?').get(experimentId);
   if (!exp) return null;
   const settings = getSettings();
-  const { prep, participants, trials } = prepare(exp.id, settings);
+  const { prep, participants, trials, units } = prepare(exp.id, settings);
   const variants = db.prepare(`SELECT DISTINCT q.variant_a a,q.variant_b b FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.variant<>''`).all(exp.id);
-  const g = grouping(participants, trials);
+  const g = grouping(participants, trials, settings);
   return {
     experiment: { id: exp.id, code: exp.code || '', title: exp.title, mainHypothesis: mainHypothesis(exp.code) },
     variants: { A: [...new Set(variants.map(v => v.a))], B: [...new Set(variants.map(v => v.b))] },
     alpha: ALPHA,
     preparation: prep,
-    descriptive: describe(participants, trials, settings),
+    descriptive: describe(participants, trials, units, settings),
     grouping: { k: g.k, cuts: g.cuts, timeLabels: g.labels, ratingLevels: RATING_LEVELS, experienceLevels: experienceLevels(roleQuestion(settings, 'experience')).levels, experienceTitle: roleQuestion(settings, 'experience')?.title.lt || '' },
-    tests: hypothesisTests(exp.code, trials, g, settings)
+    tests: hypothesisTests(exp.code, trials, units, g, settings)
   };
 }
