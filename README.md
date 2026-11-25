@@ -98,7 +98,7 @@ Baigus eksperimentą, dalyviui siūloma dalyvauti dar viename („Ar norite daly
 
 ## Rezultatų analizė
 
-Tyrėjo portalo skiltis „Rezultatai“ (`analysis.js`, testai – `stats.js`, sutikrinti su SciPy ir statsmodels):
+Tyrėjo portalo skiltyje „Rezultatai“ pasirenkamas eksperimentas (arba „Visi eksperimentai“), rodiklis ir grupavimas. Rodoma suvestinė (vidurkis, SEM95, mediana, IQR, n), parametrinis testas (t-testas / ANOVA) ir neparametrinis (Mann–Whitney U / Kruskal–Wallis), stulpelinė diagrama su 95 % intervalais ir poriniai palyginimai su Bonferroni pataisa. Papildomi eksperimento testai pateikiami suskleistuose blokuose (`analysis.js`, testai – `stats.js`, sutikrinti su SciPy ir statsmodels):
 
 - **Duomenys** – tik užbaigtos sesijos, kuriose atsakyta į visus klausimus ir užpildytas vertinimas; nebaigtų sesijų skaičius rodomas, bet jos neįtraukiamos. Kitos atrankos nėra.
 - **Dalyvio rodikliai** – teisingų atsakymų skaičius, vidutinis atsakymo laikas (testuose logaritmuojamas, rodomas sekundėmis), subjektyvūs vertinimai; taip pat teisingi atsakymai lengvuose, vidutiniuose ir sunkiuose klausimuose.

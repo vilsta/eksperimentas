@@ -2,7 +2,7 @@
 // A ir B grupės lyginamos t-testu, dalyvių savybės – t-testu / ANOVA, poveikio sąlygos – regresija.
 import { db, parseJSON } from './db.js';
 import { getSettings, sessionProfile, optionLabel } from './settings.js';
-import { chiSquare, fisherExact, welchTTest, anova, ols, nestedF, mean, holm } from './stats.js';
+import { chiSquare, fisherExact, welchTTest, anova, ols, nestedF, mean, holm, median, quantile, variance, mannWhitney, kruskalWallis } from './stats.js';
 
 const ALPHA = 0.05;
 const GROUPS = ['A', 'B'];
@@ -105,6 +105,7 @@ function participantsFor(experimentId, settings, chars) {
   const bySession = new Map(sessions.map(s => [s.id, []]));
   answers.forEach(a => bySession.get(a.session_id)?.push(a));
   const { bases, byId } = experimentQuestions(experimentId);
+  const code = db.prepare('SELECT code FROM experiments WHERE id=?').get(experimentId)?.code || '';
   const ratingKeys = settings.ratingQuestions.map(q => q.key);
   const participants = [];
   let incomplete = 0;
@@ -122,7 +123,7 @@ function participantsFor(experimentId, settings, chars) {
       if (q) { correctByBase[q.base] = a.is_correct ? 1 : 0; if (a.is_correct) byLevel[q.level]++; }
     }
     participants.push({
-      id: s.id, group: s.group_label, correct: list.filter(a => a.is_correct).length,
+      id: s.id, group: s.group_label, experiment: code, language: String(s.language || 'lt').toUpperCase(), correct: list.filter(a => a.is_correct).length,
       time: mean(times), logTime: mean(times.map(Math.log)), ratings, byLevel, correctByBase,
       chars: Object.fromEntries(chars.map(c => [c.key, c.value(s)]))
     });
@@ -291,4 +292,75 @@ export function analyzeOverall() {
     };
   });
   return { participants: participants.length, alpha: ALPHA, characteristics: results };
+}
+
+// ---------------------------------------------------------------- Tyrinėjimas: rodiklis × grupavimas
+function exploreMetrics(settings) {
+  return [
+    ...metricsFor(settings),
+    ...LEVELS.map(l => ({ key: 'level_' + l, label: `Teisingi atsakymai: ${LEVEL_TITLES[l].toLowerCase()}`, kind: 'correct', value: p => p.byLevel[l], test: p => p.byLevel[l] }))
+  ];
+}
+function exploreGroupings(settings, overall) {
+  const chars = characteristics(settings).map(c => ({ key: c.key, title: c.title, levels: c.levels, value: p => p.chars[c.key] }));
+  return [
+    ...(overall ? [{ key: 'experiment', title: 'Eksperimentas', levels: null, value: p => p.experiment }]
+      : [{ key: 'group', title: 'Grupė (A / B)', levels: GROUPS, value: p => p.group }]),
+    ...chars,
+    { key: 'language', title: 'Kalba', levels: ['LT', 'EN'], value: p => p.language }
+  ];
+}
+
+export function exploreOptions() {
+  const settings = getSettings();
+  return {
+    experiments: analysisExperiments().map(e => ({ id: e.id, code: e.code, title: e.title, archived: e.archived })),
+    metrics: exploreMetrics(settings).map(m => ({ key: m.key, label: m.label })),
+    groupings: { experiment: exploreGroupings(settings, false).map(g => ({ key: g.key, title: g.title })), overall: exploreGroupings(settings, true).map(g => ({ key: g.key, title: g.title })) }
+  };
+}
+
+export function explore(target, metricKey, groupingKey) {
+  const settings = getSettings(), chars = characteristics(settings), overall = target === 'overall';
+  const metric = exploreMetrics(settings).find(m => m.key === metricKey);
+  const grouping = exploreGroupings(settings, overall).find(g => g.key === groupingKey);
+  if (!metric || !grouping) return null;
+  let participants, experiment = null;
+  if (overall) participants = analysisExperiments().filter(e => !e.archived).flatMap(e => participantsFor(e.id, settings, chars).participants);
+  else {
+    const exp = db.prepare('SELECT * FROM experiments WHERE id=?').get(Number(target));
+    if (!exp) return null;
+    experiment = { id: exp.id, code: exp.code || '', title: exp.title };
+    participants = participantsFor(exp.id, settings, chars).participants;
+  }
+  const present = [...new Set(participants.map(grouping.value).filter(v => v != null))];
+  const levels = grouping.levels ? [...grouping.levels.filter(l => present.includes(l)), ...present.filter(l => !grouping.levels.includes(l))] : present.sort();
+  const label = l => (grouping.key === 'group' ? `${l} grupė` : l);
+  const groups = levels.map(l => {
+    const list = participants.filter(p => grouping.value(p) === l);
+    const values = list.map(metric.value).filter(v => v != null), tested = list.map(metric.test).filter(v => v != null);
+    const sd = Math.sqrt(variance(values) ?? 0);
+    return { level: label(l), values, tested, n: values.length, mean: mean(values), sem95: values.length > 1 ? (1.96 * sd) / Math.sqrt(values.length) : null,
+      median: median(values), iqr: values.length ? quantile(values, 0.75) - quantile(values, 0.25) : null };
+  });
+  const usable = groups.filter(g => g.n >= 2);
+  const result = { experiment, metric: { key: metric.key, label: metric.label, kind: metric.kind }, grouping: { key: grouping.key, title: grouping.title },
+    summary: groups.map(({ values, tested, ...g }) => g), parametric: null, nonparametric: null };
+  if (usable.length >= 2) {
+    const bonferroni = (test) => {
+      const pairs = [];
+      for (let i = 0; i < usable.length; i++) for (let j = i + 1; j < usable.length; j++) pairs.push({ a: usable[i].level, b: usable[j].level, p: test(usable[i], usable[j]) });
+      return pairs.map(x => ({ ...x, p: x.p == null ? null : Math.min(1, x.p * pairs.length) }));
+    };
+    if (usable.length === 2) {
+      const t = welchTTest(usable[0].tested, usable[1].tested), u = mannWhitney(usable[0].values, usable[1].values);
+      result.parametric = t && { test: 't-testas', statName: 't', stat: t.t, p: t.p, pairs: [] };
+      result.nonparametric = u && { test: 'Mann–Whitney U', statName: 'U', stat: u.u, p: u.p, pairs: [] };
+    } else {
+      const f = anova(usable.map(g => g.tested)), h = kruskalWallis(usable.map(g => g.values));
+      result.parametric = f && { test: 'ANOVA', statName: 'F', stat: f.f, p: f.p, pairs: bonferroni((a, b) => welchTTest(a.tested, b.tested)?.p ?? null) };
+      result.nonparametric = h && { test: 'Kruskal–Wallis', statName: 'H', stat: h.h, p: h.p, pairs: bonferroni((a, b) => mannWhitney(a.values, b.values)?.p ?? null) };
+    }
+  }
+  return result;
 }
