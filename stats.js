@@ -251,24 +251,3 @@ export function nestedF(full, reduced) {
   return { f, df1: q, df2: full.df, p: fSf(Math.max(f, 0), q, full.df) };
 }
 
-// Kruskal–Wallis H testas (neparametrinė ANOVA), su ryšių pataisa.
-export function kruskalWallis(groups) {
-  const gs = groups.filter(g => g.length > 0);
-  const all = gs.flatMap((g, i) => g.map(v => [v, i])).sort((a, b) => a[0] - b[0]);
-  const N = all.length, k = gs.length;
-  if (k < 2 || N < 3) return null;
-  const rankSum = new Array(k).fill(0);
-  let tieTerm = 0;
-  for (let i = 0; i < N;) {
-    let j = i;
-    while (j + 1 < N && all[j + 1][0] === all[i][0]) j++;
-    const rank = (i + j + 2) / 2, t = j - i + 1;
-    for (let m = i; m <= j; m++) rankSum[all[m][1]] += rank;
-    tieTerm += t ** 3 - t;
-    i = j + 1;
-  }
-  let h = (12 / (N * (N + 1))) * gs.reduce((s, g, i) => s + rankSum[i] ** 2 / g.length, 0) - 3 * (N + 1);
-  const c = 1 - tieTerm / (N ** 3 - N);
-  if (c > 0) h /= c;
-  return { h, df: k - 1, p: chi2Sf(h, k - 1) };
-}

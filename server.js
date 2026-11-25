@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { db, parseJSON, questionToObject, getExperimentObject, replaceQuestionRelations, replaceExperimentRelations, verifyPassword, adminSetup } from './db.js';
 import { getSettings, saveSettings, publicSettings, sessionProfile, optionLabel, EDITABLE_TEXT_FIELDS, PROFILE_ROLES, LANGUAGES } from './settings.js';
-import { analyzeExperiment, analysisExperiments, analyzeOverall, exploreOptions, explore } from './analysis.js';
+import { analyzeExperiment, analysisExperiments, analyzeOverall, analysisSummary } from './analysis.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, 'public');
@@ -194,11 +194,8 @@ async function api(req,res,pathname){
   if(pathname==='/api/admin/analysis'&&method==='GET'){
     requireAdmin(req);return json(res,200,analysisExperiments());
   }
-  if(pathname==='/api/admin/explore-options'&&method==='GET'){
-    requireAdmin(req);return json(res,200,exploreOptions());
-  }
-  if(pathname==='/api/admin/explore'&&method==='GET'){
-    requireAdmin(req);const q=new URL(req.url||'/','http://localhost').searchParams,r=explore(q.get('target'),q.get('metric'),q.get('by'));if(!r)throw httpError(400,'Neteisingi pasirinkimai.');return json(res,200,r);
+  if(pathname==='/api/admin/analysis-summary'&&method==='GET'){
+    requireAdmin(req);return json(res,200,analysisSummary());
   }
   if(pathname==='/api/admin/analysis-overall'&&method==='GET'){
     requireAdmin(req);return json(res,200,analyzeOverall());

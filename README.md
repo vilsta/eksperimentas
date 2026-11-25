@@ -98,15 +98,15 @@ Baigus eksperimentą, dalyviui siūloma dalyvauti dar viename („Ar norite daly
 
 ## Rezultatų analizė
 
-Tyrėjo portalo skiltyje „Rezultatai“ pasirenkamas eksperimentas (arba „Visi eksperimentai“), rodiklis ir grupavimas. Rodoma suvestinė (vidurkis, SEM95, mediana, IQR, n), parametrinis testas (t-testas / ANOVA) ir neparametrinis (Mann–Whitney U / Kruskal–Wallis), stulpelinė diagrama su 95 % intervalais ir poriniai palyginimai su Bonferroni pataisa. Papildomi eksperimento testai pateikiami suskleistuose blokuose (`analysis.js`, testai – `stats.js`, sutikrinti su SciPy ir statsmodels):
+Tyrėjo portalo skiltyje „Rezultatai“ pateikiamos suvestinės lentelės: diagramos tipo poveikis (H1–H5, eksperimentai × rodikliai: A ir B vidurkiai, skirtumas, p), dalyvių savybių įtaka (H6–H10, visi eksperimentai kartu) ir suskleisti papildomi testai (H6, H7 sąveika, H11). Reikšmingi skirtumai (p < 0,05) paryškinti (`analysis.js`, testai – `stats.js`, sutikrinti su SciPy ir statsmodels):
 
 - **Duomenys** – tik užbaigtos sesijos, kuriose atsakyta į visus klausimus ir užpildytas vertinimas; nebaigtų sesijų skaičius rodomas, bet jos neįtraukiamos. Kitos atrankos nėra.
 - **Dalyvio rodikliai** – teisingų atsakymų skaičius, vidutinis atsakymo laikas (testuose logaritmuojamas, rodomas sekundėmis), subjektyvūs vertinimai; taip pat teisingi atsakymai lengvuose, vidutiniuose ir sunkiuose klausimuose.
 - **Grupių palyginamumas** – χ² (2×2 su mažais dažniais – Fišerio testas).
-- **H1–H5** – A ir B grupės lyginamos Welch t-testu; papildomai kiekvieno klausimo teisingumas (χ²) ir rezultatai pagal sunkumą (t-testas).
+- **H1–H5** – A ir B grupės lyginamos Welch t-testu.
 - **H6, H7 (eksperimente)** – regresija su sąveika grupė × patirtis / įrenginys (įdėtinių modelių F testas); reikšmingos sąveikos atveju rodomi pogrupių rezultatai.
 - **H11** – regresija: grupės skirtumas įvertinus amžių, lytį, sritį, patirtį ir įrenginį (retos reikšmės, < 3 dalyviai, sujungiamos).
-- **H6–H10 (visi eksperimentai)** – dvi grupės (lytis, įrenginys) – t-testas; daugiau grupių – ANOVA ir poriniai t-testai su Holmo pataisa.
+- **H6–H10 (visi eksperimentai)** – dvi grupės (lytis, įrenginys) – t-testas; daugiau grupių – ANOVA; reikšmingu atveju nurodoma grupė su didžiausiu ir mažiausiu vidurkiu.
 - Sprendimas: p < 0,05; kartu rodomas skirtumo dydis. Kai duomenų per mažai – „Per mažai duomenų“.
 
 ## Talpinimas internete (Railway)
