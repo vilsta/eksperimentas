@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { db, parseJSON, questionToObject, getExperimentObject, replaceQuestionRelations, replaceExperimentRelations, verifyPassword, adminSetup } from './db.js';
 import { getSettings, saveSettings, publicSettings, sessionProfile, optionLabel, EDITABLE_TEXT_FIELDS, PROFILE_ROLES, LANGUAGES } from './settings.js';
-import { analyzeExperiment, analysisExperiments } from './analysis.js';
+import { analyzeExperiment, analysisExperiments, analyzeOverall } from './analysis.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, 'public');
@@ -193,6 +193,9 @@ async function api(req,res,pathname){
   }
   if(pathname==='/api/admin/analysis'&&method==='GET'){
     requireAdmin(req);return json(res,200,analysisExperiments());
+  }
+  if(pathname==='/api/admin/analysis-overall'&&method==='GET'){
+    requireAdmin(req);return json(res,200,analyzeOverall());
   }
   if((params=match(pathname,'/api/admin/analysis/:id'))&&method==='GET'){
     requireAdmin(req);const r=analyzeExperiment(Number(params.id));if(!r)throw httpError(404,'Eksperimentas nerastas.');return json(res,200,r);

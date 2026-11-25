@@ -161,3 +161,92 @@ export function holm(ps) {
   order.forEach(([p, i], k) => { running = Math.max(running, Math.min(1, (m - k) * p)); out[i] = running; });
   return out;
 }
+
+// Reguliarizuota nepilnoji beta funkcija I_x(a, b) (grandininė trupmena).
+function betaCf(a, b, x) {
+  const tiny = 1e-300;
+  let c = 1, d = 1 - ((a + b) * x) / (a + 1);
+  if (Math.abs(d) < tiny) d = tiny;
+  d = 1 / d;
+  let h = d;
+  for (let m = 1; m <= 1000; m++) {
+    const m2 = 2 * m;
+    let aa = (m * (b - m) * x) / ((a + m2 - 1) * (a + m2));
+    d = 1 + aa * d; if (Math.abs(d) < tiny) d = tiny;
+    c = 1 + aa / c; if (Math.abs(c) < tiny) c = tiny;
+    d = 1 / d; h *= d * c;
+    aa = (-(a + m) * (a + b + m) * x) / ((a + m2) * (a + m2 + 1));
+    d = 1 + aa * d; if (Math.abs(d) < tiny) d = tiny;
+    c = 1 + aa / c; if (Math.abs(c) < tiny) c = tiny;
+    d = 1 / d;
+    const del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < 1e-15) break;
+  }
+  return h;
+}
+export function betaInc(x, a, b) {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const front = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  return x < (a + 1) / (a + b + 2) ? (front * betaCf(a, b, x)) / a : 1 - (front * betaCf(b, a, 1 - x)) / b;
+}
+// Dvipusė Stjudento t skirstinio p reikšmė ir F skirstinio viršutinė uodega.
+export const tTwoSided = (t, df) => (df > 0 && Number.isFinite(t) ? betaInc(df / (df + t * t), df / 2, 0.5) : null);
+export const fSf = (f, d1, d2) => (f > 0 && d1 > 0 && d2 > 0 ? betaInc(d2 / (d2 + d1 * f), d2 / 2, d1 / 2) : 1);
+
+export function variance(xs) {
+  if (xs.length < 2) return null;
+  const m = mean(xs);
+  return xs.reduce((s, v) => s + (v - m) ** 2, 0) / (xs.length - 1);
+}
+
+// Welch t-testas dviem nepriklausomoms imtims.
+export function welchTTest(x, y) {
+  if (x.length < 2 || y.length < 2) return null;
+  const mx = mean(x), my = mean(y), vx = variance(x), vy = variance(y);
+  const se2 = vx / x.length + vy / y.length;
+  if (!(se2 > 0)) return { t: 0, df: x.length + y.length - 2, p: mx === my ? 1 : 0, diff: mx - my };
+  const t = (mx - my) / Math.sqrt(se2);
+  const df = se2 ** 2 / ((vx / x.length) ** 2 / (x.length - 1) + (vy / y.length) ** 2 / (y.length - 1));
+  return { t, df, p: tTwoSided(t, df), diff: mx - my };
+}
+
+// Vienfaktorinė ANOVA.
+export function anova(groups) {
+  const gs = groups.filter(g => g.length > 0), all = gs.flat(), N = all.length, k = gs.length;
+  if (k < 2 || N - k < 1) return null;
+  const grand = mean(all);
+  const ssb = gs.reduce((s, g) => s + g.length * (mean(g) - grand) ** 2, 0);
+  const ssw = gs.reduce((s, g) => s + g.reduce((a, v) => a + (v - mean(g)) ** 2, 0), 0);
+  const df1 = k - 1, df2 = N - k;
+  if (!(ssw > 0)) return { f: ssb > 0 ? Infinity : 0, df1, df2, p: ssb > 0 ? 0 : 1 };
+  const f = (ssb / df1) / (ssw / df2);
+  return { f, df1, df2, p: fSf(f, df1, df2) };
+}
+
+// Mažiausių kvadratų regresija: koeficientai, jų standartinės paklaidos ir p reikšmės.
+export function ols(X, y) {
+  const n = X.length, p = X[0]?.length || 0;
+  if (!n || n - p < 1) return null;
+  const xtx = Array.from({ length: p }, (_, i) => Array.from({ length: p }, (_, j) => X.reduce((s, r) => s + r[i] * r[j], 0)));
+  const inv = invert(xtx);
+  if (!inv) return null;
+  const xty = Array.from({ length: p }, (_, i) => X.reduce((s, r, k) => s + r[i] * y[k], 0));
+  const beta = inv.map(row => row.reduce((s, v, j) => s + v * xty[j], 0));
+  const rss = X.reduce((s, r, k) => s + (y[k] - r.reduce((a, v, j) => a + v * beta[j], 0)) ** 2, 0);
+  const df = n - p, sigma2 = rss / df;
+  const se = inv.map((row, i) => Math.sqrt(Math.max(0, row[i] * sigma2)));
+  const pv = beta.map((b, i) => (se[i] > 0 ? tTwoSided(b / se[i], df) : null));
+  return { beta, se, p: pv, rss, df, n, k: p };
+}
+
+// F testas įdėtiniams modeliams (ar papildomi nariai reikšmingi).
+export function nestedF(full, reduced) {
+  if (!full || !reduced) return null;
+  const q = full.k - reduced.k;
+  if (q < 1 || full.df < 1) return null;
+  if (!(full.rss > 0)) return { f: Infinity, df1: q, df2: full.df, p: reduced.rss > 0 ? 0 : 1 };
+  const f = ((reduced.rss - full.rss) / q) / (full.rss / full.df);
+  return { f, df1: q, df2: full.df, p: fSf(Math.max(f, 0), q, full.df) };
+}

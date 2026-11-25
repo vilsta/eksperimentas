@@ -1,95 +1,92 @@
-// Rezultatų analizė pagal 2.6 skyriaus principus: duomenų paruošimas, aprašomoji statistika,
-// grupavimas, hipotezių tikrinimas, Holmo–Bonferronio korekcija ir interpretavimas.
+// Rezultatų analizė: kiekvienam dalyviui apskaičiuojami rodikliai (teisingi atsakymai, laikas, vertinimai),
+// A ir B grupės lyginamos t-testu, dalyvių savybės – t-testu / ANOVA, poveikio sąlygos – regresija.
 import { db, parseJSON } from './db.js';
 import { getSettings, sessionProfile, optionLabel } from './settings.js';
-import { chiSquare, fisherExact, mannWhitney, cmh, holm, mean, median, quantile } from './stats.js';
+import { chiSquare, fisherExact, welchTTest, anova, ols, nestedF, mean, holm } from './stats.js';
 
 const ALPHA = 0.05;
 const GROUPS = ['A', 'B'];
+const LEVELS = ['Lengvas', 'Vidutinis', 'Sunkus'];
+const LEVEL_TITLES = { Lengvas: 'Lengvi klausimai', Vidutinis: 'Vidutiniai klausimai', Sunkus: 'Sunkūs klausimai' };
+const MAIN_HYPOTHESIS = { E1: 'H1', E2: 'H2–H3', E3: 'H4', E4: 'H5' };
 // Senosios versijos eksperimentų kodai turi priesagą (E1-v1), todėl hipotezė parenkama pagal pradžią.
 const mainHypothesis = code => MAIN_HYPOTHESIS[String(code || '').split('-')[0]] || 'H1–H5';
-const MAIN_HYPOTHESIS = { E1: 'H1', E2: 'H2–H3', E3: 'H4', E4: 'H5' };
+const isArchived = code => /-v\d+$/.test(String(code || ''));
+const statusOf = p => (p == null ? 'insufficient' : p < ALPHA ? 'significant' : 'ns');
+const fmt = (v, d = 1) => (v == null || !Number.isFinite(v) ? '—' : v.toLocaleString('lt-LT', { minimumFractionDigits: d, maximumFractionDigits: d }));
 
-const RATING_LEVELS = ['Žemas (1–2)', 'Vidutinis (3)', 'Aukštas (4–5)'];
-const ratingLevel = v => (v <= 2 ? RATING_LEVELS[0] : v === 3 ? RATING_LEVELS[1] : RATING_LEVELS[2]);
-// Profilio klausimas pagal analizės vaidmenį (nustatymuose) ir jo reikšmės lietuviška etikete.
+// ---------------------------------------------------------------- Dalyvių savybės
 const roleQuestion = (settings, role) => settings.profileQuestions.find(q => q.role === role) || null;
-const levelsOf = q => (q ? q.options.map(o => optionLabel(q, o.value)) : []);
-// Patirtis: 1–5 skalėje 1–2 – mažesnė, 3–5 – didesnė; sąraše – pirmoji variantų pusė mažesnė.
-function experienceLevels(q) {
-  if (!q) return { levels: [], level: () => null };
-  if (q.type === 'scale') return { levels: ['Mažesnė (1–2)', 'Didesnė (3–5)'], level: v => { const n = Number(v); return n >= 1 && n <= 2 ? 'Mažesnė (1–2)' : n >= 3 && n <= 5 ? 'Didesnė (3–5)' : null; } };
-  const half = Math.floor(q.options.length / 2), low = q.options.slice(0, half).map(o => o.value);
-  return { levels: ['Mažesnė', 'Didesnė'], level: v => (!v ? null : low.includes(v) ? 'Mažesnė' : q.options.some(o => o.value === v) ? 'Didesnė' : null) };
-}
 
-export function strength(v) {
-  if (v == null) return '';
-  if (v < 0.1) return 'labai silpna';
-  if (v < 0.3) return 'silpna';
-  if (v < 0.5) return 'vidutinė';
-  return 'stipri';
-}
-
-export function analysisExperiments() {
-  return db.prepare(`SELECT e.id,e.code,e.title,e.status,
-      (SELECT COUNT(*) FROM participant_sessions s WHERE s.experiment_id=e.id AND s.group_label IN ('A','B')) sessions
-    FROM experiments e
-    WHERE EXISTS (SELECT 1 FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=e.id AND q.variant<>'')
-    ORDER BY COALESCE(NULLIF(e.code,''),'~'),e.id`).all();
-}
-
-// ---------------------------------------------------------------- 1. Duomenų paruošimas
-function prepare(experimentId, settings) {
-  const roles = Object.fromEntries(['gender', 'age', 'field'].map(r => [r, roleQuestion(settings, r)]));
-  const experience = experienceLevels(roleQuestion(settings, 'experience'));
-  const sessions = db.prepare("SELECT * FROM participant_sessions WHERE experiment_id=? AND group_label IN ('A','B') ORDER BY started_at").all(experimentId);
-  const answers = db.prepare(`SELECT a.*,q.task_type,q.answer_format,q.variant,q.variant_a,q.variant_b,q.tolerance
-      FROM answers a JOIN questions q ON q.id=a.question_id JOIN participant_sessions s ON s.id=a.session_id
-      WHERE s.experiment_id=?`).all(experimentId);
-  const correctValue = db.prepare('SELECT option_text FROM question_options WHERE question_id=? AND is_correct=1 ORDER BY position LIMIT 1');
-  const bySession = new Map(sessions.map(s => [s.id, []]));
-  answers.forEach(a => bySession.get(a.session_id)?.push(a));
-
-  const prep = { sessionsTotal: sessions.length, incomplete: 0, fastSessions: 0, sameRatingSessions: 0, incompleteTrials: 0, shortTrials: 0, includedSessions: 0, includedTrials: 0 };
-  const participants = [], trials = [], units = [];
-  for (const s of sessions) {
-    const list = bySession.get(s.id) || [];
-    if (s.status !== 'Užbaigta') { prep.incomplete++; continue; }
-    if (list.length && list.filter(a => a.elapsed_seconds < 2).length > list.length / 2) { prep.fastSessions++; continue; }
-    const ratings = sessionRatings(s, list);
-    const ratingValues = Object.keys(ratings).length ? Object.values(ratings) : list.flatMap(a => [a.clarity, a.appeal, a.difficulty]).filter(Boolean);
-    if (ratingValues.length && new Set(ratingValues).size === 1) { prep.sameRatingSessions++; continue; }
-    prep.includedSessions++;
-    participants.push(s);
-    const profile = sessionProfile(s);
-    const who = {
-      ...Object.fromEntries(Object.entries(roles).map(([r, q]) => [r, q && profile[q.key] ? optionLabel(q, profile[q.key]) : null])),
-      experience: experience.level(profile[roleQuestion(settings, 'experience')?.key]), device: s.device_type || null
-    };
-    // Vertinimai – vienas įrašas dalyviui (eksperimento pabaigoje).
-    units.push({ session: s.id, group: s.group_label, ratings, ...who });
-    for (const a of list) {
-      const complete = s.group_label && a.task_type !== null && a.answer_json && a.is_correct !== null && a.elapsed_seconds !== null;
-      if (!complete) { prep.incompleteTrials++; continue; }
-      if (a.elapsed_seconds < 1) { prep.shortTrials++; continue; }
-      let error = null;
-      if (a.answer_format === 'Skaitinis atsakymas') {
-        const toNum = v => Number(String(v ?? '').replace(/\s/g, '').replace(',', '.'));
-        const got = toNum(parseJSON(a.answer_json, [])[0]), exp = toNum(correctValue.get(a.question_id)?.option_text);
-        if (Number.isFinite(got) && Number.isFinite(exp) && exp !== 0) error = Math.abs(got - exp) / Math.abs(exp) * 100;
-      }
-      trials.push({
-        session: s.id, group: s.group_label, task: a.task_type, correct: a.is_correct ? 1 : 0, time: a.elapsed_seconds,
-        error, ...who
-      });
+function characteristics(settings) {
+  const fromRole = (role, key, title, hyp) => {
+    const q = roleQuestion(settings, role);
+    if (!q) return null;
+    if (role === 'experience' && q.type === 'scale') {
+      const levels = ['Maža (1–2)', 'Vidutinė (3)', 'Didelė (4–5)'];
+      return { key, title, hyp, levels, value: s => { const n = Number(sessionProfile(s)[q.key]); return n >= 1 && n <= 2 ? levels[0] : n === 3 ? levels[1] : n >= 4 && n <= 5 ? levels[2] : null; } };
     }
-  }
-  prep.includedTrials = trials.length;
-  return { prep, participants, trials, units };
+    return { key, title, hyp, levels: q.options.map(o => optionLabel(q, o.value)), value: s => { const v = sessionProfile(s)[q.key]; return v ? optionLabel(q, v) : null; } };
+  };
+  return [
+    fromRole('gender', 'gender', 'Lytis', 'H9'),
+    fromRole('age', 'age', 'Amžius', 'H8'),
+    fromRole('field', 'field', 'Išsilavinimo / darbo sritis', 'H10'),
+    fromRole('experience', 'experience', 'Patirtis', 'H6'),
+    { key: 'device', title: 'Įrenginys', hyp: 'H7', levels: ['Kompiuteris', 'Mobilusis'], value: s => s.device_type || null }
+  ].filter(Boolean);
 }
 
-// Sesijos vertinimai: nauji – iš eksperimento pabaigos (ratings_json); seni – dalyvio užduočių vertinimų vidurkis.
+// ---------------------------------------------------------------- Rodikliai
+// Laikas testuose logaritmuojamas (ilgi atsakymai turi mažesnę įtaką), bet rodomas sekundėmis.
+function metricsFor(settings) {
+  return [
+    { key: 'correct', label: 'Teisingi atsakymai', kind: 'correct', value: p => p.correct, test: p => p.correct },
+    { key: 'time', label: 'Atlikimo laikas', kind: 'time', value: p => p.time, test: p => p.logTime },
+    ...settings.ratingQuestions.map(q => ({ key: 'rating_' + q.key, label: q.label, kind: 'rating', value: p => p.ratings[q.key], test: p => p.ratings[q.key] }))
+  ];
+}
+
+function differenceText(metric, d) {
+  if (d == null || !Number.isFinite(d)) return '';
+  const a = fmt(Math.abs(d));
+  if (Math.abs(d) < 0.05) return 'Vidurkiai praktiškai nesiskiria';
+  if (metric.kind === 'correct') return `A grupė vidutiniškai teisingai atsakė į ${a} klausimo ${d > 0 ? 'daugiau' : 'mažiau'}`;
+  if (metric.kind === 'time') return `A grupė vidutiniškai ${a} s ${d < 0 ? 'greičiau' : 'lėčiau'}`;
+  return `${metric.label} A grupėje vidutiniškai ${a} balo ${d > 0 ? 'aukštesnis' : 'žemesnis'}`;
+}
+
+function compareGroups(metric, participants) {
+  const [a, b] = GROUPS.map(g => participants.filter(p => p.group === g));
+  const shown = list => list.map(metric.value).filter(v => v != null);
+  const tested = list => list.map(metric.test).filter(v => v != null);
+  const mA = mean(shown(a)), mB = mean(shown(b));
+  const res = welchTTest(tested(a), tested(b));
+  const diff = mA != null && mB != null ? mA - mB : null;
+  return {
+    key: metric.key, label: metric.label, kind: metric.kind,
+    A: { mean: mA, n: shown(a).length }, B: { mean: mB, n: shown(b).length },
+    diff, p: res?.p ?? null, status: statusOf(res?.p ?? null), text: res ? differenceText(metric, diff) : ''
+  };
+}
+
+// ---------------------------------------------------------------- Duomenys
+function experimentQuestions(experimentId) {
+  const rows = db.prepare(`SELECT q.id,q.text,q.level,q.variant FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id
+    WHERE eq.experiment_id=? ORDER BY eq.position`).all(experimentId);
+  const bases = [], byId = new Map();
+  for (const r of rows) {
+    const base = r.variant ? r.id.replace(/-?[AB]$/, '') : r.id;
+    let item = bases.find(b => b.base === base);
+    if (!item) { item = { base, nr: bases.length + 1, text: r.text, level: r.level || '' }; bases.push(item); }
+    byId.set(r.id, item);
+  }
+  // Jei sunkumas nenurodytas: 1–3 lengvi, 4–7 vidutiniai, 8–10 sunkūs.
+  bases.forEach(b => { if (!LEVELS.includes(b.level)) b.level = b.nr <= 3 ? 'Lengvas' : b.nr <= 7 ? 'Vidutinis' : 'Sunkus'; });
+  return { bases, byId };
+}
+
+// Vertinimai: nauji – iš eksperimento pabaigos (ratings_json); seni – dalyvio užduočių vertinimų vidurkis.
 function sessionRatings(s, answers) {
   const stored = parseJSON(s.ratings_json, null);
   if (stored && typeof stored === 'object' && Object.keys(stored).length) return stored;
@@ -101,184 +98,197 @@ function sessionRatings(s, answers) {
   return legacy;
 }
 
-// ---------------------------------------------------------------- 2. Aprašomoji statistika
-function describe(participants, trials, units, settings) {
-  const variables = [
-    ...settings.profileQuestions.map(q => ({ title: q.title.lt + (q.type === 'scale' ? ' (1–5)' : ''), order: levelsOf(q), value: p => { const v = sessionProfile(p)[q.key]; return v ? optionLabel(q, v) : null; } })),
-    { title: 'Įrenginys', order: ['Kompiuteris', 'Mobilusis'], value: p => p.device_type || null },
-    { title: 'Kalba', order: ['LT', 'EN'], value: p => String(p.language || 'lt').toUpperCase() }
-  ];
-  const demographic = variables.map(({ title, order, value }) => {
-    const values = [...new Set([...order, ...participants.map(p => value(p) || 'Nenurodyta')])];
-    const rows = values.map(v => ({ value: v, A: 0, B: 0 }));
-    participants.forEach(p => { const row = rows.find(r => r.value === (value(p) || 'Nenurodyta')); row[p.group_label]++; });
-    return { title, rows: rows.filter(r => r.A + r.B > 0) };
-  });
-  const indicators = GROUPS.map(g => {
-    const t = trials.filter(x => x.group === g), times = t.map(x => x.time), u = units.filter(x => x.group === g);
-    const scale = key => { const v = u.map(x => x.ratings[key]).filter(x => x >= 1 && x <= 5); return { key, mean: mean(v), n: v.length, counts: [1, 2, 3, 4, 5].map(k => v.filter(x => x === k).length) }; };
-    const errors = t.filter(x => x.error != null).map(x => x.error);
-    return {
-      group: g, participants: participants.filter(p => p.group_label === g).length, trials: t.length,
-      accuracy: t.length ? (100 * t.filter(x => x.correct).length) / t.length : null,
-      meanTime: mean(times), medianTime: median(times),
-      ratings: settings.ratingQuestions.map(q => ({ ...scale(q.key), label: q.label })),
-      medianError: errors.length ? median(errors) : null, errorCount: errors.length
-    };
-  });
-  return { demographic, indicators };
-}
-
-// ---------------------------------------------------------------- 3. Grupavimas
-function grouping(participants, trials, settings) {
-  const k = participants.length >= 40 ? 4 : 3;
-  const labels = k === 4 ? ['Labai greitas', 'Greitas', 'Lėtas', 'Labai lėtas'] : ['Greitas', 'Vidutinis', 'Lėtas'];
-  const times = trials.map(t => t.time);
-  const cuts = Array.from({ length: k - 1 }, (_, i) => quantile(times, (i + 1) / k));
-  const timeLevel = v => labels[cuts.filter(c => v > c).length];
-  const indicators = [
-    { key: 'correct', label: 'Teisingumas', unit: 'trial', levels: ['Teisingas', 'Neteisingas'], value: t => (t.correct ? 'Teisingas' : 'Neteisingas') },
-    { key: 'time', label: 'Atlikimo laikas', unit: 'trial', levels: labels, value: t => timeLevel(t.time) },
-    ...settings.ratingQuestions.map(q => ({ key: q.key, label: q.label, unit: 'session', levels: RATING_LEVELS,
-      value: u => { const v = u.ratings?.[q.key]; return v >= 1 && v <= 5 ? ratingLevel(v) : null; } }))
-  ];
-  return { k, cuts, labels, indicators };
-}
-
-// ---------------------------------------------------------------- 4. Hipotezių tikrinimas
-function crossTab(trials, rowFn, rowLevels, colFn, colLevels) {
-  const rows = rowLevels.filter(r => trials.some(t => rowFn(t) === r));
-  const cols = colLevels.filter(c => trials.some(t => colFn(t) === c));
-  const counts = rows.map(r => cols.map(c => trials.filter(t => rowFn(t) === r && colFn(t) === c).length));
-  return { rows, cols, counts };
-}
-
-function directionText(tab, residuals, rowName) {
-  let best = null;
-  tab.rows.forEach((r, i) => tab.cols.forEach((c, j) => { if (!best || residuals[i][j] > best.res) best = { r, c, res: residuals[i][j] }; }));
-  return best && best.res > 0 ? `${rowName(best.r)}: „${best.c}“ dažniau nei tikėtasi` : '';
-}
-
-const groupName = g => `${g} grupėje`;
-
-function associationTest(base, trials, rowVar, indicator) {
-  const tab = crossTab(trials, rowVar.fn, rowVar.levels, indicator.value, indicator.levels);
-  const result = { ...base, unit: indicator.unit, method: 'χ²', n: tab.counts.flat().reduce((a, b) => a + b, 0), table: tab };
-  if (tab.rows.length < 2 || tab.cols.length < 2) return { ...result, insufficient: true, note: 'Nepakanka duomenų (lentelėje mažiau nei 2 eilutės arba stulpeliai).' };
-  const chi = chiSquare(tab.counts);
-  Object.assign(result, { stat: chi.chi2, statName: 'χ²', df: chi.df, p: chi.p, effect: chi.v, effectName: 'V', expected: chi.expected });
-  if (tab.rows.length === 2 && tab.cols.length === 2 && chi.minExpected < 5) {
-    result.method = 'Fisher'; result.p = fisherExact(tab.counts);
-    result.note = 'Tikėtinas dažnis < 5, todėl p apskaičiuota Fišerio tiksliuoju testu.';
-  } else if (chi.lowExpectedShare > 0.2) {
-    result.note = 'Daugiau nei 20 % tikėtinų dažnių < 5 – χ² rezultatas gali būti netikslus.';
-  }
-  result.direction = directionText(tab, chi.residuals, rowVar.name);
-  return result;
-}
-
-function cmhTest(base, trials, stratumVar, indicator) {
-  const groupVar = { fn: t => t.group, levels: GROUPS };
-  const strata = stratumVar.levels.map(level => ({ level, trials: trials.filter(t => stratumVar.fn(t) === level) }))
-    .filter(s => GROUPS.every(g => s.trials.some(t => t.group === g)));
-  const pooled = crossTab(strata.flatMap(s => s.trials), groupVar.fn, GROUPS, indicator.value, indicator.levels);
-  const result = { ...base, unit: indicator.unit, method: 'CMH', n: pooled.counts.flat().reduce((a, b) => a + b, 0), table: pooled };
-  result.strata = strata.map(s => {
-    const tab = crossTab(s.trials, groupVar.fn, GROUPS, indicator.value, pooled.cols);
-    return { level: s.level, table: tab };
-  });
-  if (pooled.rows.length < 2 || pooled.cols.length < 2 || !strata.length) return { ...result, insufficient: true, note: 'Nepakanka duomenų: nė viename sluoksnyje nėra abiejų grupių.' };
-  const full = s => GROUPS.map(g => pooled.cols.map(c => s.trials.filter(t => t.group === g && indicator.value(t) === c).length));
-  const res = cmh(strata.map(full));
-  if (!res) return { ...result, insufficient: true, note: 'Nepakanka duomenų CMH testui.' };
-  const chi = chiSquare(pooled.counts);
-  Object.assign(result, { stat: res.stat, statName: 'CMH χ²', df: res.df, p: res.p, effect: chi.v, effectName: 'V',
-    note: `Sluoksniai: ${strata.map(s => s.level).join(', ')}. Efekto dydis – sujungtos lentelės Kramerio V.`,
-    direction: directionText(pooled, chi.residuals, groupName) });
-  return result;
-}
-
-function mannWhitneyTest(base, trials, valueFn, unit) {
-  const [a, b] = GROUPS.map(g => trials.filter(t => t.group === g).map(valueFn).filter(v => v != null));
-  const res = mannWhitney(a, b);
-  const result = { ...base, unit: 'trial', valueUnit: unit, method: 'Mann–Whitney U', n: a.length + b.length, medians: { A: median(a), B: median(b) } };
-  if (!res || a.length < 2 || b.length < 2) return { ...result, insufficient: true, note: 'Nepakanka duomenų.' };
-  const fmt = v => (v == null ? '—' : v.toFixed(2).replace('.', ','));
-  const [mA, mB] = [median(a), median(b)];
-  return { ...result, stat: res.u, statName: 'U', p: res.p, effect: res.r, effectName: 'r', z: res.z,
-    note: `Mediana: A – ${fmt(mA)} ${unit}, B – ${fmt(mB)} ${unit}.`,
-    direction: mA === mB ? '' : `${mA < mB ? 'A' : 'B'} grupės mediana mažesnė (${fmt(Math.min(mA, mB))} ${unit} prieš ${fmt(Math.max(mA, mB))} ${unit})` };
-}
-
-function hypothesisTests(code, trials, units, grouping, settings) {
-  // Teisingumas ir laikas – kiekvienam atsakymui; vertinimai – kiekvienam dalyviui.
-  const data = i => (i.unit === 'session' ? units : trials);
-  const experienceQ = roleQuestion(settings, 'experience');
-  const tests = [];
-  const ind = grouping.indicators;
-  const group = { fn: t => t.group, levels: GROUPS, name: groupName };
-  const mainCode = mainHypothesis(code);
-
-  // H1–H5: ar rezultatai priklauso nuo grupės.
-  ind.forEach(i => tests.push(associationTest({ hyp: mainCode, family: 'main', title: `Grupė × ${i.label.toLowerCase()}` }, data(i), group, i)));
-  tests.push(mannWhitneyTest({ hyp: mainCode, family: 'main', title: 'Atlikimo laikas (tikslios reikšmės), A ir B' }, trials, t => t.time, 's'));
-  if (trials.some(t => t.error != null)) {
-    tests.push(mannWhitneyTest({ hyp: mainCode, family: 'main', title: 'Skaitinio atsakymo paklaida (%), A ir B' }, trials.filter(t => t.error != null), t => t.error, '%'));
-  }
-
-  // H6, H7: patirtis ir įrenginys.
-  // Hipotezė praleidžiama, jei nustatymuose nėra klausimo su atitinkamu analizės vaidmeniu.
-  const moderators = [
-    ...(experienceQ ? [['H6', 'Patirtis', { fn: t => t.experience, levels: experienceLevels(experienceQ).levels, name: v => `${v} patirtis` }]] : []),
-    ['H7', 'Įrenginys', { fn: t => t.device, levels: ['Kompiuteris', 'Mobilusis'], name: v => v }]
-  ];
-  for (const [hyp, label, variable] of moderators) {
-    ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, data(i), variable, i)));
-    for (const level of variable.levels) {
-      ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `Grupė × ${i.label.toLowerCase()} (${variable.name(level)})`, subgroup: true }, data(i).filter(t => variable.fn(t) === level), group, i)));
+// Įtraukiamos tik užbaigtos sesijos, kuriose atsakyta į visus klausimus ir užpildytas vertinimas.
+function participantsFor(experimentId, settings, chars) {
+  const sessions = db.prepare("SELECT * FROM participant_sessions WHERE experiment_id=? AND group_label IN ('A','B') ORDER BY started_at").all(experimentId);
+  const answers = db.prepare('SELECT a.* FROM answers a JOIN participant_sessions s ON s.id=a.session_id WHERE s.experiment_id=?').all(experimentId);
+  const bySession = new Map(sessions.map(s => [s.id, []]));
+  answers.forEach(a => bySession.get(a.session_id)?.push(a));
+  const { bases, byId } = experimentQuestions(experimentId);
+  const ratingKeys = settings.ratingQuestions.map(q => q.key);
+  const participants = [];
+  let incomplete = 0;
+  for (const s of sessions) {
+    const list = bySession.get(s.id) || [], expected = parseJSON(s.question_order_json, []);
+    const ratings = sessionRatings(s, list);
+    const done = s.status === 'Užbaigta' && expected.length > 0 && expected.every(id => list.some(a => a.question_id === id))
+      && ratingKeys.every(k => ratings[k] >= 1 && ratings[k] <= 5);
+    if (!done) { incomplete++; continue; }
+    const times = list.map(a => Math.max(Number(a.elapsed_seconds) || 0, 0.05));
+    const byLevel = Object.fromEntries(LEVELS.map(l => [l, 0]));
+    const correctByBase = {};
+    for (const a of list) {
+      const q = byId.get(a.question_id);
+      if (q) { correctByBase[q.base] = a.is_correct ? 1 : 0; if (a.is_correct) byLevel[q.level]++; }
     }
-    ind.forEach(i => tests.push(cmhTest({ hyp, family: hyp, title: `Grupė × ${i.label.toLowerCase()}, kontroliuojant: ${label.toLowerCase()}` }, data(i), variable, i)));
+    participants.push({
+      id: s.id, group: s.group_label, correct: list.filter(a => a.is_correct).length,
+      time: mean(times), logTime: mean(times.map(Math.log)), ratings, byLevel, correctByBase,
+      chars: Object.fromEntries(chars.map(c => [c.key, c.value(s)]))
+    });
   }
-
-  // H8–H10: amžius, lytis, išsilavinimo sritis (A ir B kartu).
-  const demographics = [['H8', 'age'], ['H9', 'gender'], ['H10', 'field']]
-    .map(([hyp, role]) => [hyp, roleQuestion(settings, role)?.title.lt, { fn: t => t[role], levels: levelsOf(roleQuestion(settings, role)), name: v => v }])
-    .filter(([, label]) => label);
-  for (const [hyp, label, variable] of demographics) {
-    ind.forEach(i => tests.push(associationTest({ hyp, family: hyp, title: `${label} × ${i.label.toLowerCase()}` }, data(i), variable, i)));
-  }
-
-  // H11: grupės poveikis kontroliuojant demografinius veiksnius (CMH).
-  for (const [, label, variable] of demographics) {
-    ind.forEach(i => tests.push(cmhTest({ hyp: 'H11', family: 'H11', title: `Grupė × ${i.label.toLowerCase()}, kontroliuojant: ${label.toLowerCase()}` }, data(i), variable, i)));
-  }
-
-  // 5. Daugkartinių palyginimų korekcija: visam eksperimentui ir kiekvienai hipotezei atskirai.
-  const testable = tests.filter(t => !t.insufficient);
-  holm(testable.map(t => t.p)).forEach((p, i) => { testable[i].pHolmExperiment = p; });
-  for (const family of new Set(testable.map(t => t.family))) {
-    const inFamily = testable.filter(t => t.family === family);
-    holm(inFamily.map(t => t.p)).forEach((p, i) => { inFamily[i].pHolmHypothesis = p; });
-  }
-  tests.forEach((t, i) => { t.id = i; t.strength = t.effectName === 'V' ? strength(t.effect) : ''; });
-  return tests;
+  return { participants, incomplete, bases };
 }
 
-// ---------------------------------------------------------------- Visa analizė
+// ---------------------------------------------------------------- Palyginimai
+function contingencyP(counts) {
+  const rows = counts.filter(r => r.some(v => v > 0));
+  const cols = rows[0]?.map((_, j) => j).filter(j => rows.some(r => r[j] > 0)) || [];
+  if (rows.length < 2) return null;
+  if (cols.length < 2) return 1;
+  const table = rows.map(r => cols.map(j => r[j]));
+  const chi = chiSquare(table);
+  return table.length === 2 && table[0].length === 2 && chi.minExpected < 5 ? fisherExact(table) : chi.p;
+}
+
+function balance(participants, chars) {
+  return chars.map(c => {
+    const levels = [...c.levels, ...new Set(participants.map(p => p.chars[c.key]).filter(v => v && !c.levels.includes(v)))];
+    const counts = GROUPS.map(g => levels.map(l => participants.filter(p => p.group === g && p.chars[c.key] === l).length));
+    const present = levels.map((l, j) => ({ level: l, A: counts[0][j], B: counts[1][j] })).filter(r => r.A + r.B > 0);
+    const p = GROUPS.every((_, i) => counts[i].some(v => v > 0)) ? contingencyP(counts) : null;
+    return { key: c.key, title: c.title, rows: present, p, status: p == null ? 'insufficient' : p < ALPHA ? 'differs' : 'similar' };
+  });
+}
+
+function questionComparison(participants, bases) {
+  return bases.map(b => {
+    const stats = GROUPS.map(g => {
+      const list = participants.filter(p => p.group === g && p.correctByBase[b.base] != null);
+      const correct = list.filter(p => p.correctByBase[b.base]).length;
+      return { n: list.length, correct, pct: list.length ? (100 * correct) / list.length : null };
+    });
+    const p = stats.every(s => s.n > 0) ? contingencyP(stats.map(s => [s.correct, s.n - s.correct])) : null;
+    return { nr: b.nr, text: b.text, level: b.level, A: stats[0], B: stats[1], p, status: statusOf(p) };
+  });
+}
+
+function levelComparison(participants, bases) {
+  return LEVELS.filter(l => bases.some(b => b.level === l)).map(l => {
+    const max = bases.filter(b => b.level === l).length;
+    const metric = { key: l, label: LEVEL_TITLES[l], kind: 'correct', value: p => p.byLevel[l], test: p => p.byLevel[l] };
+    return { ...compareGroups(metric, participants), level: l, max };
+  });
+}
+
+// Regresijos projektavimo matrica: konstanta, grupė (A = 1) ir kategoriniai kintamieji (atskaitos lygis – pirmasis).
+function categoryColumns(values, levels) {
+  const present = levels.filter(l => values.includes(l));
+  return present.slice(1).map(l => values.map(v => (v === l ? 1 : 0)));
+}
+function fit(rows, columns, y) {
+  return ols(rows.map((_, i) => [1, ...columns.map(c => c[i])]), y);
+}
+
+// H6, H7: ar A ir B skirtumas vienodas visiems (sąveika grupė × savybė).
+function moderation(participants, metrics, char) {
+  return metrics.map(m => {
+    const rows = participants.filter(p => p.chars[char.key] != null && m.test(p) != null);
+    const base = { key: m.key, label: m.label, kind: m.kind, p: null, status: 'insufficient', subgroups: [] };
+    const values = rows.map(p => p.chars[char.key]);
+    const levels = char.levels.filter(l => values.includes(l));
+    if (levels.length < 2 || GROUPS.some(g => !rows.some(p => p.group === g))) return base;
+    const y = rows.map(m.test), group = rows.map(p => (p.group === 'A' ? 1 : 0));
+    const dummies = categoryColumns(values, char.levels);
+    // Sąveika įvertinama tik tiems lygiams, kuriuose yra abiejų grupių dalyvių.
+    const interactions = dummies.map(d => d.map((v, i) => v * group[i])).filter((c, k) => c.some(v => v) && dummies[k].some((v, i) => v && !group[i]));
+    if (!interactions.length) return base;
+    const reduced = fit(rows, [group, ...dummies], y), full = fit(rows, [group, ...dummies, ...interactions], y);
+    const test = nestedF(full, reduced);
+    if (!test || full.df < 2) return base;
+    const subgroups = levels.map(l => {
+      const sub = rows.filter(p => p.chars[char.key] === l);
+      const [a, b] = GROUPS.map(g => sub.filter(p => p.group === g).map(m.value).filter(v => v != null));
+      return { level: l, A: { mean: mean(a), n: a.length }, B: { mean: mean(b), n: b.length } };
+    });
+    return { ...base, p: test.p, status: statusOf(test.p), subgroups };
+  });
+}
+
+// H11: A ir B skirtumas įvertinus amžių, lytį, sritį, patirtį ir įrenginį.
+function adjusted(participants, metrics, chars, raw) {
+  return metrics.map(m => {
+    const rows = participants.filter(p => m.test(p) != null);
+    const rawCmp = raw.find(r => r.key === m.key);
+    const result = { key: m.key, label: m.label, kind: m.kind, rawDiff: rawCmp?.diff ?? null, diff: null, p: null, status: 'insufficient' };
+    if (GROUPS.some(g => !rows.some(p => p.group === g))) return result;
+    const group = rows.map(p => (p.group === 'A' ? 1 : 0)), columns = [group];
+    for (const c of chars) {
+      // Retos reikšmės (mažiau nei 3 dalyviai) sujungiamos, kad modelį būtų galima įvertinti.
+      const original = rows.map(p => p.chars[c.key] ?? 'Nenurodyta');
+      const counts = original.reduce((o, v) => ({ ...o, [v]: (o[v] || 0) + 1 }), {});
+      const values = original.map(v => (counts[v] >= 3 ? v : 'Kita'));
+      const levels = [...new Set([...c.levels, 'Nenurodyta', 'Kita'])].filter(l => values.includes(l));
+      if (levels.length >= 2) columns.push(...categoryColumns(values, levels));
+    }
+    const model = fit(rows, columns, rows.map(m.test));
+    if (!model || model.df < 2 || model.p[1] == null) return result;
+    const b = model.beta[1];
+    // Laikui (logaritmuotam) skirtumas pateikiamas procentais.
+    return { ...result, diff: m.kind === 'time' ? (Math.exp(b) - 1) * 100 : b, p: model.p[1], status: statusOf(model.p[1]) };
+  });
+}
+
+// ---------------------------------------------------------------- Viešos funkcijos
+export function analysisExperiments() {
+  return db.prepare(`SELECT e.id,e.code,e.title,e.status,
+      (SELECT COUNT(*) FROM participant_sessions s WHERE s.experiment_id=e.id AND s.group_label IN ('A','B')) sessions
+    FROM experiments e
+    WHERE EXISTS (SELECT 1 FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=e.id AND q.variant<>'')
+    ORDER BY COALESCE(NULLIF(e.code,''),'~'),e.id`).all().map(e => ({ ...e, archived: isArchived(e.code) }));
+}
+
 export function analyzeExperiment(experimentId) {
   const exp = db.prepare('SELECT * FROM experiments WHERE id=?').get(experimentId);
   if (!exp) return null;
-  const settings = getSettings();
-  const { prep, participants, trials, units } = prepare(exp.id, settings);
+  const settings = getSettings(), chars = characteristics(settings), metrics = metricsFor(settings);
+  const { participants, incomplete, bases } = participantsFor(exp.id, settings, chars);
   const variants = db.prepare(`SELECT DISTINCT q.variant_a a,q.variant_b b FROM experiment_questions eq JOIN questions q ON q.id=eq.question_id WHERE eq.experiment_id=? AND q.variant<>''`).all(exp.id);
-  const g = grouping(participants, trials, settings);
+  const main = metrics.map(m => compareGroups(m, participants));
   return {
-    experiment: { id: exp.id, code: exp.code || '', title: exp.title, mainHypothesis: mainHypothesis(exp.code) },
+    experiment: { id: exp.id, code: exp.code || '', title: exp.title, hypothesis: mainHypothesis(exp.code) },
     variants: { A: [...new Set(variants.map(v => v.a))], B: [...new Set(variants.map(v => v.b))] },
-    alpha: ALPHA,
-    preparation: prep,
-    descriptive: describe(participants, trials, units, settings),
-    grouping: { k: g.k, cuts: g.cuts, timeLabels: g.labels, ratingLevels: RATING_LEVELS, experienceLevels: experienceLevels(roleQuestion(settings, 'experience')).levels, experienceTitle: roleQuestion(settings, 'experience')?.title.lt || '' },
-    tests: hypothesisTests(exp.code, trials, units, g, settings)
+    data: { A: participants.filter(p => p.group === 'A').length, B: participants.filter(p => p.group === 'B').length, incomplete, questions: bases.length },
+    balance: balance(participants, chars),
+    main,
+    questions: questionComparison(participants, bases),
+    levels: levelComparison(participants, bases),
+    moderation: chars.filter(c => c.key === 'experience' || c.key === 'device').map(c => ({ key: c.key, title: c.title, hyp: c.hyp, results: moderation(participants, metrics, c) })),
+    adjusted: adjusted(participants, metrics, chars, main)
   };
+}
+
+// H6–H10: visų (dabartinių) eksperimentų dalyviai kartu.
+export function analyzeOverall() {
+  const settings = getSettings(), chars = characteristics(settings), metrics = metricsFor(settings);
+  const participants = analysisExperiments().filter(e => !e.archived).flatMap(e => participantsFor(e.id, settings, chars).participants);
+  const results = chars.map(c => {
+    const two = c.key === 'gender' || c.key === 'device';
+    let levels = c.levels.map(l => ({ level: l, n: participants.filter(p => p.chars[c.key] === l).length })).filter(l => l.n >= 2);
+    // Lytis ir įrenginys lyginami t-testu: imamos dvi pirmosios (pagal sąrašą) reikšmės, pvz., Moteris ir Vyras.
+    if (two) levels = levels.slice(0, 2);
+    const names = levels.map(l => l.level);
+    return {
+      key: c.key, title: c.title, hyp: c.hyp, levels: names,
+      metrics: metrics.map(m => {
+        const groups = names.map(l => participants.filter(p => p.chars[c.key] === l));
+        const shown = groups.map(g => g.map(m.value).filter(v => v != null)), tested = groups.map(g => g.map(m.test).filter(v => v != null));
+        const out = { key: m.key, label: m.label, kind: m.kind, groups: names.map((l, i) => ({ level: l, mean: mean(shown[i]), n: shown[i].length })), p: null, status: 'insufficient', pairs: [] };
+        if (names.length < 2 || tested.some(t => t.length < 2)) return out;
+        if (names.length === 2) { const r = welchTTest(tested[0], tested[1]); return { ...out, p: r?.p ?? null, status: statusOf(r?.p ?? null) }; }
+        const r = anova(tested);
+        if (!r) return out;
+        const result = { ...out, p: r.p, status: statusOf(r.p) };
+        if (r.p < ALPHA) {
+          // Papildomas testas: poriniai t-testai su Holmo pataisa.
+          const pairs = [];
+          for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) pairs.push({ a: names[i], b: names[j], p: welchTTest(tested[i], tested[j])?.p ?? 1 });
+          holm(pairs.map(x => x.p)).forEach((p, k) => { pairs[k].p = p; });
+          result.pairs = pairs.filter(x => x.p < ALPHA);
+        }
+        return result;
+      })
+    };
+  });
+  return { participants: participants.length, alpha: ALPHA, characteristics: results };
 }

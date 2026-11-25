@@ -28,6 +28,13 @@
   
     .error-msg{color:#b42318;background:#fff1f0;border:1px solid #f3c1bd;border-radius:8px;padding:10px 12px;font-size:13px;margin-top:10px;display:none}
     .loading{padding:30px;text-align:center;color:#77839a}.session-questions{display:grid;gap:12px;margin-top:16px}.session-question{border:1px solid #e2e7ef;border-radius:10px;padding:14px;background:#fff}.session-question .head{display:flex;justify-content:space-between;gap:12px}.session-grid{display:grid;grid-template-columns:1.4fr 1.2fr .7fr repeat(3,.55fr);gap:10px;margin-top:10px;font-size:12px}.session-grid b{display:block;color:#7b879b;font-size:10px;text-transform:uppercase;margin-bottom:3px}.survey-detail{margin-top:18px;padding:14px;background:#f7f8ff;border:1px solid #dfe4fb;border-radius:10px}.survey-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;font-size:12px}.auth-note code{background:#f2f4f8;padding:2px 5px;border-radius:4px}
+    .dash-title h2{margin:0 0 14px;font-size:20px;color:#1f2633}.dash-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}.dash-kpi{background:#fff;border:1px solid #e3e7ed;border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:2px}.dash-kpi span{font-size:12px;color:#6b778d;font-weight:650}.dash-kpi b{font-size:30px;line-height:1.15;color:#1f2633}.dash-kpi small{font-size:12px;color:#7b879b}
+    .dash-panel{margin-bottom:18px}.dash-panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px}.dash-panel-head h2{margin:0;font-size:17px}
+    .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.dash-card{border:1px solid #e6eaf2;border-radius:11px;padding:14px 16px;background:#fcfdff;display:flex;flex-direction:column;gap:8px}.dash-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.dash-card-head h3{margin:0;font-size:14px;color:#2f3a52}.dash-card-foot{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#4b566b;margin-top:2px;line-height:1.4}
+    .dash-bar{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center;font-size:13px}.dash-bar-label{font-weight:800;color:#536079}.dash-track{height:12px;border-radius:99px;background:#edf0f5;overflow:hidden}.dash-track span{display:block;height:100%;border-radius:99px}.dash-bar-value{font-weight:700;color:#1f2633;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .dash-badge{display:inline-block;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:750;white-space:nowrap}.dash-badge.good{background:#e7f6ea;color:#2f8a3c}.dash-badge.neutral{background:#eef0f4;color:#6b7486}.dash-badge.warn{background:#fff4e2;color:#b26a0b}.dash-badge.bad{background:#fdecec;color:#c0444b}.dash-p{font-size:11px;color:#7b879b;white-space:nowrap}.nowrap{white-space:nowrap}
+    .dash-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#536079;margin-bottom:6px}.dash-legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}.dash-chart{width:100%;height:auto;display:block}
+    .dash-details{margin-top:12px}.dash-details summary{cursor:pointer;font-size:13px;font-weight:650;color:#4054bf}.dash-sub{margin-top:16px}.dash-sub h3{font-size:13px;margin:0 0 6px}.dash-pairs{font-size:11px;color:#2f8a3c;margin-top:4px;white-space:normal}.tab-btn.archived{opacity:.6}.dash-status-row td{background:#fafbfe;border-bottom:0;padding-top:12px}.dash-overall td.num .dash-pairs{text-align:right}.dash-overall td:first-child{min-width:150px}.dash-overall th.num,.dash-overall td.num{min-width:96px}
     .st-section{margin-bottom:18px}.st-section h2{margin:0 0 14px}.st-sub{font-size:15px;margin:22px 0 4px}.st-note{font-size:12px;color:#728098;line-height:1.5;margin:0 0 14px}
     .st-grid{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,1fr) minmax(0,1fr);gap:10px 14px;align-items:start;padding:7px 0;border-top:1px solid #eef1f6}.st-grid.st-head{border-top:0;padding-bottom:0}.st-grid-2{grid-template-columns:minmax(150px,.7fr) minmax(0,1fr) minmax(0,1fr)}
     .st-lang{font-size:12px;font-weight:800;color:#4054bf}.st-label{font-size:13px;font-weight:650;color:#3d475b;padding-top:9px;line-height:1.35}
@@ -57,7 +64,7 @@
 <section class="page hidden" id="page-questions"><div class="page-head"><h1>Klausimų sąrašas</h1><button class="top-action" id="add-question">+ Naujas klausimas</button></div><div class="search-wrap"><input id="question-search" type="search" placeholder="Ieškoti pagal tekstą, hipotezę ar tipą..."></div><div id="question-list" class="cards"></div></section>
 <section class="page hidden" id="page-hypotheses"><div class="page-head"><h1>Hipotezės</h1><button class="top-action" id="add-hypothesis">+ Nauja hipotezė</button></div><div class="search-wrap"><input id="hypothesis-search" type="search" placeholder="Ieškoti hipotezių..."></div><div id="hypothesis-list" class="cards"></div></section>
 <section class="page hidden" id="page-sessions"><div class="page-head"><div><h1>Sesijos</h1><div class="muted" style="margin-top:6px">Realūs dalyvių atsakymai iš bendros duomenų bazės</div></div></div><div class="table-card"><table class="data-table"><thead><tr><th>Dalyvis</th><th>Eksperimentas</th><th>Grupė</th><th>Būsena</th><th>Pradžia</th><th>Pabaiga</th><th>Įrenginys</th><th>Amžiaus grupė</th><th>Tikslumas</th><th>Vid. laikas</th><th>Atsakymai</th><th></th></tr></thead><tbody id="sessions-body"></tbody></table></div></section>
-<section class="page hidden" id="page-results"><div class="page-head"><div><h1>Rezultatai</h1><div class="muted" style="margin-top:6px">Statistinė analizė atskirai kiekvienam eksperimentui</div></div><button class="outline-btn" id="export-csv">Eksportuoti CSV</button></div><div class="tabs" id="an-tabs"></div><div class="an-controls"><label>Holmo–Bonferronio korekcija <select id="an-family"><option value="experiment">visiems eksperimento testams</option><option value="hypothesis">kiekvienai hipotezei atskirai</option></select></label><label><input type="checkbox" id="an-only-sig"> Rodyti tik reikšmingus testus</label></div><div id="an-body"><div class="loading">Kraunama...</div></div></section><section class="page hidden" id="page-settings"><div class="page-head"><div><h1>Nustatymai</h1><div class="muted" style="margin-top:6px">Dalyvio portalo tekstai lietuvių ir anglų kalbomis bei profilio klausimai</div></div><div class="head-actions"><span class="st-dirty hidden" id="st-dirty">Yra neišsaugotų pakeitimų</span><button class="outline-btn" id="st-preview">Dalyvio peržiūra</button><button class="top-action" id="st-save">Išsaugoti</button></div></div><div id="st-body"><div class="loading">Kraunama...</div></div></section>
+<section class="page hidden" id="page-results"><div class="page-head"><div><h1>Rezultatai</h1><div class="muted" style="margin-top:6px">A ir B grupių palyginimas kiekviename eksperimente</div></div><button class="outline-btn" id="export-csv">Eksportuoti CSV</button></div><div class="tabs" id="an-tabs"></div><div id="an-body"><div class="loading">Kraunama...</div></div></section><section class="page hidden" id="page-settings"><div class="page-head"><div><h1>Nustatymai</h1><div class="muted" style="margin-top:6px">Dalyvio portalo tekstai lietuvių ir anglų kalbomis bei profilio klausimai</div></div><div class="head-actions"><span class="st-dirty hidden" id="st-dirty">Yra neišsaugotų pakeitimų</span><button class="outline-btn" id="st-preview">Dalyvio peržiūra</button><button class="top-action" id="st-save">Išsaugoti</button></div></div><div id="st-body"><div class="loading">Kraunama...</div></div></section>
 </main></div><div id="modal-root"></div><script>
 let questions=[],hypotheses=[],experiments=[],sessions=[];
 const modalRoot=document.getElementById('modal-root');
@@ -82,95 +89,67 @@ function renderQuestions(filter=''){const f=filter.toLowerCase();document.getEle
 function renderHypotheses(filter=''){const f=filter.toLowerCase();document.getElementById('hypothesis-list').innerHTML=hypotheses.filter(h=>(h.code+' '+h.h0+' '+h.h1).toLowerCase().includes(f)).map(h=>`<article class="card hyp-card"><div class="hyp-title"><span class="hyp-code">${h.code}</span><strong>Hipotezė</strong></div><div class="hyp-lines"><p><b>H0.</b> ${esc(h.h0)}</p><p><b>H1.</b> ${esc(h.h1)}</p></div><div class="tag-row"><span class="tag green">${esc(h.dep)}</span><span class="tag blue">${esc(h.ind)}</span></div><div class="recommendation-box"><b>Rekomendacija:</b> ${esc(h.rec||'—')}</div><div class="card-actions"><button class="small-btn blue" onclick="openHypothesisModal('${h.code}')">Redaguoti</button><button class="small-btn" onclick="showHistory('${h.code}')">Versijų istorija</button></div></article>`).join('')}
 async function loadSessions(){sessions=await api('/api/admin/sessions');document.getElementById('sessions-body').innerHTML=sessions.map(s=>`<tr><td>${esc(s.participant_label)}</td><td class="left">${esc(s.experiment_title)}</td><td>${esc(s.group_label||'—')}</td><td><span class="tag ${s.status==='Užbaigta'?'green':'orange'}">${s.status}</span></td><td>${fmtDate(s.started_at)}</td><td>${s.finished_at?fmtDate(s.finished_at):'—'}</td><td>${esc(s.device_type||'—')}</td><td>${esc(s.age_group||'—')}</td><td>${s.accuracy}%</td><td>${s.avg_time} s</td><td>${s.answered}</td><td><button class="eye-btn" onclick="openSession('${s.id}')">${iconEye}</button></td></tr>`).join('')||'<tr><td colspan="12">Sesijų dar nėra.</td></tr>'}
 function fmtDate(v){if(!v)return'—';const d=new Date(v);return d.toLocaleString('lt-LT',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
-// ---- Rezultatai: statistinė analizė
-let anExperiments=[],anCurrent=null,anData=null;
-const HYP_TITLES={H6:'Patirties poveikis',H7:'Įrenginio poveikis',H8:'Amžiaus poveikis',H9:'Lyties poveikis',H10:'Išsilavinimo srities poveikis',H11:'Grupės poveikis atsižvelgus į demografinius veiksnius (CMH)'};
-const DIST_COLORS=['#c8464b','#e6a15a','#c9cfdc','#7f93dd','#4054bf'];
-function fnum(v,d=2){return v==null||!Number.isFinite(v)?'—':v.toLocaleString('lt-LT',{minimumFractionDigits:d,maximumFractionDigits:d})}
-function fp(p){return p==null?'—':p<0.001?'< 0,001':fnum(p,3)}
+// ---- Rezultatai: švieslentė
+let anExperiments=[],anCurrent=null;
+const C_A='#4054bf',C_B='#e08e1b';
+function fnum(v,d=1){return v==null||!Number.isFinite(v)?'—':v.toLocaleString('lt-LT',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fp(p){return p==null?'':p<0.001?'p < 0,001':'p = '+fnum(p,3)}
+function signed(v,d=1){return v==null||!Number.isFinite(v)?'—':(v>0?'+':v<0?'−':'')+fnum(Math.abs(v),d)}
+const BADGES={significant:['good','Reikšmingas skirtumas'],ns:['neutral','Skirtumas nereikšmingas'],insufficient:['warn','Per mažai duomenų'],similar:['good','Panašios'],differs:['bad','Skiriasi']};
+function badge(status,custom){const [cls,text]=BADGES[status]||BADGES.insufficient;return `<span class="dash-badge ${cls}">${esc(custom?.[status]||text)}</span>`}
+function unitValue(kind,v,max){if(v==null)return '—';if(kind==='time')return fnum(v)+' s';if(kind==='rating')return fnum(v)+' / 5';return fnum(v)+(max?` iš ${max}`:'')}
+function barRow(label,color,v,scale,text){return `<div class="dash-bar"><span class="dash-bar-label">${label}</span><div class="dash-track"><span style="width:${v==null?0:Math.max(2,Math.min(100,v/scale*100))}%;background:${color}"></span></div><span class="dash-bar-value">${text}</span></div>`}
+function metricCard(m,max){
+  const scale=m.kind==='time'?Math.max(m.A.mean||0,m.B.mean||0)*1.2||1:m.kind==='rating'?5:(max||Math.max(m.A.mean||0,m.B.mean||0,1));
+  return `<div class="dash-card"><div class="dash-card-head"><h3>${esc(m.label)}</h3>${badge(m.status)}</div>
+    ${barRow('A',C_A,m.A.mean,scale,unitValue(m.kind,m.A.mean,max))}${barRow('B',C_B,m.B.mean,scale,unitValue(m.kind,m.B.mean,max))}
+    <div class="dash-card-foot"><span>${esc(m.text||'')}</span><span class="dash-p">${fp(m.p)}</span></div></div>`;
+}
+function panel(title,body,sub=''){return `<div class="panel dash-panel"><div class="dash-panel-head"><h2>${title}</h2>${sub?`<span class="muted">${sub}</span>`:''}</div>${body}</div>`}
+function questionChart(qs){
+  const w=760,h=230,pl=34,pb=26,pt=16,cw=(w-pl-8)/Math.max(qs.length,1),bw=Math.min(22,cw/2-4),y=v=>pt+(h-pt-pb)*(1-v/100);
+  const grid=[0,25,50,75,100].map(v=>`<line x1="${pl}" x2="${w-4}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid,#e8ecf3)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="#7b879b">${v}</text>`).join('');
+  const bars=qs.map((q,i)=>{const cx=pl+cw*i+cw/2;const bar=(v,x,c)=>v==null?'':`<rect x="${x}" y="${y(v)}" width="${bw}" height="${Math.max(0,y(0)-y(v))}" rx="2" fill="${c}"><title>${q.nr}. ${esc(q.text)} — ${fnum(v,0)} %</title></rect>`;
+    return bar(q.A.pct,cx-bw-1,C_A)+bar(q.B.pct,cx+1,C_B)+`<text x="${cx}" y="${h-8}" text-anchor="middle" font-size="11" fill="#536079">${q.nr}</text>`+(q.status==='significant'?`<text x="${cx}" y="${y(Math.max(q.A.pct||0,q.B.pct||0))-5}" text-anchor="middle" font-size="14" font-weight="700" fill="#2f8a3c">*</text>`:'')}).join('');
+  return `<div class="dash-legend"><span><i style="background:${C_A}"></i>A grupė</span><span><i style="background:${C_B}"></i>B grupė</span><span><b style="color:#2f8a3c">*</b> reikšmingas skirtumas</span></div><svg class="dash-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="Teisingų atsakymų procentas pagal klausimus">${grid}${bars}</svg>`;
+}
 async function loadResults(){
   try{
     anExperiments=await api('/api/admin/analysis');
-    if(!anExperiments.length){document.getElementById('an-tabs').innerHTML='';document.getElementById('an-body').innerHTML='<div class="panel"><span class="muted">Nėra eksperimentų su A/B grupėmis.</span></div>';return}
-    if(!anCurrent||!anExperiments.some(e=>e.id===anCurrent))anCurrent=anExperiments[0].id;
-    document.getElementById('an-tabs').innerHTML=anExperiments.map(e=>`<button class="tab-btn ${e.id===anCurrent?'active':''}" data-exp="${e.id}">${esc(e.code||e.title)} <span class="muted" style="font-weight:500">· ${e.sessions}</span></button>`).join('');
-    document.querySelectorAll('#an-tabs .tab-btn').forEach(b=>b.onclick=()=>{anCurrent=Number(b.dataset.exp);loadResults()});
+    const tabs=[...anExperiments.filter(e=>!e.archived),{id:'overall',code:'Visi eksperimentai'},...anExperiments.filter(e=>e.archived)];
+    if(!anCurrent||!tabs.some(e=>e.id===anCurrent))anCurrent=tabs[0]?.id;
+    document.getElementById('an-tabs').innerHTML=tabs.map(e=>`<button class="tab-btn ${e.id===anCurrent?'active':''} ${e.archived?'archived':''}" data-exp="${e.id}">${esc(e.code||e.title)}</button>`).join('');
+    document.querySelectorAll('#an-tabs .tab-btn').forEach(b=>b.onclick=()=>{anCurrent=b.dataset.exp==='overall'?'overall':Number(b.dataset.exp);loadResults()});
     document.getElementById('an-body').innerHTML='<div class="loading">Skaičiuojama...</div>';
-    anData=await api('/api/admin/analysis/'+anCurrent);
-    renderAnalysis();
+    if(anCurrent==='overall')renderOverall(await api('/api/admin/analysis-overall'));
+    else if(anCurrent)renderExperiment(await api('/api/admin/analysis/'+anCurrent));
+    else document.getElementById('an-body').innerHTML='<div class="panel"><span class="muted">Nėra eksperimentų su A/B grupėmis.</span></div>';
   }catch(e){document.getElementById('an-body').innerHTML=`<div class="panel"><span class="muted">${esc(e.message)}</span></div>`}
 }
-function anP(t){return document.getElementById('an-family').value==='hypothesis'?t.pHolmHypothesis:t.pHolmExperiment}
-function anSig(t){return !t.insufficient&&anP(t)<anData.alpha}
-function section(n,title,body){return `<div class="panel an-section"><h2><span class="an-step">${n}</span>${title}</h2>${body}</div>`}
-function distBar(counts){const total=counts.reduce((a,b)=>a+b,0)||1;return `<div class="dist" title="${counts.map((c,i)=>`${i+1}: ${c}`).join(', ')}">${counts.map((c,i)=>`<span style="width:${c/total*100}%;background:${DIST_COLORS[i]}"></span>`).join('')}</div><div class="dist-legend">${counts.map((c,i)=>`${i+1}: ${c}`).join(' · ')}</div>`}
-function renderAnalysis(){
-  const d=anData,pr=d.preparation,ind=d.descriptive.indicators,[A,B]=ind;
-  const variantLabel=g=>esc(d.variants[g].join(' / ')||'—');
-  // 1. Duomenų paruošimas
-  const card=(v,l,bad)=>`<div class="an-card"><div class="value ${bad&&v?'bad':''}">${v}</div><div class="label">${l}</div></div>`;
-  const s1=`<div class="an-cards">${card(pr.sessionsTotal,'Sesijos (A ir B)')}${card(pr.incomplete,'Neužbaigtos – pašalintos',1)}${card(pr.fastSessions,'Dauguma atsakymų < 2 s – pašalintos',1)}${card(pr.sameRatingSessions,'Visi vertinimai vienodi – pašalintos',1)}${card(pr.includedSessions,'Įtrauktos sesijos')}${card(pr.incompleteTrials,'Nepilni bandymai – pašalinti',1)}${card(pr.shortTrials,'Bandymai < 1 s – pašalinti',1)}${card(pr.includedTrials,'Analizuojami bandymai')}</div><p class="an-note">Kiekvienam bandymui tikrinama grupė, užduotis, atsakymas, teisingumas, atlikimo laikas ir vertinimai. Analizės vienetas – atskiras bandymas (atsakymas į vieną klausimą).</p>`;
-  // 2. Aprašomoji statistika
-  const row=(label,f)=>`<tr><td>${label}</td><td class="num">${f(A)}</td><td class="num">${f(B)}</td></tr>`;
-  const scaleRow=(r,i)=>`<tr><td>${esc(r.label)} (1–5)<br><small class="muted">vienam dalyviui</small></td>${[A,B].map(g=>`<td>vid. ${fnum(g.ratings[i]?.mean)} <small class="muted">(n = ${g.ratings[i]?.n||0})</small>${distBar(g.ratings[i]?.counts||[0,0,0,0,0])}</td>`).join('')}</tr>`;
-  let s2=`<div class="an-wrap"><table class="an-table"><thead><tr><th>Rodiklis</th><th class="num" style="width:28%">A grupė</th><th class="num" style="width:28%">B grupė</th></tr></thead><tbody>
-    ${row('Dalyviai',g=>g.participants)}${row('Bandymai',g=>g.trials)}${row('Teisingų atsakymų dalis',g=>fnum(g.accuracy,1)+' %')}${row('Vidutinis atlikimo laikas',g=>fnum(g.meanTime)+' s')}${row('Atlikimo laiko mediana',g=>fnum(g.medianTime)+' s')}
-    ${A.errorCount+B.errorCount?row('Skaitinių atsakymų paklaidos mediana',g=>g.errorCount?fnum(g.medianError)+' %':'—'):''}
-    ${A.ratings.map(scaleRow).join('')}</tbody></table></div><p class="an-note">Teisingumas ir laikas skaičiuojami atskiriems atsakymams, subjektyvūs vertinimai – kiekvienam dalyviui (pateikiami eksperimento pabaigoje; senesnių sesijų – dalyvio užduočių vertinimų vidurkis).</p>`;
-  s2+=`<div class="an-demo">${d.descriptive.demographic.map(v=>`<div><h3>${esc(v.title)}</h3><table class="an-table"><thead><tr><th></th><th class="num">A</th><th class="num">B</th></tr></thead><tbody>${v.rows.map(r=>`<tr><td>${esc(r.value)}</td><td class="num">${r.A}</td><td class="num">${r.B}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">Duomenų nėra</td></tr>'}</tbody></table></div>`).join('')}</div>`;
-  // 3. Grupavimas
-  const g=d.grouping,c=g.cuts.map(x=>fnum(x,1));
-  const timeText=g.timeLabels.map((l,i)=>i===0?`${l}: ≤ ${c[0]} s`:i===g.timeLabels.length-1?`${l}: > ${c[i-1]} s`:`${l}: ${c[i-1]}–${c[i]} s`).join('; ');
-  const s3=`<ul class="an-interp"><li><b>Atlikimo laikas</b> (${g.k===4?'kvartilės, nes dalyvių ≥ 40':'tertilės'}): ${timeText}. Papildomai laikas lyginamas Mann–Whitney U testu pagal tikslias reikšmes.</li><li><b>Subjektyvūs vertinimai:</b> ${g.ratingLevels.join('; ')}.</li>${g.experienceLevels.length?`<li><b>Patirtis</b> (${esc(g.experienceTitle)}): ${g.experienceLevels.join('; ')}.</li>`:''}<li><b>Teisingumas:</b> Teisingas / Neteisingas.</li></ul>`;
-  // 4–5. Hipotezių tikrinimas
-  const onlySig=document.getElementById('an-only-sig').checked;
-  const tests=d.tests.filter(t=>!onlySig||anSig(t));
-  const hyps=[...new Set(tests.map(t=>t.hyp))];
-  const hypTitle=h=>h===d.experiment.mainHypothesis?`Ar rezultatai priklauso nuo grupės (A – ${variantLabel('A')}, B – ${variantLabel('B')})`:esc(HYP_TITLES[h]||'');
-  const statText=t=>t.insufficient?'—':t.statName==='U'?`U = ${fnum(t.stat,1)}`:`${t.statName}(${t.df}) = ${fnum(t.stat)}`;
-  const effText=t=>t.effect==null?'—':`${t.effectName} = ${fnum(t.effect,3)}${t.strength?`<br><small class="muted">${t.strength}</small>`:''}`;
-  const verdict=t=>t.insufficient?'<span class="insuf">Nepakanka duomenų</span>':anSig(t)?'<span class="sig">H0 atmetama</span>':'<span class="nsig">H0 neatmetama</span>';
-  let body='';
-  for(const h of hyps){
-    body+=`<tr class="an-hyp-row"><td colspan="8">${esc(h)} <small>– ${hypTitle(h)}</small></td></tr>`;
-    for(const t of tests.filter(t=>t.hyp===h)){
-      body+=`<tr class="an-test-row ${t.subgroup?'sub':''}" data-test="${t.id}"><td>${esc(t.title)}</td><td>${esc(t.method)}</td><td class="num">${t.n}</td><td class="num">${statText(t)}</td><td class="num">${t.insufficient?'—':fp(t.p)}</td><td class="num">${t.insufficient?'—':fp(anP(t))}</td><td class="num">${effText(t)}</td><td>${verdict(t)}</td></tr>`;
-    }
-  }
-  const s4=`<p class="an-note" style="margin-top:0">α = ${fnum(d.alpha,2)}. p (Holm) – p reikšmė po Holmo–Bonferronio korekcijos (${document.getElementById('an-family').value==='hypothesis'?'kiekvienai hipotezei atskirai':`visiems ${d.tests.filter(t=>!t.insufficient).length} šio eksperimento testams`}). Paspauskite eilutę, kad pamatytumėte dažnių lentelę.</p><div class="an-wrap"><table class="an-table" id="an-tests"><thead><tr><th>Testas</th><th>Metodas</th><th class="num">n</th><th class="num">Statistika</th><th class="num">p</th><th class="num">p (Holm)</th><th class="num">Efekto dydis</th><th>Išvada</th></tr></thead><tbody>${body||'<tr><td colspan="8" class="muted">Testų nėra.</td></tr>'}</tbody></table></div>`;
-  // 6. Interpretavimas
-  const sig=d.tests.filter(anSig),rawSig=d.tests.filter(t=>!t.insufficient&&t.p<d.alpha);
-  const mainTests=d.tests.filter(t=>t.hyp===d.experiment.mainHypothesis&&!t.insufficient);
-  const mainSig=mainTests.filter(anSig);
-  let items=[];
-  items.push(mainTests.length?(mainSig.length?`<b>${esc(d.experiment.mainHypothesis)}:</b> nustatyta reikšminga priklausomybė nuo grupės (${mainSig.map(t=>esc(t.title.replace(/^Grupė × /,''))).join(', ')}) – A ir B diagramų tipai šiose užduotyse skiriasi.`:`<b>${esc(d.experiment.mainHypothesis)}:</b> po korekcijos reikšmingos priklausomybės nuo grupės nenustatyta – nulinė hipotezė neatmetama.`):`<b>${esc(d.experiment.mainHypothesis)}:</b> nepakanka duomenų.`);
-  for(const t of sig){items.push(`<b>${esc(t.hyp)}</b> ${esc(t.title)}: ${t.effectName==='V'?`${t.strength} priklausomybė`:'reikšmingas skirtumas'} (${statText(t)}, p (Holm) = ${fp(anP(t))}, ${t.effectName} = ${fnum(t.effect,3)}).${t.direction?` ${esc(t.direction)}.`:''}`)}
-  if(!sig.length)items.push(`Po Holmo–Bonferronio korekcijos reikšmingų priklausomybių nenustatyta (nekoreguota p < 0,05 – ${rawSig.length} iš ${d.tests.filter(t=>!t.insufficient).length} testų).`);
-  const s6=`<ul class="an-interp">${items.map(i=>`<li>${i}</li>`).join('')}</ul><p class="an-note">Kramerio V: ~0,1 – silpna, ~0,3 – vidutinė, ~0,5 ir daugiau – stipri priklausomybė. Kryptis nustatoma pagal didžiausią teigiamą koreguotą standartizuotą liekaną dažnių lentelėje. Vieno dalyvio atsakymai nėra visiškai nepriklausomi, todėl rezultatus verta interpretuoti atsargiai.</p>`;
-  document.getElementById('an-body').innerHTML=`<div class="panel an-section" style="padding:16px 22px"><b>${esc(d.experiment.title)}</b><div class="muted" style="font-size:13px;margin-top:4px">A grupė: ${variantLabel('A')} · B grupė: ${variantLabel('B')}</div></div>`+section(1,'Duomenų paruošimas',s1)+section(2,'Aprašomoji statistika',s2)+section(3,'Kriterijų reikšmių grupavimas',s3)+section('4–5','Hipotezių tikrinimas ir daugkartinių palyginimų korekcija',s4)+section(6,'Rezultatų interpretavimas',s6);
-  document.querySelectorAll('#an-tests .an-test-row').forEach(r=>r.onclick=()=>toggleTestDetail(r));
+function renderExperiment(d){
+  const va=esc(d.variants.A.join(' / ')||'—'),vb=esc(d.variants.B.join(' / ')||'—'),q=d.data.questions;
+  const kpis=`<div class="dash-kpis"><div class="dash-kpi"><span>A grupė</span><b style="color:${C_A}">${d.data.A}</b><small>${va}</small></div><div class="dash-kpi"><span>B grupė</span><b style="color:${C_B}">${d.data.B}</b><small>${vb}</small></div><div class="dash-kpi"><span>Nebaigtos sesijos</span><b>${d.data.incomplete}</b><small>neįtrauktos</small></div></div>`;
+  const main=panel(`Pagrindiniai rezultatai · ${esc(d.experiment.hypothesis)}`,`<div class="dash-grid">${d.main.map(m=>metricCard(m,m.kind==='correct'?q:null)).join('')}</div>`);
+  const questions=panel('Teisingi atsakymai pagal klausimus',questionChart(d.questions)+`<details class="dash-details"><summary>Klausimų lentelė</summary><div class="an-wrap"><table class="an-table"><thead><tr><th>Nr.</th><th>Klausimas</th><th>Sunkumas</th><th class="num">A</th><th class="num">B</th><th></th></tr></thead><tbody>${d.questions.map(x=>`<tr><td>${x.nr}</td><td>${esc(x.text)}</td><td>${esc(x.level)}</td><td class="num">${fnum(x.A.pct,0)} %</td><td class="num">${fnum(x.B.pct,0)} %</td><td>${badge(x.status)} <span class="dash-p">${fp(x.p)}</span></td></tr>`).join('')}</tbody></table></div></details>`);
+  const levels=panel('Pagal klausimų sunkumą',`<div class="dash-grid">${d.levels.map(l=>metricCard(l,l.max)).join('')}</div>`);
+  const bal=panel('Grupių palyginamumas',`<div class="an-wrap"><table class="an-table"><thead><tr><th>Savybė</th><th>A grupė</th><th>B grupė</th><th></th></tr></thead><tbody>${d.balance.map(b=>`<tr><td><b>${esc(b.title)}</b></td><td>${b.rows.filter(r=>r.A).map(r=>`${esc(r.level)} <b>${r.A}</b>`).join(' · ')||'—'}</td><td>${b.rows.filter(r=>r.B).map(r=>`${esc(r.level)} <b>${r.B}</b>`).join(' · ')||'—'}</td><td class="nowrap">${badge(b.status)} <span class="dash-p">${fp(b.p)}</span></td></tr>`).join('')}</tbody></table></div>`);
+  const modHead=d.moderation.map(mo=>`<th>${esc(mo.title)} · ${esc(mo.hyp)}</th>`).join('');
+  const modRows=d.main.map((m,i)=>`<tr><td><b>${esc(m.label)}</b></td>${d.moderation.map(mo=>{const r=mo.results[i];return `<td class="nowrap">${badge(r.status,{significant:'Priklauso',ns:'Nepriklauso'})} <span class="dash-p">${fp(r.p)}</span></td>`}).join('')}</tr>`).join('');
+  const modDetails=d.moderation.flatMap(mo=>mo.results.filter(r=>r.status==='significant').map(r=>`<div class="dash-sub"><h3>${esc(r.label)} pagal ${esc(mo.title.toLowerCase())}</h3><table class="an-table"><thead><tr><th>${esc(mo.title)}</th><th class="num">A grupė</th><th class="num">B grupė</th></tr></thead><tbody>${r.subgroups.map(s=>`<tr><td>${esc(s.level)}</td><td class="num">${unitValue(r.kind,s.A.mean,r.kind==='correct'?q:null)} <small class="muted">(n = ${s.A.n})</small></td><td class="num">${unitValue(r.kind,s.B.mean,r.kind==='correct'?q:null)} <small class="muted">(n = ${s.B.n})</small></td></tr>`).join('')}</tbody></table></div>`)).join('');
+  const mod=panel('Ar diagramos pranašumas priklauso nuo patirties ar įrenginio',`<div class="an-wrap"><table class="an-table"><thead><tr><th>Rodiklis</th>${modHead}</tr></thead><tbody>${modRows}</tbody></table></div>${modDetails}`);
+  const adjUnit=(m,v)=>m.kind==='time'?signed(v)+' %':m.kind==='rating'?signed(v)+' balo':signed(v)+' klaus.';
+  const adj=panel('Ar diagramos tipo poveikis išlieka · H11',`<div class="an-wrap"><table class="an-table"><thead><tr><th>Rodiklis</th><th class="num">Skirtumas A − B</th><th class="num">Įvertinus dalyvių savybes</th><th></th></tr></thead><tbody>${d.adjusted.map(a=>`<tr><td><b>${esc(a.label)}</b></td><td class="num">${a.kind==='time'?signed(a.rawDiff)+' s':adjUnit(a,a.rawDiff)}</td><td class="num">${a.diff==null?'—':adjUnit(a,a.diff)}</td><td class="nowrap">${badge(a.status,{significant:'Poveikis patvirtintas',ns:'Poveikis nepatvirtintas'})} <span class="dash-p">${fp(a.p)}</span></td></tr>`).join('')}</tbody></table></div>`);
+  document.getElementById('an-body').innerHTML=`<div class="dash-title"><h2>${esc(d.experiment.title)}</h2></div>${kpis}${main}${questions}${levels}${bal}${mod}${adj}`;
 }
-function freqTable(tab,expected,caption){
-  if(!tab.rows.length)return `<p class="muted">${esc(caption||'')} – duomenų nėra.</p>`;
-  const rowTotals=tab.counts.map(r=>r.reduce((a,b)=>a+b,0));
-  return `<table class="freq">${caption?`<caption style="text-align:left;font-size:12px;font-weight:700;padding-bottom:4px">${esc(caption)}</caption>`:''}<tr><th></th>${tab.cols.map(c=>`<th>${esc(c)}</th>`).join('')}<th>Iš viso</th></tr>${tab.rows.map((r,i)=>`<tr><td>${esc(r)}</td>${tab.counts[i].map((n,j)=>`<td>${n} <small>(${fnum(rowTotals[i]?n/rowTotals[i]*100:0,0)} %)</small>${expected?`<br><small>tikėt. ${fnum(expected[i][j],1)}</small>`:''}</td>`).join('')}<td>${rowTotals[i]}</td></tr>`).join('')}</table>`;
+function renderOverall(d){
+  const blocks=d.characteristics.map(c=>{
+    const ms=c.metrics;
+    const rows=c.levels.map((l,i)=>`<tr><td><b>${esc(l)}</b> <small class="muted">(n = ${ms[0]?.groups[i]?.n??0})</small></td>${ms.map(m=>`<td class="num">${unitValue(m.kind,m.groups[i]?.mean)}</td>`).join('')}</tr>`).join('');
+    const status=`<tr class="dash-status-row"><td></td>${ms.map(m=>`<td class="num">${badge(m.status,{significant:'Reikšmingas',ns:'Nereikšmingas'})}<div class="dash-p">${fp(m.p)}</div>${m.pairs?.length?`<div class="dash-pairs">Skiriasi: ${m.pairs.map(x=>`${esc(x.a)} ir ${esc(x.b)}`).join('; ')}</div>`:''}</td>`).join('')}</tr>`;
+    return panel(`${esc(c.title)} · ${esc(c.hyp)}`,c.levels.length<2?'<span class="muted">Per mažai duomenų.</span>':`<div class="an-wrap"><table class="an-table dash-overall"><thead><tr><th></th>${ms.map(m=>`<th class="num">${esc(m.label)}</th>`).join('')}</tr></thead><tbody>${rows}${status}</tbody></table></div>`);
+  }).join('');
+  document.getElementById('an-body').innerHTML=`<div class="dash-title"><h2>Dalyvių savybių įtaka · visi eksperimentai</h2></div><div class="dash-kpis"><div class="dash-kpi"><span>Įtrauktos sesijos</span><b>${d.participants}</b><small>visi dabartiniai eksperimentai</small></div></div>${blocks}`;
 }
-function toggleTestDetail(rowEl){
-  const next=rowEl.nextElementSibling;
-  if(next&&next.classList.contains('an-detail')){next.remove();rowEl.classList.remove('open');return}
-  const t=anData.tests.find(x=>x.id===Number(rowEl.dataset.test));
-  let html='';
-  if(t.method==='Mann–Whitney U')html=`<p>${esc(t.note||'')}</p>${t.z!=null?`<p>z = ${fnum(t.z)}; efekto dydis r = |z|/√N = ${fnum(t.effect,3)}.</p>`:''}`;
-  else{
-    html=freqTable(t.table,t.expected,t.method==='CMH'?'Sujungta lentelė':'');
-    if(t.strata)html+=t.strata.map(s=>freqTable(s.table,null,s.level)).join('');
-    if(t.note)html+=`<p>${esc(t.note)}</p>`;
-  }
-  if(t.direction)html+=`<p><b>Kryptis:</b> ${esc(t.direction)}.</p>`;
-  rowEl.classList.add('open');
-  rowEl.insertAdjacentHTML('afterend',`<tr class="an-detail"><td colspan="8">${html}</td></tr>`);
-}
-document.getElementById('an-family').onchange=()=>anData&&renderAnalysis();document.getElementById('an-only-sig').onchange=()=>anData&&renderAnalysis();
 function openModal(title,body,onSave,size=''){modalRoot.innerHTML=`<div class="modal-backdrop" id="modal-backdrop"><div class="modal ${size==='large'?'large':''}"><div class="modal-head"><h2>${esc(title)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>${body}<div class="modal-actions"><button class="secondary-btn" onclick="closeModal()">Atšaukti</button><button class="save-btn" id="modal-save">Išsaugoti</button></div></div></div>`;document.getElementById('modal-save').onclick=onSave}
 function openInfo(title,body,size=''){modalRoot.innerHTML=`<div class="modal-backdrop"><div class="modal ${size==='large'?'large':''}"><div class="modal-head"><h2>${esc(title)}</h2><button class="modal-close" onclick="closeModal()">×</button></div>${body}<div class="modal-actions"><button class="save-btn" onclick="closeModal()">Gerai</button></div></div></div>`}function closeModal(){modalRoot.innerHTML=''}
 function answerRow(value='',checked=false,en=''){return `<div class="answer-editor-row"><label class="correct-mark" title="Teisingas atsakymas"><input type="checkbox" class="q-correct" ${checked?'checked':''}></label><input type="text" class="q-option" value="${escAttr(value)}" placeholder="Variantas (LT)"><input type="text" class="q-option-en" value="${escAttr(en)}" placeholder="Vertimas (EN)"><button type="button" class="answer-remove">×</button></div>`}
