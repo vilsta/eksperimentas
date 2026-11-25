@@ -2,7 +2,7 @@
 // A ir B grupės lyginamos t-testu, dalyvių savybės – t-testu / ANOVA, poveikio sąlygos – regresija.
 import { db, parseJSON } from './db.js';
 import { getSettings, sessionProfile, optionLabel } from './settings.js';
-import { chiSquare, fisherExact, welchTTest, anova, ols, nestedF, mean } from './stats.js';
+import { chiSquare, fisherExact, welchTTest, anova, ols, nestedF, mean, holm } from './stats.js';
 
 const ALPHA = 0.05;
 const GROUPS = ['A', 'B'];
@@ -105,7 +105,6 @@ function participantsFor(experimentId, settings, chars) {
   const bySession = new Map(sessions.map(s => [s.id, []]));
   answers.forEach(a => bySession.get(a.session_id)?.push(a));
   const { bases, byId } = experimentQuestions(experimentId);
-  const code = db.prepare('SELECT code FROM experiments WHERE id=?').get(experimentId)?.code || '';
   const ratingKeys = settings.ratingQuestions.map(q => q.key);
   const participants = [];
   let incomplete = 0;
@@ -123,7 +122,7 @@ function participantsFor(experimentId, settings, chars) {
       if (q) { correctByBase[q.base] = a.is_correct ? 1 : 0; if (a.is_correct) byLevel[q.level]++; }
     }
     participants.push({
-      id: s.id, group: s.group_label, experiment: code, language: String(s.language || 'lt').toUpperCase(), correct: list.filter(a => a.is_correct).length,
+      id: s.id, group: s.group_label, correct: list.filter(a => a.is_correct).length,
       time: mean(times), logTime: mean(times.map(Math.log)), ratings, byLevel, correctByBase,
       chars: Object.fromEntries(chars.map(c => [c.key, c.value(s)]))
     });
@@ -274,20 +273,18 @@ export function analyzeOverall() {
       metrics: metrics.map(m => {
         const groups = names.map(l => participants.filter(p => p.chars[c.key] === l));
         const shown = groups.map(g => g.map(m.value).filter(v => v != null)), tested = groups.map(g => g.map(m.test).filter(v => v != null));
-        const out = { key: m.key, label: m.label, kind: m.kind, groups: names.map((l, i) => ({ level: l, mean: mean(shown[i]), n: shown[i].length })), p: null, status: 'insufficient' };
+        const out = { key: m.key, label: m.label, kind: m.kind, groups: names.map((l, i) => ({ level: l, mean: mean(shown[i]), n: shown[i].length })), p: null, status: 'insufficient', pairs: [] };
         if (names.length < 2 || tested.some(t => t.length < 2)) return out;
-        if (names.length === 2) {
-          const r = welchTTest(tested[0], tested[1]), res = { ...out, p: r?.p ?? null, status: statusOf(r?.p ?? null) };
-          if (res.status === 'significant') { const [a, b] = [...res.groups].sort((x, y) => y.mean - x.mean); res.highest = a; res.lowest = b; }
-          return res;
-        }
+        if (names.length === 2) { const r = welchTTest(tested[0], tested[1]); return { ...out, p: r?.p ?? null, status: statusOf(r?.p ?? null) }; }
         const r = anova(tested);
         if (!r) return out;
         const result = { ...out, p: r.p, status: statusOf(r.p) };
-        // Reikšmingo skirtumo atveju nurodoma grupė su didžiausiu ir mažiausiu vidurkiu.
         if (r.p < ALPHA) {
-          const sorted = result.groups.filter(g => g.mean != null).sort((a, b) => b.mean - a.mean);
-          result.highest = sorted[0]; result.lowest = sorted[sorted.length - 1];
+          // Papildomas testas: poriniai t-testai su Holmo pataisa.
+          const pairs = [];
+          for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) pairs.push({ a: names[i], b: names[j], p: welchTTest(tested[i], tested[j])?.p ?? 1 });
+          holm(pairs.map(x => x.p)).forEach((p, k) => { pairs[k].p = p; });
+          result.pairs = pairs.filter(x => x.p < ALPHA);
         }
         return result;
       })
@@ -295,10 +292,3 @@ export function analyzeOverall() {
   });
   return { participants: participants.length, alpha: ALPHA, characteristics: results };
 }
-
-// Viena suvestinė Rezultatų puslapiui: dabartiniai eksperimentai ir dalyvių savybių įtaka.
-export function analysisSummary() {
-  const experiments = analysisExperiments().filter(e => !e.archived).map(e => analyzeExperiment(e.id));
-  return { experiments, overall: analyzeOverall() };
-}
-

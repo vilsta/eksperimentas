@@ -250,4 +250,3 @@ export function nestedF(full, reduced) {
   const f = ((reduced.rss - full.rss) / q) / (full.rss / full.df);
   return { f, df1: q, df2: full.df, p: fSf(Math.max(f, 0), q, full.df) };
 }
-
