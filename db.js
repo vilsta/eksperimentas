@@ -271,6 +271,34 @@ function seed() {
 
 seed();
 
+// Demografinių kintamųjų hipotezės (H8–H10). Pridedamos ir jau veikiančioje DB, jei jų dar nėra;
+// naujai pridėtos susiejamos su dabartiniais eksperimentais E1–E4 (kaip H6 ir H7).
+const DEMOGRAPHIC_HYPOTHESES = [
+  ['H8a','Skirtingų amžiaus grupių dalyvių atsakymo teisingumas nesiskiria.','Skirtingų amžiaus grupių dalyvių atsakymo teisingumas skiriasi.','Atsakymo teisingumas','Amžiaus grupė','Jei skirtumas reikšmingas, rekomendacijose nurodyti, kokio amžiaus naudotojams jos labiausiai tinka.'],
+  ['H8b','Skirtingų amžiaus grupių dalyvių atlikimo laikas nesiskiria.','Skirtingų amžiaus grupių dalyvių atlikimo laikas skiriasi.','Atlikimo laikas','Amžiaus grupė','Jei skirtumas reikšmingas, vertinti, ar vyresniems naudotojams reikia paprastesnio pateikimo.'],
+  ['H8c','Skirtingų amžiaus grupių dalyvių subjektyvūs vertinimai nesiskiria.','Skirtingų amžiaus grupių dalyvių subjektyvūs vertinimai skiriasi.','Subjektyvūs vertinimai','Amžiaus grupė','Jei vertinimai skiriasi, pateikimo gairėse nurodyti amžiaus kontekstą.'],
+  ['H9a','Moterų ir vyrų atsakymo teisingumas nesiskiria.','Moterų ir vyrų atsakymo teisingumas skiriasi.','Atsakymo teisingumas','Lytis','Jei skirtumas reikšmingas, jį aprašyti kaip rekomendacijų taikymo sąlygą.'],
+  ['H9b','Moterų ir vyrų atlikimo laikas nesiskiria.','Moterų ir vyrų atlikimo laikas skiriasi.','Atlikimo laikas','Lytis','Jei skirtumas reikšmingas, jį aprašyti kaip rekomendacijų taikymo sąlygą.'],
+  ['H9c','Moterų ir vyrų subjektyvūs vertinimai nesiskiria.','Moterų ir vyrų subjektyvūs vertinimai skiriasi.','Subjektyvūs vertinimai','Lytis','Jei vertinimai skiriasi, estetikos gairėse nurodyti šį kontekstą.'],
+  ['H10a','Skirtingų išsilavinimo / darbo sričių dalyvių atsakymo teisingumas nesiskiria.','Skirtingų išsilavinimo / darbo sričių dalyvių atsakymo teisingumas skiriasi.','Atsakymo teisingumas','Išsilavinimo / darbo sritis','Jei skirtumas reikšmingas, rekomendacijas pritaikyti naudotojų sričiai.'],
+  ['H10b','Skirtingų išsilavinimo / darbo sričių dalyvių atlikimo laikas nesiskiria.','Skirtingų išsilavinimo / darbo sričių dalyvių atlikimo laikas skiriasi.','Atlikimo laikas','Išsilavinimo / darbo sritis','Jei skirtumas reikšmingas, rekomendacijas pritaikyti naudotojų sričiai.'],
+  ['H10c','Skirtingų išsilavinimo / darbo sričių dalyvių subjektyvūs vertinimai nesiskiria.','Skirtingų išsilavinimo / darbo sričių dalyvių subjektyvūs vertinimai skiriasi.','Subjektyvūs vertinimai','Išsilavinimo / darbo sritis','Jei vertinimai skiriasi, pateikimo gairėse nurodyti sričių kontekstą.']
+];
+function addMissingHypotheses() {
+  const exists = db.prepare('SELECT 1 FROM hypotheses WHERE code=?');
+  const missing = DEMOGRAPHIC_HYPOTHESES.filter(h => !exists.get(h[0]));
+  if (!missing.length) return;
+  const ins = db.prepare('INSERT INTO hypotheses(code,h0,h1,dependent_variable,independent_variable,recommendation) VALUES(?,?,?,?,?,?)');
+  const ver = db.prepare('INSERT INTO recommendation_versions(hypothesis_code,recommendation,version) VALUES(?,?,1)');
+  const link = db.prepare('INSERT OR IGNORE INTO experiment_hypotheses(experiment_id,hypothesis_code) VALUES(?,?)');
+  const experimentIds = db.prepare("SELECT id FROM experiments WHERE code IN ('E1','E2','E3','E4')").all().map(e => e.id);
+  tx(() => missing.forEach(h => {
+    ins.run(...h); ver.run(h[0], h[5]);
+    experimentIds.forEach(id => link.run(id, h[0]));
+  }));
+}
+addMissingHypotheses();
+
 // Eksperimentų rinkiniai iš seed/eksperimentai.json. Importuojama tik tai, ko DB dar nėra
 // (klausimai – pagal ID, eksperimentai – pagal kodą), todėl tyrėjo pakeitimai neperrašomi.
 // Kai rinkinio versija naujesnė, ankstesnės versijos eksperimentai sustabdomi ir pervadinami
