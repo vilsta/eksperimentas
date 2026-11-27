@@ -150,7 +150,7 @@ async function api(req,res,pathname){
   }
 
   if(pathname==='/api/admin/hypotheses'&&method==='GET'){
-    requireAdmin(req);const rows=db.prepare('SELECT * FROM hypotheses ORDER BY code').all();return json(res,200,rows.map(h=>({code:h.code,h0:h.h0,h1:h.h1,dep:h.dependent_variable,ind:h.independent_variable,rec:h.recommendation})));
+    requireAdmin(req);const rows=db.prepare('SELECT * FROM hypotheses ORDER BY CAST(substr(code,2) AS INTEGER),code').all();return json(res,200,rows.map(h=>({code:h.code,h0:h.h0,h1:h.h1,dep:h.dependent_variable,ind:h.independent_variable,rec:h.recommendation})));
   }
   if(pathname==='/api/admin/hypotheses'&&method==='POST'){
     requireAdmin(req);const h=await bodyJson(req),code=text(h.code);if(!code||!text(h.h0)||!text(h.h1))throw httpError(400,'Nurodykite kodą, H0 ir H1.');
