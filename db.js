@@ -349,7 +349,7 @@ importSeedExperiments();
 
 export function questionToObject(row, includeCorrect = true) {
   const options = db.prepare('SELECT option_text,option_text_en,is_correct FROM question_options WHERE question_id=? ORDER BY position,id').all(row.id);
-  const hyps = db.prepare('SELECT hypothesis_code FROM question_hypotheses WHERE question_id=? ORDER BY hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
+  const hyps = db.prepare('SELECT hypothesis_code FROM question_hypotheses WHERE question_id=? ORDER BY CAST(substr(hypothesis_code,2) AS INTEGER),hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
   const obj = {
     id: row.id,
     hyp: hyps.join('/'),
@@ -380,7 +380,7 @@ export function questionToObject(row, includeCorrect = true) {
 
 export function getExperimentObject(row) {
   const questions = db.prepare('SELECT question_id FROM experiment_questions WHERE experiment_id=? ORDER BY position').all(row.id).map(x=>x.question_id);
-  const hyps = db.prepare('SELECT hypothesis_code FROM experiment_hypotheses WHERE experiment_id=? ORDER BY hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
+  const hyps = db.prepare('SELECT hypothesis_code FROM experiment_hypotheses WHERE experiment_id=? ORDER BY CAST(substr(hypothesis_code,2) AS INTEGER),hypothesis_code').all(row.id).map(x=>x.hypothesis_code);
   return { id: row.id, code: row.code || '', title: row.title, desc: row.description, status: row.status, order: row.order_mode, questions, hyps };
 }
 
